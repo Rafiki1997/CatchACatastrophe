@@ -103,7 +103,7 @@ The user asked for **visual and art polish**. Three commits, none of them yet se
 2. `4ad3003` — lighting and atmosphere: `Atmosphere`, `Bloom`, `ColorCorrection` grade, `SunRays`,
    sun moved off noon to 15:10 so shapes cast shadows; per-region weather emitters and tinted fill
    lights; real materials per region (Grass / Sand / Basalt / Snow / Asphalt / Metal).
-3. `9e1c5f2` — **wayfinding**, the most recent request. The routes were low-contrast grey strips that
+3. `feb5640` — **wayfinding**, the most recent request. The routes were low-contrast grey strips that
    read as scenery. They are now: dark asphalt roadbed, edge lines in the destination's colour,
    bright yellow chevrons pointing at the destination, and striped bollards with lit caps so the route
    has a silhouette at eye level. Verified in Studio with a throwaway test rig (since deleted) —
