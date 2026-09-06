@@ -1,145 +1,160 @@
-# Catch a Catastrophe! — handoff
+# Catch a Catastrophe! — pickup doc
 
-**Updated:** 2026-09-06, after the full implementation pass. Keep this current: it is the pickup point.
+**Updated:** 2026-09-06, end of the art-pass session. This is the file to read first.
 
 ## What this is
 
-An original Roblox simulation/tycoon game built from the spec at
-`docs/superpowers/specs/2026-09-06-catch-a-catastrophe-spec.md` (a verbatim copy of the user's prompt,
-which is the binding authority). Players capture living natural disasters in six regions, deploy them on
-work pads in a city plot, connect adjacent compatible creatures into **Disaster Circuits**, collect Coins,
-buy upgrades, and relaunch (rebirth) ten times.
+An original Roblox simulation / tycoon game built from the spec at
+`docs/superpowers/specs/2026-09-06-catch-a-catastrophe-spec.md`, which is the binding authority.
+Players capture living natural disasters in six regions, deploy them on work pads in a city plot,
+connect adjacent compatible pairs into **Disaster Circuits**, collect Coins, buy upgrades, and relaunch
+ten times.
 
-## Where the code lives — read this first
+Everything in the spec is built. ~19,400 lines of Luau across 78 files, all committed.
 
-`C:\Users\rahul\orca\Catch-a-Catastrophe` — a standalone Rojo 7.7 repo with its own git history.
+## Where things are
 
-**It is NOT the Munch It! Studio place.** One connected Roblox Studio instance has Munch It!
-(`placeId 87396511725981`) open, which is an unrelated game. Never write to that DataModel.
-Build and open this game's own place file instead:
-
-```bash
-cd C:/Users/rahul/orca/Catch-a-Catastrophe && rojo build -o build/CatchACatastrophe.rbxl
-```
-
-Then open `build/CatchACatastrophe.rbxl` in Studio and press Play (F5).
-
-## Documents, in order of authority
-
-1. `docs/superpowers/specs/2026-09-06-catch-a-catastrophe-spec.md` — the spec. Binding.
-2. `docs/CONTRACTS.md` — every module interface: config surface, ModelKit API, world instance names and
-   attributes, the `refs` and `plot` record shapes, all server system signatures, all client module
-   exports, tutorial arrow targets, style rules.
-3. `docs/superpowers/plans/2026-09-06-catch-a-catastrophe.md` — the task breakdown and the design
-   **rulings** (why the first circuit is Water+Heat, what "surge" means, how sell value is set, where
-   hazards are resolved). Read the rulings before changing balance.
-
-## Build state
-
-Everything in the spec is **written and committed**: about 18,300 lines of Luau across 60 files.
-
-| Area | Files |
+| | |
 |---|---|
-| Rojo scaffold | `default.project.json` |
-| Balance config | `src/shared/Config/*` — Regions, Rarities, Species (24), Variants, Circuits, Capture, Economy, Relaunch, Quests, Events, Milestones, Sounds |
-| Remotes + Snapshot types | `src/shared/Remotes.luau`, `src/shared/Types.luau` |
-| Procedural models | `ModelKit`, `Animate`, `CreatureModels`, `CreatureBuilders/{WindWater,HeatFrost,StormCosmic}` (all 24 creatures), `MachineryBuilders` (6 stations, 6 circuit machines, pylon, 5 decorations) |
-| World | `src/server/Map/MapBuilder.luau` (hub, arena, 6 regions, gates), `PlotTemplate.luau` (24 pads, booth, collect pad, billboard, decor tiers) |
-| Server systems | `Profiles`, `Stats`, `Notify`, `RateLimiter`, `Services`, `DataService`, `Sync`, `EconomyService`, `CityService`, `CircuitService`, `EncounterService`, `CaptureService`, `CrisisService`, `WorkshopService`, `AtlasService`, `VariantService`, `QuestService`, `RelaunchService`, `VisitService`, `LeaderboardService`, `RemoteRouter`, `TestHarness`, `Main.server.luau` |
-| Client | `Net`, `State`, `UI/{Widgets,Theme,Notifications,FloatingText,HUD,CaptureHUD,CaptureReveal,TutorialUI,CircuitEditorUI}`, `UI/Panels/*` (9 panels), `Controllers/{Input,Effects,WorldAnimator,RegionGates,CaptureController,CircuitEditor}`, `Main.client.luau` |
+| Repo | `C:\Users\rahul\orca\Catch-a-Catastrophe` (own git history, currently clean) |
+| Published place | `placeId 88888194204730` — "Catch a Catastrophe" |
+| Build | `rojo build -o build/CatchACatastrophe.rbxl` |
+| Binding spec | `docs/superpowers/specs/2026-09-06-catch-a-catastrophe-spec.md` |
+| Module interfaces | `docs/CONTRACTS.md` — read before editing any module |
+| Design rulings | `docs/superpowers/plans/2026-09-06-catch-a-catastrophe.md` (read before changing balance) |
+| Relay entries | `C:\Users\rahul\orca\Munch-It-\RELAY.md` and `C:\Users\rahul\PycharmProjects\python\RELAY.md` |
 
-### Verification status
+**This is not the Munch It! place.** Munch It! is a different game that lives only in its own Studio
+DataModel. Never write to it from here.
 
-**It runs.** Verified in a live Studio session: all 77 scripts compile, the server boots in 65 ms and
-builds a 1,027-part map, and the unit self-tests report **222 passed, 0 failed**.
+## READ THIS: how to get code into Studio
 
-The spec's first verification item passes in full, driven through the real remotes as a client: capture
-a creature, deploy it, earn, collect, buy an upgrade. Income, bank cap, collect rounding and the
-tutorial chain all behaved exactly as configured.
+This project lost time twice to disk/Studio divergence. The fix is now in place — **use it**.
 
-Three failures found on the first run are fixed:
-
-- Two creatures had `height` values that did not describe their models, and the test compared vertical
-  *extent* rather than the top of the model, which wrongly failed a hovering manta. The test now
-  measures the top, and eight heights were corrected against measurements. This matters in game because
-  the client offsets name labels by `height`.
-- One test asserted the wrong expected income for a circuit member, having assumed a Wind base rate for
-  a Storm creature. The game was right; the test is now derived from config so it cannot drift.
-
-**Still unverified:** the other five hazard patterns (only Wind was exercised live), circuits /
-Overdrive / the vent in a live session, relaunch, the offline claim on rejoin, the Containment Crisis,
-two clients at once, and all balance.
-
-A live suite for the world-touching cases now exists: `Harness.runLive` in `TestHarness.luau`, wired in
-`Main.server.luau` to run automatically in Studio once a player has been given a plot. It prints
-`[LiveTest] passed N, failed M`. It is written but has not yet been run — it needs a Studio session
-opened on the **current** build.
-
-### Static checks (no Studio needed)
-
-`rojo build` packages files without parsing Luau, so it proves nothing about syntax. Two checks in
-`tools/` fill part of that gap and both pass over all 77 files:
+**Rojo live sync.** The Rojo Studio plugin is installed (via `rojo plugin install`, not the marketplace).
+Start the server from the repo root and connect from Studio's Rojo toolbar:
 
 ```bash
-python tools/luau_lint.py src     # block, bracket and string-termination balance
-python tools/quote_scan.py src    # lines with an odd number of unescaped quotes
+cd C:/Users/rahul/orca/Catch-a-Catastrophe && rojo serve --port 34872
 ```
 
-`luau_lint.py` was validated against the sibling repo `C:\Users\rahul\orca\Snatch-the-Oddities\src`,
-which is known to compile and run. It reports one issue there, and that issue is a understood false
-positive: Luau's `if a then b else c` **expression** has no `end`, and the linter treats an `if` at the
-start of a line as a statement. That repo wraps two if-expressions onto their own lines; this one never
-does, so the clean result here is meaningful. If you introduce a line-leading if-expression, expect a
-false positive rather than a real bug.
+Then in Studio: **Rojo → Connect**, port 34872. Disk becomes the single source of truth and every edit
+appears in Studio immediately.
 
-Between them these caught one genuine compile error (a search-and-replace had written raw newlines
-inside a Luau string in `CreaturesPanel.luau`), which is fixed.
+Two things to know:
 
-What they cannot catch: undefined globals, wrong argument counts, bad field names, and every runtime
-error. Run them before opening Studio; they are seconds, not minutes.
+- Connecting **overwrites** `ReplicatedStorage.Shared`, `ServerScriptService.Server` and
+  `StarterPlayerScripts.Client` from disk. Before connecting after someone has edited in Studio, diff
+  the script lists — a previous session verified disk was a strict superset before connecting.
+- **Do not hand-patch script `.Source` through the MCP bridge.** That is what caused the divergence.
+  It was used before Rojo existed here; it should not be needed again.
 
-The in-game self tests (`TestHarness`) run automatically in Studio three seconds after the server starts
-and print `[SelfTest] passed N, failed M`. They cover config integrity, all 24 creature models building,
-the income formula applying each factor exactly once, circuit and adjacency validation, the overdrive
-state machine's effect on income, data round-tripping and sanitising of hostile saves, sell value,
-scaled rewards, and rate limits on every client remote. They do **not** cover live hazards, two clients,
-or real DataStores; those must be played.
+**Status at handoff:** `rojo serve` was running on 34872 and the user was about to connect. As of the
+last check the place still had `ClockTime = 14` and no `Atmosphere`, meaning **the connect had not yet
+landed** and the place is missing everything from the two most recent commits. Confirm this first:
 
-## Traps in this environment
+```lua
+-- run in Studio (Server datamodel) to see whether the current build is live
+local L = game:GetService("Lighting")
+return { atmosphere = L:FindFirstChildOfClass("Atmosphere") ~= nil, clockTime = L.ClockTime }
+-- expect: atmosphere = true, clockTime = 15.1
+```
 
-- **A Write hook rejects any file whose text contains a dot followed by `format(`.** It thinks Luau is
-  Python SQL. Use `("%d"):format(x)` — the parenthesised form is fine because the preceding character is
-  `:` not `.` — or write the file through a Bash heredoc.
-- **Several chained `cat <<'EOF'` heredocs in one Bash call have failed to parse here.** Write one file
-  per call, or use the Write tool.
+## Verification status
+
+**It runs.** Last full run: all 77 scripts compiled, server booted in 65 ms, 1,027-part map,
+**`[SelfTest] passed 222, failed 0`**.
+
+The spec's first verification item passes end to end, driven through the real remotes as a client:
+capture a Breeze Bean, deploy it, earn, collect, buy an upgrade. Income read 4/s exactly as configured,
+the bank capped at one hour of production, collect paid the floor and left the fraction, and the
+tutorial advanced on the right actions.
+
+Static checks, no Studio needed, both pass on all 78 files:
+
+```bash
+python tools/luau_lint.py src     # block, bracket and string balance
+python tools/quote_scan.py src    # unbalanced quotes
+```
+
+`luau_lint.py` is calibrated against `C:\Users\rahul\orca\Snatch-the-Oddities\src`, which compiles. It
+reports one issue there and that issue is a known false positive: Luau's `if a then b else c`
+**expression** has no `end`, and the linter treats a line-leading `if` as a statement. This repo never
+wraps an if-expression onto its own line.
+
+### Still unverified
+
+- Five of six hazard patterns (only **Wind** has been exercised live).
+- Circuits / Overdrive / the vent **in a live session** (they pass in unit tests).
+- Relaunch, the offline claim on rejoin, the Containment Crisis, two clients at once.
+- **All balance.** Every number is still the spec's untuned starting value.
+- `Harness.runLive` — a live suite covering the world-touching cases (deploy building models, circuits
+  building machinery, Overdrive maths, collect rounding, sell guards, locked-region claim refusal). It
+  is wired in `Main.server.luau` to run automatically in Studio once a player has a plot and prints
+  `[LiveTest] passed N, failed M`. **Written but never executed** — it needs a session on the current
+  build. Running this is the single highest-value next action.
+
+## Where the last session got to
+
+The user asked for **visual and art polish**. Three commits, none of them yet seen in Studio:
+
+1. `a11e06f` — seven spec gaps closed: containment tether Tool, collect-pad ProximityPrompt,
+   Overdrive-gated vent prompt, safe-area insets, tooltips, music SoundGroup.
+2. `4ad3003` — lighting and atmosphere: `Atmosphere`, `Bloom`, `ColorCorrection` grade, `SunRays`,
+   sun moved off noon to 15:10 so shapes cast shadows; per-region weather emitters and tinted fill
+   lights; real materials per region (Grass / Sand / Basalt / Snow / Asphalt / Metal).
+3. `9e1c5f2` — **wayfinding**, the most recent request. The routes were low-contrast grey strips that
+   read as scenery. They are now: dark asphalt roadbed, edge lines in the destination's colour,
+   bright yellow chevrons pointing at the destination, and striped bollards with lit caps so the route
+   has a silhouette at eye level. Verified in Studio with a throwaway test rig (since deleted) —
+   chevrons point the correct way and read well from player height.
+
+Route colours: hub buildings yellow, Relaunch Beacon cyan, Atlas kiosk green, arena red, player plots
+sky blue, and each region route carries that region's own colour.
+
+## Known open questions and cautions
+
+- **The art pass is unreviewed.** The user has not seen the new lighting yet. It is a big change:
+  +16% saturation, +13% contrast, real haze. If it reads as too much, it is four numbers in
+  `default.project.json` under `Lighting.Grade` and `Lighting.Atmosphere`.
+- **The decorative logo ring in the plaza centre competes with the new wayfinding.** The user
+  originally mistook those yellow tiles for directional markers, which is what prompted the wayfinding
+  work. Consider toning the ring down so yellow means "go this way" and nothing else.
+- **The surrounding grass plane is a flat 900×900 monotone slab** and reads poorly. Not yet addressed.
+- **Creature model detail** was the other obvious art target and has not been started. The 24 models
+  build at correct heights but have never been assessed for whether each reads as the animal intended.
+- The music slider drives a real `SoundGroup` but no track ships — Roblox has no `rbxasset://` music
+  and the spec forbids depending on assets the player may not load. Wiring is complete; add a `Sound`
+  to that group if a track is ever sourced.
+
+## Environment traps
+
+- **A Write hook rejects any file containing a dot followed by `format(`.** It misreads Luau as Python
+  SQL. Use `("%d"):format(x)` — the `:` form is fine — or write via a Bash heredoc.
+- **The Bash tool strips one backslash level even inside quoted heredocs.** A `\n` written that way
+  becomes a real newline and silently breaks Luau string literals. This caused a genuine compile error
+  once. Write Python helpers to a file and run the file, or use the Edit tool.
 - **Roblox cylinders run along their X axis.** A vertical cylinder is `Vector3.new(length, d, d)` with
-  `CFrame.Angles(0, 0, math.rad(90))`. Getting this wrong produces flat ellipses; it was already fixed
-  once across the map and machinery files.
-- `Kit.finalize` welds every part to the root and clears `CanCollide`. It is for creature models only.
-  Never call it on the map or a plot, or the player falls through the floor.
-- Studio MCP tools target whichever place is open. Check `list_roblox_studios` before using them.
+  `CFrame.Angles(0, 0, math.rad(90))`. Getting this wrong yields flat ellipses.
+- **`Kit.finalize` welds every part to a root and clears `CanCollide`.** Creature models only. Never
+  call it on the map or a plot or the player falls through the floor.
+- **Coplanar faces z-fight.** Every built floor sits proud of the ground (`y = 0.06`) and stacked layers
+  keep ~0.08 clearance for this reason. If you add a floor, do not put its top face at `y = 0`. There is
+  a scan for this in the git history of the z-fighting commit worth reusing.
+- The MCP `execute_luau` sandbox is a **separate Lua VM** with its own module cache: `require` there
+  returns fresh empty modules, and functions cannot be called across the boundary. Read state through
+  instances, or print to Output and read it with `get_console_output`.
 
-## Working style the user asked for
+## Suggested next actions
 
-Inline development in the main session. Do **not** dispatch subagents for implementation. An earlier
-attempt used the subagent-driven-development skill with 11 parallel implementers; the user stopped it
-and asked for inline work. The SDD ledger and briefs still sit in `.superpowers/sdd/` (git-ignored) as an
-outline, but the process is not being followed.
+1. Connect Rojo, confirm the current build is live, press Play, and read Output. Expect
+   `[SelfTest] passed 222, failed 0` and then `[LiveTest] ...` — the latter has never run.
+2. Get the user's read on the new lighting and wayfinding before building more art on top of it.
+3. Finish the spec's section 13 verification list, starting with the five untested hazard patterns and
+   circuits/Overdrive live.
+4. Balance pass against the spec's targets: first capture under 60s, first upgrade under 3 min, first
+   relaunch 25–45 min. Record what changed and why in the plan's rulings section.
+5. Remaining art candidates, in the order the user is most likely to notice: the flat grass plane,
+   the competing logo ring, creature model detail.
 
-The user also asked to be told when the session nears its limit, and to be handed this file.
-
-## Next actions, in order
-
-1. **Open the current build.** An earlier session drove a Studio *auto-recovery* copy, which is a side
-   file: edits made there never reach this repo, and it is now behind. Close it and open
-   `build/CatchACatastrophe.rbxl` fresh, then press Play. Expect `[SelfTest] passed 222, failed 0`, and
-   then `[LiveTest] passed N, failed M` once your character has been given a plot.
-2. Finish the spec's verification list in section 13. Item 1 (tutorial, capture, deploy, earn, collect,
-   upgrade) is done and passing. Remaining: the other five hazard patterns; circuits granting once and
-   recalculating when a member moves; Overdrive, the vent, and that reconnecting cannot reset it;
-   double-claim guards; relaunch keep/reset; rejoin and the offline claim; two clients at once.
-3. Balance pass: measure time to first capture (target under 60s), first upgrade (under 3 min) and
-   first relaunch (target 25-45 min), then tune `Config` and record what changed and why in the plan's
-   rulings section. Nothing has been tuned; every number is still the spec's proposed starting value.
-4. Look at the 24 creature models. They build at sensible heights, but whether each one reads as the
-   animal it is meant to be is a judgement only eyes can make.
+Do not publish without the user's explicit say-so. They have been publishing manually themselves.
