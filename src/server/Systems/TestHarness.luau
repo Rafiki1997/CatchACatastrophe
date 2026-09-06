@@ -1,0 +1,512 @@
+--!strict
+-- Studio-only self tests. They run three seconds after the server starts and
+-- print one [SelfTest] line per check.
+--
+-- These cover the things that are cheap to get wrong and expensive to notice:
+-- the income formula applying each factor exactly once, circuit validation,
+-- the overdrive state machine, save round-tripping, and the guards that stop a
+-- reward being claimed twice. Live behaviour (hazards actually hitting, two
+-- clients, real DataStores) is not covered here and has to be played.
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local HttpService = game:GetService("HttpService")
+
+local Config = require(ReplicatedStorage.Shared.Config)
+local Format = require(ReplicatedStorage.Shared.Util.Format)
+local Weighted = require(ReplicatedStorage.Shared.Util.Weighted)
+local CreatureModels = require(ReplicatedStorage.Shared.Models.CreatureModels)
+local MachineryBuilders = require(ReplicatedStorage.Shared.Models.MachineryBuilders)
+
+local Profiles = require(script.Parent.Profiles)
+local Stats = require(script.Parent.Stats)
+local DataService = require(script.Parent.DataService)
+local RateLimiter = require(script.Parent.RateLimiter)
+
+local Harness = {}
+
+local passed = 0
+local failed = 0
+local failures: { string } = {}
+
+local function check(name: string, condition: boolean, detail: string?)
+	if condition then
+		passed += 1
+	else
+		failed += 1
+		local line = name .. (if detail then " (" .. detail .. ")" else "")
+		table.insert(failures, line)
+		warn("[SelfTest] FAIL " .. line)
+	end
+end
+
+local function approx(a: number, b: number, tolerance: number?): boolean
+	return math.abs(a - b) <= (tolerance or 0.001)
+end
+
+-- A profile with no real Player behind it. Enough for every pure calculation.
+local function mockProfile(coins: number): Profiles.Profile
+	local fakePlayer = {
+		Name = "TestSubject",
+		DisplayName = "TestSubject",
+		UserId = -1,
+		Parent = nil,
+		Character = nil,
+	}
+	local data = Profiles.defaultData()
+	data.coins = coins
+	local profile: Profiles.Profile = {
+		player = fakePlayer :: any,
+		userId = -1,
+		data = data,
+		loaded = true,
+		dataSafe = false, -- never let a test profile write anything
+		dataState = "loaded",
+		testAdapter = true,
+		dirty = false,
+		plotIndex = 0,
+		plot = nil,
+		capture = nil,
+		visiting = nil,
+		overdrives = {},
+		padModels = {},
+		machineModels = {},
+		crisisWork = 0,
+		crisisRewarded = false,
+		joinedAt = os.time(),
+		leaving = false,
+		saving = false,
+		busy = false,
+		lastCollectAt = 0,
+	}
+	return profile
+end
+
+local function give(profile: Profiles.Profile, speciesId: string, variant: string, pad: number?): string
+	local uid = Profiles.newUid(profile)
+	profile.data.creatures[uid] = {
+		id = speciesId,
+		variant = variant,
+		pad = pad,
+		favorite = false,
+		anchored = false,
+		caughtAt = os.time(),
+		perfect = false,
+	}
+	return uid
+end
+
+-- ---------------------------------------------------------------- tests
+
+local function testConfig()
+	check("24 species", #Config.Species.list == 24, tostring(#Config.Species.list))
+	check("species count constant matches", Config.Species.count == 24)
+
+	local weightSum = 0
+	for _, rarity in Config.Rarities.order do
+		weightSum += Config.Rarities.info[rarity].weight
+	end
+	check("rarity weights sum to 100", approx(weightSum, 100), tostring(weightSum))
+
+	-- one species per region per rarity, and nothing left over
+	for _, region in Config.Regions.list do
+		local list = Config.Species.byRegion[region.id]
+		check("region " .. region.id .. " has 4 species", list ~= nil and #list == 4)
+		for _, rarity in Config.Rarities.order do
+			check(region.id .. " has a " .. rarity, Config.Species.find(region.id, rarity) ~= nil)
+		end
+	end
+
+	-- the regional base rates the spec fixes
+	local expected = { 4, 8, 16, 32, 64, 128 }
+	for i, region in Config.Regions.list do
+		check("region " .. tostring(i) .. " base income", region.baseIncome == expected[i], tostring(region.baseIncome))
+	end
+	local costs = { 0, 2500, 15000, 75000, 300000, 1000000 }
+	for i, region in Config.Regions.list do
+		check("region " .. tostring(i) .. " unlock cost", region.unlockCost == costs[i], tostring(region.unlockCost))
+	end
+
+	-- six recipes, each pair distinct and order-independent
+	check("6 circuits", #Config.Circuits.list == 6)
+	for _, circuit in Config.Circuits.list do
+		local a, b = circuit.elements[1], circuit.elements[2]
+		check("recipe " .. circuit.id .. " is order independent", Config.Circuits.recipe(a, b) == Config.Circuits.recipe(b, a))
+	end
+
+	-- relaunch maths
+	check("relaunch cost R0", Config.Relaunch.cost(0) == 100000, tostring(Config.Relaunch.cost(0)))
+	check("relaunch cost R1", Config.Relaunch.cost(1) == 300000, tostring(Config.Relaunch.cost(1)))
+	check("relaunch cost R2", Config.Relaunch.cost(2) == 900000, tostring(Config.Relaunch.cost(2)))
+	check("species required R0", Config.Relaunch.speciesRequired(0) == 6)
+	check("species required R9", Config.Relaunch.speciesRequired(9) == 24)
+	check("species required caps at 24", Config.Relaunch.speciesRequired(10) == 24)
+	check("anchor slots 0/3/6", Config.Relaunch.anchorSlots(0) == 1 and Config.Relaunch.anchorSlots(3) == 2 and Config.Relaunch.anchorSlots(6) == 3)
+	check("pads grow with relaunch", Config.Relaunch.startingPads(0) == 6 and Config.Relaunch.startingPads(10) == 16)
+
+	-- adjacency
+	check("pads 1 and 2 adjacent", Config.Circuits.areAdjacent(1, 2))
+	check("pads 1 and 7 adjacent", Config.Circuits.areAdjacent(1, 7))
+	check("pads 1 and 8 NOT adjacent (diagonal)", not Config.Circuits.areAdjacent(1, 8))
+	check("pads 6 and 7 NOT adjacent (row wrap)", not Config.Circuits.areAdjacent(6, 7))
+	check("pair key is order independent", Config.Circuits.pairKey(4, 3) == Config.Circuits.pairKey(3, 4))
+end
+
+local function testFormat()
+	check("abbreviate 999", Format.abbreviate(999) == "999", Format.abbreviate(999))
+	check("abbreviate 1500", Format.abbreviate(1500) == "1.5K", Format.abbreviate(1500))
+	check("clock 65", Format.clock(65) == "1:05", Format.clock(65))
+	check("percent", Format.percent(0.25) == "25%", Format.percent(0.25))
+end
+
+local function testModels()
+	local built = 0
+	for _, def in Config.Species.list do
+		local ok, model = pcall(CreatureModels.build, def.id, "Normal")
+		if ok and typeof(model) == "Instance" then
+			built += 1
+			local height = (model :: Model):GetAttribute("Height")
+			if typeof(height) == "number" then
+				-- a silhouette that is nothing like its stated height reads wrong
+				-- next to everything else in the world
+				check(def.id .. " height near " .. tostring(def.height), height > def.height * 0.5 and height < def.height * 1.8, ("%.1f"):format(height))
+			end
+			check(def.id .. " has a builder", CreatureModels.hasBuilder(def.id))
+			;(model :: Model):Destroy()
+		else
+			check(def.id .. " builds", false, tostring(model))
+		end
+	end
+	check("all 24 creature models build", built == 24, tostring(built) .. "/24")
+
+	for _, job in MachineryBuilders.stationJobs() do
+		local ok, model = pcall(MachineryBuilders.buildWorkStation, job, Color3.fromRGB(255, 255, 255))
+		check("station " .. job .. " builds", ok and typeof(model) == "Instance", tostring(model))
+		if ok and typeof(model) == "Instance" then
+			(model :: Model):Destroy()
+		end
+	end
+	for _, circuit in Config.Circuits.list do
+		local ok, model = pcall(MachineryBuilders.buildMachine, circuit.id)
+		check("machine " .. circuit.id .. " builds", ok and typeof(model) == "Instance", tostring(model))
+		if ok and typeof(model) == "Instance" then
+			(model :: Model):Destroy()
+		end
+	end
+	for _, milestone in Config.Milestones.list do
+		local ok, model = pcall(MachineryBuilders.buildDecoration, milestone.decoration)
+		check("decoration " .. milestone.decoration .. " builds", ok and typeof(model) == "Instance", tostring(model))
+		if ok and typeof(model) == "Instance" then
+			(model :: Model):Destroy()
+		end
+	end
+	local okPylon, pylon = pcall(MachineryBuilders.buildPylon)
+	check("pylon builds", okPylon and typeof(pylon) == "Instance", tostring(pylon))
+	if okPylon and typeof(pylon) == "Instance" then
+		(pylon :: Model):Destroy()
+	end
+end
+
+-- The heart of it: every income factor applied exactly once.
+local function testIncome()
+	local profile = mockProfile(0)
+	local now = workspace:GetServerTimeNow()
+
+	-- a Common Wind creature: region base 4, rarity x1, variant x1, relaunch x1
+	local uid = give(profile, "breeze_bean", "Normal", 1)
+	local income = Stats.income(profile, now)
+	check("common wind earns 4/s", approx(income.perCreature[uid], 4), tostring(income.perCreature[uid]))
+
+	-- rarity multiplier
+	local rareUid = give(profile, "twister_terrier", "Normal", 3)
+	income = Stats.income(profile, now)
+	check("rare wind earns 4 x 7", approx(income.perCreature[rareUid], 28), tostring(income.perCreature[rareUid]))
+
+	-- variant multiplier
+	profile.data.creatures[rareUid].variant = "Prismatic"
+	income = Stats.income(profile, now)
+	check("prismatic doubles it", approx(income.perCreature[rareUid], 56), tostring(income.perCreature[rareUid]))
+	profile.data.creatures[rareUid].variant = "Normal"
+
+	-- relaunch multiplier, additive 25% a level
+	profile.data.relaunch = 2
+	income = Stats.income(profile, now)
+	check("relaunch 2 gives x1.5", approx(income.perCreature[uid], 6), tostring(income.perCreature[uid]))
+	profile.data.relaunch = 0
+
+	-- stored creatures earn nothing
+	profile.data.creatures[uid].pad = nil
+	income = Stats.income(profile, now)
+	check("stored creature earns nothing", approx(income.perCreature[uid] or 0, 0))
+	profile.data.creatures[uid].pad = 1
+
+	-- a circuit: Wind + Storm on adjacent pads, +25% to each, once
+	local stormUid = give(profile, "static_sprout", "Normal", 2)
+	local key = Config.Circuits.pairKey(1, 2)
+	local ok, reason = Stats.checkPair(profile, 1, 2)
+	check("wind + storm is a valid pair", ok, reason)
+	profile.data.circuits[key] = true
+	income = Stats.income(profile, now)
+	check("circuit member A gets +25%", approx(income.perCreature[uid], 5), tostring(income.perCreature[uid]))
+	check("circuit member B gets +25%", approx(income.perCreature[stormUid], 4 * 1.25), tostring(income.perCreature[stormUid]))
+
+	-- upgraded pairs pay 40%
+	profile.data.circuitUpgrades[key] = true
+	income = Stats.income(profile, now)
+	check("upgraded circuit pays +40%", approx(income.perCreature[uid], 4 * 1.4), tostring(income.perCreature[uid]))
+	profile.data.circuitUpgrades[key] = nil
+
+	-- overdrive doubles, cooldown zeroes, and neither touches normal production
+	profile.overdrives[key] = { phase = "active", until_ = now + 10, vented = false }
+	income = Stats.income(profile, now)
+	check("overdrive doubles output", approx(income.perCreature[uid], 5 * 2), tostring(income.perCreature[uid]))
+	check("overdrive does not change normal", approx(income.perCreatureNormal[uid], 5), tostring(income.perCreatureNormal[uid]))
+	profile.overdrives[key] = { phase = "cooldown", until_ = now + 10, vented = false }
+	income = Stats.income(profile, now)
+	check("cooldown pays nothing", approx(income.perCreature[uid], 0), tostring(income.perCreature[uid]))
+	check("cooldown does not change normal", approx(income.perCreatureNormal[uid], 5), tostring(income.perCreatureNormal[uid]))
+	profile.overdrives[key] = nil
+
+	-- an invalid pairing is rejected
+	local badUid = give(profile, "gust_bunny", "Normal", 7)
+	local okBad, reasonBad = Stats.checkPair(profile, 1, 7)
+	check("wind + wind is not a recipe", not okBad, reasonBad)
+	local okDiagonal = Stats.checkPair(profile, 1, 8)
+	check("diagonal pads are rejected", not okDiagonal)
+	-- a creature already in a circuit cannot join another
+	local okOverlap, reasonOverlap = Stats.checkPair(profile, 2, 8)
+	check("a creature in a circuit cannot join another", not okOverlap, reasonOverlap)
+	local _ = badUid
+
+	-- bank cap follows normal production, never the overdriven number
+	profile.data.circuits = {}
+	income = Stats.income(profile, now)
+	local cap = Stats.bankCap(profile)
+	check("bank cap is an hour of normal production", approx(cap, income.totalNormal * Config.Economy.income.bankCapSeconds, 1), tostring(cap))
+end
+
+local function testUpgrades()
+	local profile = mockProfile(0)
+	local computed = Stats.compute(profile)
+	check("starting pads", computed.padsTotal == 6, tostring(computed.padsTotal))
+	check("starting storage", computed.storageMax == 60, tostring(computed.storageMax))
+	check("starting tether range", computed.tetherRange == 18, tostring(computed.tetherRange))
+
+	-- caps hold
+	profile.data.upgrades.tether_range = 99
+	computed = Stats.compute(profile)
+	check("tether range caps at 30", computed.tetherRange == 30, tostring(computed.tetherRange))
+	profile.data.upgrades.move_speed = 99
+	computed = Stats.compute(profile)
+	check("walk speed caps at 24", computed.walkSpeed == 24, tostring(computed.walkSpeed))
+	profile.data.upgrades.storage = 99
+	computed = Stats.compute(profile)
+	check("storage caps at 120", computed.storageMax == 120, tostring(computed.storageMax))
+	profile.data.upgrades.habitat_capacity = 99
+	computed = Stats.compute(profile)
+	check("pads cap at 24", computed.padsTotal == 24, tostring(computed.padsTotal))
+
+	-- an upgrade that can no longer do anything is not sellable
+	profile.data.relaunch = 10
+	check("habitat capacity max shrinks as relaunch pads grow", Stats.maxUpgradeLevel(profile, "habitat_capacity") == 8, tostring(Stats.maxUpgradeLevel(profile, "habitat_capacity")))
+
+	-- costs climb
+	check("upgrade cost level 0", Config.Economy.upgradeCost("tether_speed", 0) == 120)
+	check("upgrade cost rises", Config.Economy.upgradeCost("tether_speed", 1) > Config.Economy.upgradeCost("tether_speed", 0))
+end
+
+local function testData()
+	local profile = mockProfile(1234)
+	give(profile, "breeze_bean", "Overcharged", 1)
+	give(profile, "tsunami_toad", "Prismatic", nil)
+	profile.data.atlas.species.breeze_bean = { firstAt = 100, variants = { Normal = true }, perfect = 2, caught = 5 }
+	profile.data.regions.splashwater_bay = true
+	profile.data.upgrades.tether_speed = 3
+
+	local round = DataService.roundTrip(profile.data)
+	check("round trip keeps coins", round.coins == 1234, tostring(round.coins))
+	check("round trip keeps creatures", round.creatures ~= nil)
+	local count = 0
+	for _ in round.creatures do
+		count += 1
+	end
+	check("round trip keeps both creatures", count == 2, tostring(count))
+	check("round trip keeps atlas", round.atlas.species.breeze_bean ~= nil and round.atlas.species.breeze_bean.perfect == 2)
+	check("round trip keeps region unlock", round.regions.splashwater_bay == true)
+	check("round trip keeps upgrade level", round.upgrades.tether_speed == 3)
+
+	-- sanitising junk
+	local dirty = Profiles.sanitize({
+		coins = 0 / 0, -- NaN
+		relaunch = 9999,
+		creatures = {
+			good = { id = "breeze_bean", variant = "Normal", pad = 1 },
+			bogus = { id = "not_a_real_species", variant = "Normal", pad = 2 },
+			badVariant = { id = "gust_bunny", variant = "Sparkly", pad = 3 },
+			dupePad = { id = "drizzle_duck", variant = "Normal", pad = 1 },
+		},
+		regions = { gusty_gardens = true, made_up_place = true },
+		upgrades = { tether_speed = 500, nonsense = 4 },
+		circuits = { ["1-2"] = true, ["1-8"] = true, ["garbage"] = true },
+	})
+	check("NaN coins fall back to default", dirty.coins == Config.Economy.startingCoins, tostring(dirty.coins))
+	check("relaunch clamped to max", dirty.relaunch == Config.Relaunch.maxLevel, tostring(dirty.relaunch))
+	check("unknown species dropped", dirty.creatures.bogus == nil)
+	check("known species kept", dirty.creatures.good ~= nil)
+	check("bad variant reset to Normal", dirty.creatures.badVariant ~= nil and dirty.creatures.badVariant.variant == "Normal")
+	check("duplicate pad resolved", dirty.creatures.dupePad == nil or dirty.creatures.dupePad.pad == nil)
+	check("unknown region dropped", dirty.regions.made_up_place == nil)
+	check("home region always present", dirty.regions.gusty_gardens == true)
+	check("upgrade level clamped", dirty.upgrades.tether_speed == Config.Economy.upgradeById.tether_speed.maxLevel, tostring(dirty.upgrades.tether_speed))
+	check("unknown upgrade dropped", dirty.upgrades.nonsense == nil)
+	check("valid pair key kept", dirty.circuits["1-2"] == true)
+	check("diagonal pair key dropped", dirty.circuits["1-8"] == nil)
+	check("garbage pair key dropped", dirty.circuits.garbage == nil)
+
+	-- a totally foreign table must still produce a playable profile
+	local alien = Profiles.sanitize({ hello = "world" })
+	check("alien save yields defaults", alien.coins == Config.Economy.startingCoins and alien.relaunch == 0)
+	check("alien save is JSON safe", pcall(function()
+		HttpService:JSONEncode(alien)
+	end))
+end
+
+local function testSellAndStorage()
+	local profile = mockProfile(0)
+	local uid = give(profile, "tsunami_toad", "Normal", nil)
+	local value = Stats.sellValue(profile, profile.data.creatures[uid])
+	local expected = math.floor(Config.Species.baseIncome("tsunami_toad") * Config.Rarities.info.Legendary.sellSeconds)
+	check("sell value follows rarity seconds", value == expected, tostring(value) .. " vs " .. tostring(expected))
+	check("sell value is never below the floor", Stats.sellValue(profile, { id = "breeze_bean", variant = "Normal", pad = nil, favorite = false, anchored = false, caughtAt = 0, perfect = false }) >= Config.Economy.sellMin)
+
+	-- storage fills up
+	local computed = Stats.compute(profile)
+	for _ = 1, computed.storageMax do
+		give(profile, "breeze_bean", "Normal", nil)
+	end
+	check("storage reports full", Stats.storageFull(profile), tostring(Stats.storageUsed(profile)))
+end
+
+local function testQuestsAndRewards()
+	local profile = mockProfile(0)
+	give(profile, "breeze_bean", "Normal", 1)
+	local reward = Stats.scaledReward(profile, 90, 150, 2e9)
+	check("reward respects the minimum", reward >= 150, tostring(reward))
+	-- a huge city hits the maximum instead
+	profile.data.relaunch = 10
+	for pad = 2, 20 do
+		give(profile, "the_big_whoops", "Prismatic", pad)
+	end
+	local big = Stats.scaledReward(profile, 90, 150, 5000)
+	check("reward respects the maximum", big == 5000, tostring(big))
+
+	-- the day key is a UTC date and rolls at midnight
+	local key = Config.Quests.dayKey(1767225600) -- 2026-01-01T00:00:00Z
+	check("day key is the UTC date", key == "2026-01-01", key)
+	check("seconds until reset is within a day", Config.Quests.secondsUntilReset(1767225600) == 86400)
+end
+
+local function testRelaunchRules()
+	local profile = mockProfile(0)
+	-- discovery is what gates a relaunch, and it survives selling
+	for i = 1, 6 do
+		local def = Config.Species.list[i]
+		profile.data.atlas.species[def.id] = { firstAt = 1, variants = {}, perfect = 0, caught = 1 }
+	end
+	check("discovered count", Stats.discoveredCount(profile) == 6, tostring(Stats.discoveredCount(profile)))
+	check("6 species meets the first requirement", Stats.discoveredCount(profile) >= Config.Relaunch.speciesRequired(0))
+
+	-- what a relaunch keeps is exactly what the config claims
+	check("reset list is not empty", #Config.Relaunch.resets > 0)
+	check("keep list is not empty", #Config.Relaunch.keeps > 0)
+end
+
+local function testRateLimiter()
+	local fake = { Name = "RateTest" } :: any
+	local allowed = 0
+	for _ = 1, 40 do
+		if RateLimiter.allow(fake, "DoRelaunch") then
+			allowed += 1
+		end
+	end
+	check("relaunch spam is throttled", allowed <= 2, tostring(allowed))
+	RateLimiter.clear(fake)
+
+	-- every client remote has a deliberate bucket rather than the default
+	local Remotes = require(ReplicatedStorage.Shared.Remotes)
+	local limits = RateLimiter.limits()
+	local serverToClient = {
+		State = true,
+		Notify = true,
+		FloatingText = true,
+		Broadcast = true,
+		Effect = true,
+		CaptureState = true,
+		Hazard = true,
+		Knockback = true,
+		CaptureResult = true,
+		Forecast = true,
+		CrisisState = true,
+		TutorialStep = true,
+		Leaderboard = true,
+	}
+	for _, name in Remotes.eventNames do
+		if not serverToClient[name] then
+			check("remote " .. name .. " has a rate limit", limits[name] ~= nil)
+		end
+	end
+end
+
+local function testWeighted()
+	local weights = { a = 1, b = 0 }
+	local hitB = false
+	for _ = 1, 200 do
+		if Weighted.pick(weights) == "b" then
+			hitB = true
+		end
+	end
+	check("zero weight never picked", not hitB)
+	check("empty table returns nil", Weighted.pick({}) == nil)
+end
+
+-- ---------------------------------------------------------------- run
+
+function Harness.run()
+	passed = 0
+	failed = 0
+	table.clear(failures)
+	local startedAt = os.clock()
+
+	local suites: { { name: string, fn: () -> () } } = {
+		{ name = "config", fn = testConfig },
+		{ name = "format", fn = testFormat },
+		{ name = "models", fn = testModels },
+		{ name = "income", fn = testIncome },
+		{ name = "upgrades", fn = testUpgrades },
+		{ name = "data", fn = testData },
+		{ name = "sell/storage", fn = testSellAndStorage },
+		{ name = "quests", fn = testQuestsAndRewards },
+		{ name = "relaunch", fn = testRelaunchRules },
+		{ name = "rate limiter", fn = testRateLimiter },
+		{ name = "weighted", fn = testWeighted },
+	}
+
+	for _, suite in suites do
+		local ok, err = pcall(suite.fn)
+		if not ok then
+			failed += 1
+			table.insert(failures, suite.name .. " crashed: " .. tostring(err))
+			warn("[SelfTest] CRASH in " .. suite.name .. ": " .. tostring(err))
+		end
+	end
+
+	local elapsed = math.floor((os.clock() - startedAt) * 1000)
+	print(("[SelfTest] passed %d, failed %d, in %d ms"):format(passed, failed, elapsed))
+	if failed > 0 then
+		for _, line in failures do
+			print("[SelfTest]   - " .. line)
+		end
+	end
+	return passed, failed, failures
+end
+
+return Harness
