@@ -414,9 +414,7 @@ local function createRow(uid: string): any
 			return
 		end
 		local def = Config.Species.byId[entry.id]
-		local warning = if entry.favorite then "
-
-This one is a favorite. It will be transformed, not replaced." else ""
+		local warning = if entry.favorite then "\n\nThis one is a favorite. It will be transformed, not replaced." else ""
 		W.confirm(
 			gui,
 			"Make this " .. (if def then def.name else "creature") .. " Prismatic?",
