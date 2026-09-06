@@ -369,6 +369,80 @@ end
 -- ============================================================ regions
 
 -- Per-element scenery. Each returns after adding ~20 props inside `radius`.
+-- Weather. Each region gets an ambient emitter over its whole area plus a
+-- tinted fill light, so you can tell where you are from a distance and at a
+-- glance: snow falling on the Peaks, embers rising over the Canyon, dust
+-- drifting through the Outpost. One emitter per region, not one per prop.
+local AMBIENCE: { [string]: { texture: string, rate: number, size: number, speed: NumberRange, lifetime: NumberRange, drag: number, spread: Vector2, up: boolean, transparency: number, light: number } } = {
+	Wind = { texture = "rbxasset://textures/particles/sparkles_main.dds", rate = 26, size = 1.1, speed = NumberRange.new(3, 8), lifetime = NumberRange.new(4, 7), drag = 0.6, spread = Vector2.new(35, 35), up = false, transparency = 0.55, light = 0.35 },
+	Water = { texture = "rbxasset://textures/particles/smoke_main.dds", rate = 16, size = 7, speed = NumberRange.new(1, 3), lifetime = NumberRange.new(5, 9), drag = 1.2, spread = Vector2.new(20, 20), up = true, transparency = 0.88, light = 0.25 },
+	Heat = { texture = "rbxasset://textures/particles/sparkles_main.dds", rate = 34, size = 0.9, speed = NumberRange.new(5, 11), lifetime = NumberRange.new(3, 6), drag = 0.4, spread = Vector2.new(18, 18), up = true, transparency = 0.35, light = 0.6 },
+	Frost = { texture = "rbxasset://textures/particles/sparkles_main.dds", rate = 46, size = 0.85, speed = NumberRange.new(2, 5), lifetime = NumberRange.new(6, 10), drag = 1.6, spread = Vector2.new(25, 25), up = false, transparency = 0.3, light = 0.4 },
+	Storm = { texture = "rbxasset://textures/particles/sparkles_main.dds", rate = 20, size = 0.75, speed = NumberRange.new(4, 9), lifetime = NumberRange.new(2, 4), drag = 0.3, spread = Vector2.new(45, 45), up = true, transparency = 0.4, light = 0.5 },
+	Cosmic = { texture = "rbxasset://textures/particles/sparkles_main.dds", rate = 30, size = 1.0, speed = NumberRange.new(1, 4), lifetime = NumberRange.new(7, 12), drag = 0.8, spread = Vector2.new(60, 60), up = false, transparency = 0.25, light = 0.55 },
+}
+
+local function regionAmbience(parent: Instance, centre: Vector3, element: string, def: any, radius: number)
+	local spec = AMBIENCE[element]
+	if not spec then
+		return
+	end
+	-- an invisible box the size of the region: the emitter fills its volume, so
+	-- the effect follows the player around the area rather than sitting in one spot
+	local volume = part({
+		name = "Ambience",
+		size = Vector3.new(radius * 1.9, 30, radius * 1.9),
+		cf = CFrame.new(centre + Vector3.new(0, if spec.up then 6 else 26, 0)),
+		transparency = 1,
+		collide = false,
+		query = false,
+		parent = parent,
+	})
+
+	local emitter = Instance.new("ParticleEmitter")
+	emitter.Name = "Weather"
+	emitter.Texture = spec.texture
+	emitter.Rate = spec.rate
+	emitter.Lifetime = spec.lifetime
+	emitter.Speed = spec.speed
+	emitter.Drag = spec.drag
+	emitter.SpreadAngle = spec.spread
+	emitter.Size = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, spec.size * 0.4),
+		NumberSequenceKeypoint.new(0.25, spec.size),
+		NumberSequenceKeypoint.new(1, spec.size * 0.2),
+	})
+	emitter.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 1),
+		NumberSequenceKeypoint.new(0.15, spec.transparency),
+		NumberSequenceKeypoint.new(0.8, spec.transparency),
+		NumberSequenceKeypoint.new(1, 1),
+	})
+	emitter.Color = ColorSequence.new(def.color)
+	emitter.LightEmission = spec.light
+	emitter.LightInfluence = 0.4
+	emitter.EmissionDirection = if spec.up then Enum.NormalId.Top else Enum.NormalId.Bottom
+	emitter.Acceleration = if spec.up then Vector3.new(1.5, 4, 0) else Vector3.new(2, -3, 0)
+	emitter.Parent = volume
+
+	-- a wide, dim fill light in the region's own colour ties the props together
+	local fill = part({
+		name = "RegionFill",
+		size = Vector3.new(2, 2, 2),
+		cf = CFrame.new(centre + Vector3.new(0, 26, 0)),
+		transparency = 1,
+		collide = false,
+		query = false,
+		parent = parent,
+	})
+	local light = Instance.new("PointLight")
+	light.Color = def.color
+	light.Range = radius * 1.6
+	light.Brightness = 0.55
+	light.Shadows = false
+	light.Parent = fill
+end
+
 local function regionProps(parent: Instance, centre: Vector3, element: string, def: any, radius: number)
 	local c = def.color
 	local rand = Random.new(def.index * 7919)
@@ -380,7 +454,7 @@ local function regionProps(parent: Instance, centre: Vector3, element: string, d
 		for i = 1, 10 do
 			local p = spot(12, radius - 8)
 			for j = 1, 4 do
-				part({ name = "Grass", size = Vector3.new(0.4, rand:NextNumber(3, 6), 0.4), cf = CFrame.new(p + Vector3.new(j * 0.5, 2.5, 0)) * CFrame.Angles(0, 0, math.rad(rand:NextNumber(-16, 16))), color = rgb(120, 200, 110), parent = parent })
+				part({ name = "Grass", size = Vector3.new(0.4, rand:NextNumber(3, 6), 0.4), cf = CFrame.new(p + Vector3.new(j * 0.5, 2.5, 0)) * CFrame.Angles(0, 0, math.rad(rand:NextNumber(-16, 16))), color = rgb(120, 200, 110), material = Enum.Material.Grass, parent = parent })
 			end
 		end
 		-- a big skeletal windmill
@@ -392,7 +466,7 @@ local function regionProps(parent: Instance, centre: Vector3, element: string, d
 		end
 		for i = 1, 6 do
 			local p = spot(14, radius - 10)
-			part({ name = "Bush", size = Vector3.new(4, 3, 4), cf = CFrame.new(p + Vector3.new(0, 1.5, 0)), color = rgb(110, 180, 100), shape = Enum.PartType.Ball, parent = parent })
+			part({ name = "Bush", size = Vector3.new(4, 3, 4), cf = CFrame.new(p + Vector3.new(0, 1.5, 0)), color = rgb(110, 180, 100), material = Enum.Material.LeafyGrass, shape = Enum.PartType.Ball, parent = parent })
 		end
 	elseif element == "Water" then
 		for i = 1, 7 do
@@ -403,13 +477,13 @@ local function regionProps(parent: Instance, centre: Vector3, element: string, d
 		end
 		for i = 1, 8 do
 			local p = spot(14, radius - 8)
-			part({ name = "Rock", size = Vector3.new(rand:NextNumber(2, 5), rand:NextNumber(2, 4), rand:NextNumber(2, 5)), cf = CFrame.new(p + Vector3.new(0, 1.4, 0)) * CFrame.Angles(0, rand:NextNumber(0, 6), 0), color = rgb(150, 148, 140), collide = true, parent = parent })
+			part({ name = "Rock", size = Vector3.new(rand:NextNumber(2, 5), rand:NextNumber(2, 4), rand:NextNumber(2, 5)), cf = CFrame.new(p + Vector3.new(0, 1.4, 0)) * CFrame.Angles(0, rand:NextNumber(0, 6), 0), color = rgb(150, 148, 140), material = Enum.Material.Slate, collide = true, parent = parent })
 		end
 		-- a small dock
 		local d = centre + polar(26, 200)
-		part({ name = "Dock", size = Vector3.new(6, 0.7, 20), cf = CFrame.new(d + Vector3.new(0, 1.2, 0)), color = rgb(168, 124, 78), collide = true, parent = parent })
+		part({ name = "Dock", size = Vector3.new(6, 0.7, 20), cf = CFrame.new(d + Vector3.new(0, 1.2, 0)), color = rgb(168, 124, 78), material = Enum.Material.WoodPlanks, collide = true, parent = parent })
 		for i = 1, 4 do
-			part({ name = "Piling", size = Vector3.new(0.9, 3.4, 0.9), cf = CFrame.new(d + Vector3.new(2.2, 0.6, -7 + (i - 1) * 5)), color = rgb(120, 88, 56), collide = true, parent = parent })
+			part({ name = "Piling", size = Vector3.new(0.9, 3.4, 0.9), cf = CFrame.new(d + Vector3.new(2.2, 0.6, -7 + (i - 1) * 5)), color = rgb(120, 88, 56), material = Enum.Material.Wood, collide = true, parent = parent })
 		end
 	elseif element == "Heat" then
 		for i = 1, 9 do
@@ -441,7 +515,7 @@ local function regionProps(parent: Instance, centre: Vector3, element: string, d
 	elseif element == "Frost" then
 		for i = 1, 10 do
 			local p = spot(12, radius - 8)
-			part({ name = "SnowMound", size = Vector3.new(rand:NextNumber(6, 12), rand:NextNumber(2, 5), rand:NextNumber(6, 12)), cf = CFrame.new(p + Vector3.new(0, 1.2, 0)), color = rgb(240, 246, 252), shape = Enum.PartType.Ball, collide = true, parent = parent })
+			part({ name = "SnowMound", size = Vector3.new(rand:NextNumber(6, 12), rand:NextNumber(2, 5), rand:NextNumber(6, 12)), cf = CFrame.new(p + Vector3.new(0, 1.2, 0)), color = rgb(240, 246, 252), material = Enum.Material.Snow, shape = Enum.PartType.Ball, collide = true, parent = parent })
 		end
 		for i = 1, 4 do
 			local p = spot(16, radius - 12)
@@ -455,7 +529,7 @@ local function regionProps(parent: Instance, centre: Vector3, element: string, d
 		end
 		for i = 1, 8 do
 			local p = spot(14, radius - 8)
-			part({ name = "Icicle", size = Vector3.new(1.2, rand:NextNumber(4, 9), 1.2), cf = CFrame.new(p + Vector3.new(0, 3, 0)), color = c, material = Enum.Material.Glass, transparency = 0.22, parent = parent })
+			part({ name = "Icicle", size = Vector3.new(1.2, rand:NextNumber(4, 9), 1.2), cf = CFrame.new(p + Vector3.new(0, 3, 0)), color = c, material = Enum.Material.Ice, transparency = 0.18, parent = parent })
 		end
 	elseif element == "Storm" then
 		for i = 1, 6 do
@@ -484,7 +558,7 @@ local function regionProps(parent: Instance, centre: Vector3, element: string, d
 		end
 		for i = 1, 8 do
 			local p = spot(14, radius - 16)
-			part({ name = "FloatRock", size = Vector3.new(rand:NextNumber(3, 7), rand:NextNumber(2, 5), rand:NextNumber(3, 7)), cf = CFrame.new(p + Vector3.new(0, rand:NextNumber(6, 16), 0)) * CFrame.Angles(rand:NextNumber(0, 3), rand:NextNumber(0, 6), rand:NextNumber(0, 3)), color = rgb(96, 88, 128), parent = parent })
+			part({ name = "FloatRock", size = Vector3.new(rand:NextNumber(3, 7), rand:NextNumber(2, 5), rand:NextNumber(3, 7)), cf = CFrame.new(p + Vector3.new(0, rand:NextNumber(6, 16), 0)) * CFrame.Angles(rand:NextNumber(0, 3), rand:NextNumber(0, 6), rand:NextNumber(0, 3)), color = rgb(96, 88, 128), material = Enum.Material.Rock, parent = parent })
 		end
 		for i = 1, 5 do
 			local p = spot(16, radius - 16)
@@ -514,7 +588,17 @@ local function buildRegion(parent: Instance, def: any)
 	model.Parent = parent
 
 	-- coloured ground patch
-	disc(model, "Ground", centre + Vector3.new(0, 0.3, 0), radius, 1.4, def.groundColor, Enum.Material.Ground)
+	-- each region's floor uses a material that matches what it is meant to be,
+	-- which does more for how a place reads than its colour does
+	local GROUND_MATERIAL: { [string]: Enum.Material } = {
+		Wind = Enum.Material.Grass,
+		Water = Enum.Material.Sand,
+		Heat = Enum.Material.Basalt,
+		Frost = Enum.Material.Snow,
+		Storm = Enum.Material.Asphalt,
+		Cosmic = Enum.Material.Metal,
+	}
+	disc(model, "Ground", centre + Vector3.new(0, 0.3, 0), radius, 1.4, def.groundColor, GROUND_MATERIAL[def.element] or Enum.Material.Ground)
 	-- a rim wall all the way round, with a gap on the hub side for the gate
 	local gateAngle = angle + 180 -- the side facing the origin
 	for i = 1, 40 do
@@ -527,6 +611,7 @@ local function buildRegion(parent: Instance, def: any)
 	end
 
 	regionProps(model, centre, def.element, def, radius)
+	regionAmbience(model, centre, def.element, def, radius)
 
 	local wild = Instance.new("Folder")
 	wild.Name = "Wild"
