@@ -1,0 +1,207 @@
+--!strict
+-- The moment after a successful capture: a card with the creature turning in a
+-- viewport, what it is, and whether the catch was clean.
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Config = require(ReplicatedStorage.Shared.Config)
+local Format = require(ReplicatedStorage.Shared.Util.Format)
+local CreatureModels = require(ReplicatedStorage.Shared.Models.CreatureModels)
+
+local W = require(script.Parent.Widgets)
+local Theme = require(script.Parent.Theme)
+local State = require(script.Parent.Parent.State)
+
+local CaptureReveal = {}
+
+local gui: ScreenGui? = nil
+local card: Frame? = nil
+local viewport: any = nil
+local nameLabel: TextLabel? = nil
+local metaLabel: TextLabel? = nil
+local incomeLabel: TextLabel? = nil
+local perfectRibbon: TextLabel? = nil
+local hideAt = 0
+
+function CaptureReveal.init()
+	local g = W.screenGui("CatchReveal", 8)
+	W.attachScale(g)
+	gui = g
+
+	card = W.frame({
+		parent = g,
+		name = "RevealCard",
+		size = UDim2.new(0, 340, 0, 320),
+		position = UDim2.new(0.5, 0, 0.5, -40),
+		anchor = Vector2.new(0.5, 0.5),
+		color = Theme.colors.bg,
+		radius = Theme.sizes.radius + 4,
+		stroke = Theme.colors.ink,
+		strokeThickness = 4,
+		visible = false,
+		zindex = 20,
+	})
+
+	W.label({
+		parent = card,
+		text = "CAUGHT!",
+		size = UDim2.new(1, 0, 0, 34),
+		position = UDim2.new(0, 0, 0, 10),
+		textSize = 26,
+		font = Theme.fonts.title,
+		color = Theme.colors.accent,
+		zindex = 21,
+	})
+
+	local frame = W.frame({
+		parent = card,
+		size = UDim2.new(1, -40, 0, 150),
+		position = UDim2.new(0, 20, 0, 48),
+		color = Theme.colors.bgDeep,
+		radius = Theme.sizes.radiusSmall,
+		stroke = Theme.colors.ink,
+		strokeThickness = 2,
+		zindex = 21,
+	})
+	viewport = W.viewport(frame)
+	viewport.frame.ZIndex = 22
+
+	nameLabel = W.label({
+		parent = card,
+		text = "",
+		size = UDim2.new(1, -24, 0, 30),
+		position = UDim2.new(0, 12, 0, 204),
+		textSize = 22,
+		font = Theme.fonts.title,
+		color = Theme.colors.text,
+		zindex = 21,
+	})
+	metaLabel = W.label({
+		parent = card,
+		text = "",
+		size = UDim2.new(1, -24, 0, 22),
+		position = UDim2.new(0, 12, 0, 234),
+		textSize = 15,
+		font = Theme.fonts.body,
+		color = Theme.colors.textDim,
+		zindex = 21,
+	})
+	incomeLabel = W.label({
+		parent = card,
+		text = "",
+		size = UDim2.new(1, -24, 0, 22),
+		position = UDim2.new(0, 12, 0, 256),
+		textSize = 16,
+		font = Theme.fonts.bold,
+		color = Theme.colors.coin,
+		zindex = 21,
+	})
+
+	perfectRibbon = W.label({
+		parent = card,
+		text = "PERFECT CAPTURE",
+		size = UDim2.new(0, 190, 0, 26),
+		position = UDim2.new(0.5, 0, 0, 176),
+		anchor = Vector2.new(0.5, 0),
+		textSize = 15,
+		font = Theme.fonts.bold,
+		color = Theme.colors.ink,
+		bg = Theme.colors.gold,
+		radius = Theme.sizes.radiusSmall,
+		zindex = 23,
+	})
+
+	W.button({
+		parent = card,
+		text = "Nice",
+		size = UDim2.new(0, 130, 0, 34),
+		position = UDim2.new(0.5, -68, 1, -12),
+		anchor = Vector2.new(0.5, 1),
+		color = Theme.colors.bgAlt,
+		textColor = Theme.colors.text,
+		textSize = 16,
+		zindex = 21,
+		onClick = function()
+			CaptureReveal.hide()
+		end,
+	})
+	W.button({
+		parent = card,
+		text = "Deploy it",
+		size = UDim2.new(0, 130, 0, 34),
+		position = UDim2.new(0.5, 68, 1, -12),
+		anchor = Vector2.new(0.5, 1),
+		color = Theme.colors.accent,
+		textColor = Theme.colors.ink,
+		textSize = 16,
+		zindex = 21,
+		onClick = function()
+			CaptureReveal.hide()
+			W.openPanel("Creatures")
+		end,
+	})
+
+	-- auto-close so it never sits over a fight
+	task.spawn(function()
+		while true do
+			task.wait(0.25)
+			if card and card.Visible and hideAt > 0 and os.clock() > hideAt then
+				CaptureReveal.hide()
+			end
+		end
+	end)
+end
+
+function CaptureReveal.hide()
+	if card then
+		card.Visible = false
+	end
+	if viewport then
+		viewport.setModel(nil)
+	end
+	hideAt = 0
+end
+
+function CaptureReveal.show(result: any)
+	if not card or typeof(result) ~= "table" then
+		return
+	end
+	local def = Config.Species.byId[result.speciesId]
+	if not def then
+		return
+	end
+	local variant = if Config.Variants.isValid(result.variant) then result.variant else "Normal"
+	local variantInfo = Config.Variants.info[variant]
+
+	local ok, model = pcall(CreatureModels.build, def.id, variant)
+	if ok and viewport then
+		viewport.setModel(model)
+	end
+
+	if nameLabel then
+		nameLabel.Text = def.name
+		nameLabel.TextColor3 = Config.Rarities.color(def.rarity)
+	end
+	if metaLabel then
+		local variantText = if variant ~= "Normal" then "   " .. variantInfo.icon .. " " .. variantInfo.label else ""
+		metaLabel.Text = Config.Rarities.label(def.rarity) .. "   " .. def.element .. variantText
+	end
+	if incomeLabel then
+		local snap = State.get()
+		local mult = if snap then snap.relaunchMult else 1
+		local income = Config.Species.baseIncome(def.id) * Config.Variants.mult(variant) * mult
+		incomeLabel.Text = Format.abbreviate(income) .. "/s when deployed"
+	end
+	if perfectRibbon then
+		perfectRibbon.Visible = result.perfect == true
+	end
+
+	card.Visible = true
+	local snap = State.get()
+	if not snap or not snap.settings.reducedMotion then
+		W.pop(card, 1.2)
+	end
+	hideAt = os.clock() + 6
+end
+
+return CaptureReveal
