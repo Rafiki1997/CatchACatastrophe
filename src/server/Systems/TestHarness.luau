@@ -16,6 +16,7 @@ local Format = require(ReplicatedStorage.Shared.Util.Format)
 local Weighted = require(ReplicatedStorage.Shared.Util.Weighted)
 local CreatureModels = require(ReplicatedStorage.Shared.Models.CreatureModels)
 local MachineryBuilders = require(ReplicatedStorage.Shared.Models.MachineryBuilders)
+local Kit = require(ReplicatedStorage.Shared.Models.ModelKit)
 
 local Profiles = require(script.Parent.Profiles)
 local Stats = require(script.Parent.Stats)
@@ -164,12 +165,14 @@ local function testModels()
 		local ok, model = pcall(CreatureModels.build, def.id, "Normal")
 		if ok and typeof(model) == "Instance" then
 			built += 1
-			local height = (model :: Model):GetAttribute("Height")
-			if typeof(height) == "number" then
-				-- a silhouette that is nothing like its stated height reads wrong
-				-- next to everything else in the world
-				check(def.id .. " height near " .. tostring(def.height), height > def.height * 0.5 and height < def.height * 1.8, ("%.1f"):format(height))
-			end
+			-- `height` means how tall the creature reads standing on the ground,
+			-- which is the TOP of its model, not its vertical extent: a hovering
+			-- manta is thin but sits high, and comparing extents wrongly failed
+			-- it. The client offsets name labels by this, so a wrong number is
+			-- visible in game.
+			local centre, size = Kit.bounds(model :: Model)
+			local top = centre.Y + size.Y / 2
+			check(def.id .. " top near " .. tostring(def.height), top > def.height * 0.7 and top < def.height * 1.3, ("%.2f"):format(top))
 			check(def.id .. " has a builder", CreatureModels.hasBuilder(def.id))
 			;(model :: Model):Destroy()
 		else
@@ -247,7 +250,11 @@ local function testIncome()
 	profile.data.circuits[key] = true
 	income = Stats.income(profile, now)
 	check("circuit member A gets +25%", approx(income.perCreature[uid], 5), tostring(income.perCreature[uid]))
-	check("circuit member B gets +25%", approx(income.perCreature[stormUid], 4 * 1.25), tostring(income.perCreature[stormUid]))
+	-- member B is a Storm creature, so its base is Thunderworks' 64, not Wind's 4.
+	-- Derive it rather than hard-coding, so retuning a region cannot silently
+	-- turn this into a test that checks nothing.
+	local stormBase = Config.Species.baseIncome("static_sprout")
+	check("circuit member B gets +25%", approx(income.perCreature[stormUid], stormBase * 1.25), tostring(income.perCreature[stormUid]))
 
 	-- upgraded pairs pay 40%
 	profile.data.circuitUpgrades[key] = true
@@ -469,6 +476,117 @@ local function testWeighted()
 end
 
 -- ---------------------------------------------------------------- run
+
+-- ---------------------------------------------------------------- live suite
+
+-- Checks that need a real player standing on a real plot: the ones that build
+-- world instances, which the mock-profile tests above cannot reach. Studio
+-- only, and it leaves the profile as it found it apart from the creatures it
+-- grants, so it is safe to run on a session you are about to play.
+function Harness.runLive(profile: any)
+	passed = 0
+	failed = 0
+	table.clear(failures)
+	local S = require(script.Parent.Services)
+	local plot = profile.plot
+	if not plot then
+		print("[LiveTest] skipped: no plot assigned yet")
+		return 0, 0, {}
+	end
+
+	local function income()
+		return Stats.income(profile, workspace:GetServerTimeNow())
+	end
+
+	-- deploy builds a creature model and its work station
+	local windUid = S.City.grantCreature(profile, "breeze_bean", "Normal", true)
+	local stormUid = S.City.grantCreature(profile, "static_sprout", "Normal", false)
+	check("grantCreature returns uids", windUid ~= nil and stormUid ~= nil)
+	local okDeploy = S.City.deploy(profile, windUid, 1)
+	check("deploy to pad 1 succeeds", okDeploy == true)
+	check("pad 1 has a creature model", profile.padModels["1"] ~= nil)
+	check("pad 1 station is populated", #plot.stations[1]:GetChildren() > 0)
+	S.City.deploy(profile, stormUid, 2)
+
+	local base = income()
+	local windBase = Config.Species.baseIncome("breeze_bean")
+	local stormBase = Config.Species.baseIncome("static_sprout")
+	check("deployed wind earns its base", approx(base.perCreature[windUid], windBase), tostring(base.perCreature[windUid]))
+
+	-- a circuit builds machinery and pays both members once
+	local okConnect = S.Circuits.connect(profile, 1, 2)
+	check("wind + storm connects", okConnect == true)
+	check("a machine model appeared", #plot.machines:GetChildren() > 0)
+	local bonus = Stats.pairBonus(profile, Config.Circuits.pairKey(1, 2))
+	local withCircuit = income()
+	check("member A paid the bonus once", approx(withCircuit.perCreature[windUid], windBase * (1 + bonus)), tostring(withCircuit.perCreature[windUid]))
+	check("member B paid the bonus once", approx(withCircuit.perCreature[stormUid], stormBase * (1 + bonus)), tostring(withCircuit.perCreature[stormUid]))
+
+	local okDiagonal = S.Circuits.connect(profile, 1, 8)
+	check("a diagonal connection is refused", okDiagonal == false)
+
+	-- overdrive doubles, refuses to restart, and leaves normal production alone
+	local okOver = S.Circuits.startOverdrive(profile, 1, 2)
+	check("overdrive starts", okOver == true)
+	local during = income()
+	check("overdrive doubles the pair", approx(during.total, withCircuit.total * 2, 0.01), tostring(during.total))
+	check("overdrive leaves normal production alone", approx(during.totalNormal, withCircuit.total, 0.01), tostring(during.totalNormal))
+	local okRestart = S.Circuits.startOverdrive(profile, 1, 2)
+	check("overdrive cannot be restarted while running", okRestart == false)
+
+	-- collecting pays the floor of the bank and leaves the remainder
+	profile.data.bank = 250.7
+	local coinsBefore = profile.data.coins
+	local okCollect = S.Economy.collect(profile)
+	check("collect succeeds", okCollect == true)
+	check("collect paid floor(bank)", profile.data.coins - coinsBefore == 250, tostring(profile.data.coins - coinsBefore))
+	check("collect left the fraction", approx(profile.data.bank, 0.7, 0.001), tostring(profile.data.bank))
+
+	-- selling: allowed for a plain creature, refused for a favorite
+	S.City.setFavorite(profile, stormUid, true)
+	local okSellFav = S.City.sell(profile, stormUid)
+	check("selling a favorite is refused", okSellFav == false)
+	S.City.setFavorite(profile, stormUid, false)
+	local okSell = S.City.sell(profile, windUid)
+	check("selling a deployed creature succeeds", okSell == true)
+	check("its pad model was removed", profile.padModels["1"] == nil)
+	check("the circuit machine went with it", #plot.machines:GetChildren() == 0)
+
+	-- a wild creature in a region the player has not opened cannot be claimed
+	local lockedRegion = nil
+	for _, def in Config.Regions.list do
+		if not profile.data.regions[def.id] then
+			lockedRegion = def
+			break
+		end
+	end
+	if lockedRegion then
+		local blocked = nil
+		for _, model in game:GetService("CollectionService"):GetTagged("Wild") do
+			if model:GetAttribute("RegionId") == lockedRegion.id then
+				blocked = model:GetAttribute("EncounterUid")
+				break
+			end
+		end
+		if blocked then
+			local encounter, reason = S.Encounters.claim(profile, blocked)
+			check("a locked region refuses the claim", encounter == nil, tostring(reason))
+		end
+	end
+
+	-- tidy up: remove what this suite added
+	if profile.data.creatures[stormUid] then
+		S.City.sell(profile, stormUid)
+	end
+
+	print(("[LiveTest] passed %d, failed %d"):format(passed, failed))
+	if failed > 0 then
+		for _, line in failures do
+			print("[LiveTest]   - " .. line)
+		end
+	end
+	return passed, failed, failures
+end
 
 function Harness.run()
 	passed = 0

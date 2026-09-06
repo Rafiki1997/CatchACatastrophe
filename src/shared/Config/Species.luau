@@ -56,21 +56,21 @@ end
 
 Species.list = {
 	-- Gusty Gardens / Wind
-	def("breeze_bean", "Breeze Bean", "gusty_gardens", "Common", "A floating bean with leaf ears. It hums when the wind changes.", "a small floating bean with two leaf ears", rgb(150, 220, 120), rgb(90, 170, 80), rgb(255, 245, 200), "hover", 1.0, 2.4),
-	def("gust_bunny", "Gust Bunny", "gusty_gardens", "Uncommon", "A rabbit whose feet are tiny cyclones. It never quite touches the ground.", "a long-eared bunny standing on two little whirlwinds", rgb(235, 235, 245), rgb(180, 200, 230), rgb(255, 150, 170), "hop", 1.2, 3.2),
+	def("breeze_bean", "Breeze Bean", "gusty_gardens", "Common", "A floating bean with leaf ears. It hums when the wind changes.", "a small floating bean with two leaf ears", rgb(150, 220, 120), rgb(90, 170, 80), rgb(255, 245, 200), "hover", 1.0, 2.7),
+	def("gust_bunny", "Gust Bunny", "gusty_gardens", "Uncommon", "A rabbit whose feet are tiny cyclones. It never quite touches the ground.", "a long-eared bunny standing on two little whirlwinds", rgb(235, 235, 245), rgb(180, 200, 230), rgb(255, 150, 170), "hop", 1.2, 3.6),
 	def("twister_terrier", "Twister Terrier", "gusty_gardens", "Rare", "A spiral-bodied dog wearing flight goggles. It spins when excited, which is always.", "a dog with a spiral body and goggles", rgb(200, 170, 120), rgb(140, 110, 80), rgb(120, 200, 230), "spin", 1.0, 3.4),
 	def("sir_spins_a_lot", "Sir Spins-a-Lot", "gusty_gardens", "Legendary", "A tornado knight in sneakers, armed with a weather-vane lance. Very polite. Very fast.", "a tall tornado wearing a helmet and holding a lance", rgb(190, 205, 225), rgb(110, 125, 150), rgb(255, 210, 80), "sway", 1.3, 5.2),
 
 	-- Splashwater Bay / Water
 	def("drizzle_duck", "Drizzle Duck", "splashwater_bay", "Common", "A duck that wears its own tiny raincloud like a hat.", "a round duck with a small cloud above its head", rgb(255, 225, 90), rgb(255, 160, 60), rgb(200, 215, 235), "waddle", 1.1, 2.6),
 	def("puddle_pug", "Puddle Pug", "splashwater_bay", "Uncommon", "A glossy pug made of puddle. Its paws splash with every step.", "a squat wrinkly dog with wide paws", rgb(90, 160, 235), rgb(60, 110, 190), rgb(240, 250, 255), "waddle", 1.0, 2.6),
-	def("monsoon_manta", "Monsoon Manta", "splashwater_bay", "Rare", "A hovering manta ray that trails rain wherever it glides.", "a wide flat ray with a long tail", rgb(70, 110, 190), rgb(200, 230, 255), rgb(120, 200, 255), "hover", 0.8, 3.0),
+	def("monsoon_manta", "Monsoon Manta", "splashwater_bay", "Rare", "A hovering manta ray that trails rain wherever it glides.", "a wide flat ray with a long tail", rgb(70, 110, 190), rgb(200, 230, 255), rgb(120, 200, 255), "hover", 0.8, 2.5),
 	def("tsunami_toad", "Tsunami Toad", "splashwater_bay", "Legendary", "A crowned toad riding a wave that never breaks. Royalty of the bay.", "a big toad sitting on top of a curling wave", rgb(80, 170, 110), rgb(60, 130, 200), rgb(255, 210, 80), "bob", 0.9, 5.0),
 
 	-- Cinder Canyon / Heat
-	def("cinder_chick", "Cinder Chick", "cinder_canyon", "Common", "A charcoal chick with an ember crest that glows when it is happy.", "a tiny round chick with a spiky crest", rgb(60, 55, 60), rgb(255, 120, 40), rgb(255, 220, 90), "hop", 1.4, 2.0),
-	def("sizzle_salamander", "Sizzle Salamander", "cinder_canyon", "Uncommon", "A salamander with glowing vents down its back. Do not touch the vents.", "a low lizard with a long tail and back vents", rgb(230, 90, 50), rgb(255, 170, 60), rgb(255, 240, 150), "sway", 1.0, 2.0),
-	def("magma_muncher", "Magma Muncher", "cinder_canyon", "Rare", "A squat lava monster with furnace jaws. Eats rocks, burps sparks.", "a wide squat monster with a huge mouth", rgb(120, 40, 40), rgb(255, 100, 30), rgb(255, 230, 120), "pulse", 1.0, 3.4),
+	def("cinder_chick", "Cinder Chick", "cinder_canyon", "Common", "A charcoal chick with an ember crest that glows when it is happy.", "a tiny round chick with a spiky crest", rgb(60, 55, 60), rgb(255, 120, 40), rgb(255, 220, 90), "hop", 1.4, 2.4),
+	def("sizzle_salamander", "Sizzle Salamander", "cinder_canyon", "Uncommon", "A salamander with glowing vents down its back. Do not touch the vents.", "a low lizard with a long tail and back vents", rgb(230, 90, 50), rgb(255, 170, 60), rgb(255, 240, 150), "sway", 1.0, 1.0),
+	def("magma_muncher", "Magma Muncher", "cinder_canyon", "Rare", "A squat lava monster with furnace jaws. Eats rocks, burps sparks.", "a wide squat monster with a huge mouth", rgb(120, 40, 40), rgb(255, 100, 30), rgb(255, 230, 120), "pulse", 1.0, 2.6),
 	def("mount_chomp", "Mount Chomp", "cinder_canyon", "Legendary", "A giant tortoise whose shell is an active volcano. Slow, smoky, and legendary.", "a giant tortoise with a volcano on its back", rgb(90, 110, 70), rgb(80, 60, 55), rgb(255, 110, 40), "bob", 0.5, 5.6),
 
 	-- Frostbite Peaks / Frost
@@ -80,8 +80,8 @@ Species.list = {
 	def("king_coldsnout", "King Coldsnout", "frostbite_peaks", "Legendary", "A royal mammoth wearing a glacier as a crown. The peaks answer to him.", "a huge mammoth with tusks and a tall crown", rgb(110, 130, 170), rgb(220, 235, 250), rgb(255, 215, 90), "bob", 0.5, 6.0),
 
 	-- Thunderworks / Storm
-	def("static_sprout", "Static Sprout", "thunderworks", "Common", "A sprout creature with electric hair that stands straight up. Always.", "a small sprout with spiky standing hair", rgb(120, 200, 90), rgb(255, 235, 90), rgb(255, 255, 200), "bob", 1.5, 2.2),
-	def("zap_raccoon", "Zap Raccoon", "thunderworks", "Uncommon", "A raccoon with a lightning-striped tail. It steals batteries.", "a raccoon with a big striped tail", rgb(90, 90, 110), rgb(255, 230, 80), rgb(240, 240, 240), "waddle", 1.2, 2.8),
+	def("static_sprout", "Static Sprout", "thunderworks", "Common", "A sprout creature with electric hair that stands straight up. Always.", "a small sprout with spiky standing hair", rgb(120, 200, 90), rgb(255, 235, 90), rgb(255, 255, 200), "bob", 1.5, 2.8),
+	def("zap_raccoon", "Zap Raccoon", "thunderworks", "Uncommon", "A raccoon with a lightning-striped tail. It steals batteries.", "a raccoon with a big striped tail", rgb(90, 90, 110), rgb(255, 230, 80), rgb(240, 240, 240), "waddle", 1.2, 3.2),
 	def("thunder_thumper", "Thunder Thumper", "thunderworks", "Rare", "A gorilla with cloud fists. Every thump is a thunderclap.", "a big gorilla with two puffy fists", rgb(70, 70, 95), rgb(220, 225, 240), rgb(255, 230, 80), "pulse", 0.9, 4.2),
 	def("boltjaw_behemoth", "Boltjaw Behemoth", "thunderworks", "Legendary", "A four-legged storm beast with lightning antlers. The sky follows it around.", "a large four-legged beast with jagged antlers", rgb(50, 50, 80), rgb(140, 150, 200), rgb(255, 240, 100), "sway", 0.8, 5.8),
 

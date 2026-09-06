@@ -85,6 +85,43 @@ PlayerService.init()
 
 print(("[%s] server ready in %d ms"):format(Config.GameName, math.floor((os.clock() - startedAt) * 1000)))
 
+-- ---------------------------------------------------------------- live tests
+
+-- Studio only. The unit suite runs against mock profiles and cannot reach the
+-- code that builds world instances, so once a real player has a real plot the
+-- live suite runs too and prints its results to Output. Nothing here exists in
+-- a published game.
+if RunService:IsStudio() then
+	task.spawn(function()
+		local Players = game:GetService("Players")
+		local Profiles = require(Systems.Profiles)
+		local harness = Systems:FindFirstChild("TestHarness")
+		if not harness then
+			return
+		end
+		local ok, module = pcall(require, harness)
+		if not ok or typeof(module) ~= "table" or typeof(module.runLive) ~= "function" then
+			return
+		end
+		-- wait for someone to join and be given a plot
+		local deadline = os.clock() + 45
+		while os.clock() < deadline do
+			for _, player in Players:GetPlayers() do
+				local profile = Profiles.get(player)
+				if profile and profile.loaded and profile.plot then
+					task.wait(1)
+					local ranOk, err = pcall(module.runLive, profile)
+					if not ranOk then
+						warn("[LiveTest] crashed: " .. tostring(err))
+					end
+					return
+				end
+			end
+			task.wait(1)
+		end
+	end)
+end
+
 -- ---------------------------------------------------------------- self tests
 
 if RunService:IsStudio() then
