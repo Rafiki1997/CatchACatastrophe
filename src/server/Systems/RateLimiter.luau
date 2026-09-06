@@ -1,36 +1,61 @@
 --!strict
 -- Token-bucket rate limiter keyed by player + action. Protects every remote
--- from spam without punishing normal play.
+-- from spam without punishing normal play: `burst` is how many requests can
+-- arrive back to back, `refill` how many tokens return per second.
+--
+-- Actions that spend money or change the world get tight buckets; harmless
+-- reads and UI toggles get loose ones. A request over the limit is dropped
+-- silently, because the honest cases (a held button, a double tap) do not need
+-- an error and the dishonest ones do not deserve a reply.
 
 local RateLimiter = {}
 
 type Bucket = { tokens: number, last: number }
 local buckets: { [Player]: { [string]: Bucket } } = {}
 
--- Per-action limits: burst (max tokens) and refill per second.
 local LIMITS: { [string]: { burst: number, refill: number } } = {
 	default = { burst = 6, refill = 3 },
-	CollectAll = { burst = 3, refill = 1 },
-	ToggleLock = { burst = 2, refill = 0.5 },
-	UseTool = { burst = 4, refill = 2 },
-	PlaceOddity = { burst = 6, refill = 3 },
-	StoreOddity = { burst = 6, refill = 3 },
-	ReleaseOddity = { burst = 3, refill = 1 },
-	PlaceEgg = { burst = 4, refill = 2 },
-	HatchEgg = { burst = 4, refill = 2 },
-	EquipPet = { burst = 6, refill = 3 },
-	UnequipPet = { burst = 6, refill = 3 },
-	ReleasePet = { burst = 3, refill = 1 },
-	BuyCoinUpgrade = { burst = 6, refill = 3 },
-	BuyTokenUpgrade = { burst = 4, refill = 2 },
-	DoRebirth = { burst = 1, refill = 0.2 },
-	SetSetting = { burst = 8, refill = 4 },
+
+	-- capture
+	StartCapture = { burst = 4, refill = 2 },
+	CancelCapture = { burst = 4, refill = 2 },
+
+	-- creatures
+	DeployCreature = { burst = 6, refill = 3 },
+	StoreCreature = { burst = 6, refill = 3 },
+	MoveCreature = { burst = 6, refill = 3 },
+	SellCreature = { burst = 3, refill = 1 },
+	SetFavorite = { burst = 8, refill = 4 },
+	PrismaticUpgrade = { burst = 2, refill = 0.5 },
+
+	-- circuits
+	ConnectCircuit = { burst = 6, refill = 3 },
+	DisconnectCircuit = { burst = 6, refill = 3 },
+	UpgradeCircuit = { burst = 3, refill = 1 },
+	StartOverdrive = { burst = 3, refill = 1 },
+
+	-- money
+	CollectBank = { burst = 3, refill = 1 },
+	ClaimOffline = { burst = 2, refill = 0.5 },
+
+	-- workshop
+	BuyUpgrade = { burst = 6, refill = 3 },
+	UnlockRegion = { burst = 3, refill = 1 },
+
+	-- progression
+	DoRelaunch = { burst = 1, refill = 0.2 },
+	ClaimMilestone = { burst = 3, refill = 1 },
+	ClaimQuest = { burst = 3, refill = 1 },
+	ClaimDaily = { burst = 3, refill = 1 },
 	TutorialAdvance = { burst = 4, refill = 1 },
-	ClaimIndexReward = { burst = 3, refill = 1 },
-	DropCarry = { burst = 2, refill = 1 },
+
+	-- world and UI
+	VisitCity = { burst = 2, refill = 0.5 },
+	SetSetting = { burst = 8, refill = 4 },
 	RequestState = { burst = 2, refill = 0.5 },
 	GetState = { burst = 3, refill = 0.5 },
-	Prompt = { burst = 8, refill = 4 }, -- ProximityPrompt triggers (buy / snatch / pick up)
+	GetCityInfo = { burst = 3, refill = 1 },
+	Prompt = { burst = 8, refill = 4 },
 }
 
 function RateLimiter.allow(player: Player, action: string): boolean
@@ -58,6 +83,11 @@ end
 
 function RateLimiter.clear(player: Player)
 	buckets[player] = nil
+end
+
+-- Studio self tests read this to check every remote has a deliberate bucket.
+function RateLimiter.limits(): { [string]: { burst: number, refill: number } }
+	return LIMITS
 end
 
 return RateLimiter

@@ -29,7 +29,10 @@ Remotes.eventNames = {
 	"ClaimOffline", -- ()  once-only offline award
 	"BuyUpgrade", -- (id: string)
 	"UnlockRegion", -- (regionId: string)
-	"DoRelaunch", -- (anchorUids: { string })
+	"DoRelaunch", -- (anchorUids: { string }, acknowledged: boolean)
+	-- `acknowledged` is the player ticking "I understand I will lose my unanchored
+	-- favorites". The server refuses without it, so the warning cannot be skipped
+	-- by a client that simply does not draw the checkbox.
 	"ClaimMilestone", -- (count: number)
 	"ClaimQuest", -- (questId: string)  repeatable
 	"ClaimDaily", -- (index: number)  1..3
