@@ -1,0 +1,34 @@
+{
+  "name": "CatchACatastrophe",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "Shared": { "$path": "src/shared" }
+    },
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "Server": { "$path": "src/server" }
+    },
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "$properties": { "CharacterWalkSpeed": 16, "EnableMouseLockOption": true },
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "Client": { "$path": "src/client" }
+      }
+    },
+    "StarterGui": { "$className": "StarterGui", "$properties": { "ResetPlayerGuiOnSpawn": false } },
+    "Workspace": { "$className": "Workspace", "$properties": { "FilteringEnabled": true } },
+    "Lighting": {
+      "$className": "Lighting",
+      "$properties": {
+        "Technology": "Future", "Brightness": 2.2, "ClockTime": 14.0,
+        "Ambient": [0.38, 0.4, 0.48], "OutdoorAmbient": [0.52, 0.55, 0.62],
+        "EnvironmentDiffuseScale": 0.6, "EnvironmentSpecularScale": 0.6, "GlobalShadows": true
+      }
+    },
+    "SoundService": { "$className": "SoundService", "$properties": { "RespectFilteringEnabled": true } },
+    "Players": { "$className": "Players", "$properties": { "CharacterAutoLoads": true, "RespawnTime": 3 } }
+  }
+}

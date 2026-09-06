@@ -1,0 +1,6 @@
+build/*.rbxl
+build/*.rbxlx
+build/*.rbxm
+*.rbxl.lock
+.superpowers/
+.tmp/
