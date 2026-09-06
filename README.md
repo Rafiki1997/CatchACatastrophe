@@ -161,21 +161,44 @@ namespace, and the HUD says "Studio test data".
 
 ## Status
 
-Written and committed: 77 files, about 18,800 lines, covering everything in the spec.
+Written and committed: 77 files, about 19,000 lines, covering everything in the spec.
 
-**Verified statically only. The game has not been played.** `rojo build` does not parse Luau, so two
-checks in `tools/` cover what can be checked without running it:
+### Verified in a running Studio session
+
+- **All 77 scripts compile.** Checked by compiling every `LuaSourceContainer` in the place.
+- **The server boots**: 1,027-part map, all systems up, ready in 65 ms.
+- **Unit self-tests: 222 passed, 0 failed.** Config integrity, all 24 creature models building at
+  sensible heights, the income formula applying each factor exactly once, circuit and adjacency
+  validation, the Overdrive state machine, save round-tripping and sanitising of hostile input, sell
+  value, scaled rewards, and a rate limit on every client remote.
+- **World builds correctly**: hub, arena with 3 prompted pylons, all six regions populated with the
+  right species, plot assigned with 6 unlocked pads, vent prompt wired.
+- **A capture completes end to end, driven through the real remotes as a client**: tether accrues,
+  range is enforced, hazards telegraph and land, a hit clears the perfect flag and deducts progress,
+  and the creature is granted and recorded in the Atlas.
+- **The spec's first verification item passes in full**: a fresh player captures, deploys, earns,
+  collects and buys an upgrade. Income read 4/s for a Common Wind creature exactly as configured; the
+  bank capped at one hour; collect paid the floor and left the fraction; the tutorial advanced through
+  steps 3, 4, 5 and 6 on the right actions; the creature and its windmill both appeared on the pad.
+
+### Not yet verified
+
+- The other five hazard patterns (only Wind was exercised live).
+- Circuits, Overdrive and the vent **in a live session** — they pass in the unit tests and a live suite
+  now exists for them (`Harness.runLive`, runs automatically in Studio once a player has a plot), but
+  it has not been run yet. Building one needs two unlocked regions, so it is not reachable in the first
+  minute of play.
+- Relaunch, offline claim on rejoin, the Containment Crisis, and two clients at once.
+- Balance against measured play. Every number is still the spec's proposed starting value.
+
+Static checks also run without Studio:
 
 ```bash
 python tools/luau_lint.py src     # block, bracket and string balance
 python tools/quote_scan.py src    # unbalanced quotes
 ```
 
-Both pass on all 77 files. `luau_lint.py` is calibrated against a sibling project known to compile.
-Together they found and fixed one real compile error. They cannot catch undefined globals, wrong
-argument counts, or any runtime fault.
-
-The next step is pressing Play and reading Output. See `HANDOFF.md` for exactly where to pick up.
+See `HANDOFF.md` for where to pick up.
 
 ## Known limitations
 
