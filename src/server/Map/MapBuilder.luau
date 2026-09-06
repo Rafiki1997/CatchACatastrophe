@@ -161,15 +161,19 @@ local function buildHub(parent: Instance)
 	hub.Name = "Hub"
 	hub.Parent = parent
 
-	disc(hub, "Plaza", Vector3.new(0, 0, 0), 70, 1, CONCRETE, Enum.Material.Concrete)
-	disc(hub, "PlazaInner", Vector3.new(0, 0.05, 0), 30, 1, rgb(206, 202, 210), Enum.Material.Concrete)
+	-- Floors sit slightly proud of the ground. A floor whose top face is exactly
+	-- at y = 0, like the ground's, z-fights with it: the two surfaces flicker
+	-- against each other, which showed up as a shimmering circle across the
+	-- plaza. Every stacked layer below keeps a similar gap for the same reason.
+	disc(hub, "Plaza", Vector3.new(0, 0.06, 0), 70, 1, CONCRETE, Enum.Material.Concrete)
+	disc(hub, "PlazaInner", Vector3.new(0, 0.15, 0), 30, 1, rgb(206, 202, 210), Enum.Material.Concrete)
 	-- company logo ring in the middle
 	for i = 1, 24 do
 		local a = (i / 24) * 360
 		part({
 			name = "LogoTile",
 			size = Vector3.new(3.2, 0.16, 1.6),
-			cf = CFrame.new(polar(16, a, 0.14)) * CFrame.Angles(0, math.rad(-a), 0),
+			cf = CFrame.new(polar(16, a, 0.32)) * CFrame.Angles(0, math.rad(-a), 0),
 			color = if i % 2 == 0 then HAZARD else INK,
 			parent = hub,
 		})
@@ -217,7 +221,7 @@ local function buildHub(parent: Instance)
 	local beacon = Instance.new("Model")
 	beacon.Name = "Beacon"
 	beacon.Parent = hub
-	disc(beacon, "Base", beaconPos, 12, 1.2, DECK, Enum.Material.Concrete)
+	disc(beacon, "Base", beaconPos + Vector3.new(0, 0.14, 0), 12, 1.2, DECK, Enum.Material.Concrete)
 	for i = 1, 3 do
 		part({ name = "Buttress", size = Vector3.new(1.6, 14, 1.6), cf = CFrame.new(beaconPos + polar(5, i * 120, 7)) * CFrame.Angles(0, math.rad(-i * 120), 0), color = DECK, collide = true, parent = beacon })
 	end
@@ -242,7 +246,7 @@ local function buildHub(parent: Instance)
 	local kiosk = Instance.new("Model")
 	kiosk.Name = "AtlasKiosk"
 	kiosk.Parent = hub
-	disc(kiosk, "Base", atlasPos, 9, 1.2, DECK, Enum.Material.Concrete)
+	disc(kiosk, "Base", atlasPos + Vector3.new(0, 0.14, 0), 9, 1.2, DECK, Enum.Material.Concrete)
 	part({ name = "Post", size = Vector3.new(1.4, 8, 1.4), cf = CFrame.new(atlasPos + Vector3.new(0, 4, 0)), color = DECK, collide = true, parent = kiosk })
 	part({ name = "Canopy", size = Vector3.new(12, 0.8, 8), cf = CFrame.new(atlasPos + Vector3.new(0, 8.4, 0)), color = rgb(120, 220, 150), parent = kiosk })
 	local atlasTerminal = part({ name = "Terminal", size = Vector3.new(5, 4.5, 2.2), cf = CFrame.new(atlasPos + Vector3.new(0, 3, -3)), color = rgb(58, 62, 82), collide = true, parent = kiosk })
@@ -265,10 +269,16 @@ local function buildHub(parent: Instance)
 	for i = 1, 8 do
 		lamp(hub, polar(64, 22.5 + (i - 1) * 45))
 	end
-	path(hub, Vector3.new(0, 0, 0), workshopPos, 8)
-	path(hub, Vector3.new(0, 0, 0), beaconPos, 8)
-	path(hub, Vector3.new(0, 0, 0), atlasPos, 8)
-	path(hub, Vector3.new(0, 0, 0), Vector3.new(0, 0, -70), 10)
+	-- start outside the logo ring: four paths meeting at the exact centre would
+	-- overlap each other there
+	local function spoke(target: Vector3, width: number)
+		local dir = target.Unit
+		path(hub, dir * 20, target, width)
+	end
+	spoke(workshopPos, 8)
+	spoke(beaconPos, 8)
+	spoke(atlasPos, 8)
+	spoke(Vector3.new(0, 0, -70), 10)
 
 	return {
 		model = hub,
@@ -288,15 +298,15 @@ local function buildArena(parent: Instance)
 	arena.Name = "Arena"
 	arena.Parent = parent
 
-	disc(arena, "Floor", centre, 30, 1, rgb(196, 192, 200), Enum.Material.Concrete)
-	disc(arena, "Ring", centre + Vector3.new(0, 0.06, 0), 22, 1, rgb(172, 168, 180), Enum.Material.Concrete)
+	disc(arena, "Floor", centre + Vector3.new(0, 0.06, 0), 30, 1, rgb(196, 192, 200), Enum.Material.Concrete)
+	disc(arena, "Ring", centre + Vector3.new(0, 0.15, 0), 22, 1, rgb(172, 168, 180), Enum.Material.Concrete)
 	-- containment ring markings
 	for i = 1, 30 do
 		local a = (i / 30) * 360
 		part({
 			name = "Marking",
 			size = Vector3.new(3.6, 0.14, 1.2),
-			cf = CFrame.new(centre + polar(27, a, 0.14)) * CFrame.Angles(0, math.rad(-a), 0),
+			cf = CFrame.new(centre + polar(27, a, 0.30)) * CFrame.Angles(0, math.rad(-a), 0),
 			color = if i % 2 == 0 then HAZARD else INK,
 			parent = arena,
 		})
@@ -388,8 +398,8 @@ local function regionProps(parent: Instance, centre: Vector3, element: string, d
 		for i = 1, 7 do
 			local p = spot(12, radius - 10)
 			local r = rand:NextNumber(6, 14)
-			disc(parent, "Pool", p + Vector3.new(0, 0.2, 0), r, 0.4, c, Enum.Material.Glass)
-			part({ name = "PoolRim", size = Vector3.new(0.5, r * 2 + 1.6, r * 2 + 1.6), cf = CFrame.new(p + Vector3.new(0, 0.1, 0)) * CFrame.Angles(0, 0, math.rad(90)), color = rgb(214, 196, 150), shape = Enum.PartType.Cylinder, parent = parent })
+			disc(parent, "Pool", p + Vector3.new(0, 0.46, 0), r, 0.4, c, Enum.Material.Glass)
+			part({ name = "PoolRim", size = Vector3.new(0.5, r * 2 + 1.6, r * 2 + 1.6), cf = CFrame.new(p + Vector3.new(0, 0.38, 0)) * CFrame.Angles(0, 0, math.rad(90)), color = rgb(214, 196, 150), shape = Enum.PartType.Cylinder, parent = parent })
 		end
 		for i = 1, 8 do
 			local p = spot(14, radius - 8)
