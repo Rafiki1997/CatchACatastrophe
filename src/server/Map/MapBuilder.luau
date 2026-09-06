@@ -126,22 +126,111 @@ local function label(parent: Instance, name: string, text: string, size: UDim2, 
 	return l
 end
 
--- A path strip from one point to another, drawn just above the ground.
-local function path(parent: Instance, from: Vector3, to: Vector3, width: number)
+-- A guidance route from one point to another.
+--
+-- A plain grey strip told the player nothing: it read as scenery, not as "go
+-- this way". So a route is a dark roadbed, a coloured edge line naming where it
+-- leads, and a run of bright chevrons pointing at the destination. The chevrons
+-- are the part that actually directs: they have a direction, they repeat, and
+-- they are the only thing in the hub that is this yellow.
+--
+-- `accent` tints the edge lines, so a route to Frostbite Peaks is edged in that
+-- region's blue and a route to a hub building is edged in company yellow.
+local CHEVRON_SPACING = 11
+local CHEVRON_MAX = 16
+local BOLLARD_SPACING = 30
+local BOLLARD_MAX = 7
+
+local function path(parent: Instance, from: Vector3, to: Vector3, width: number, accent: Color3?)
 	local delta = to - from
 	local length = delta.Magnitude
 	if length < 1 then
 		return
 	end
+	local flat = Vector3.new(delta.X, 0, delta.Z)
+	if flat.Magnitude < 0.01 then
+		return
+	end
+	local dir = flat.Unit
 	local mid = (from + to) / 2
+	local trim = accent or HAZARD
+
+	-- roadbed: darker than the plaza so the chevrons read against it
+	local base = CFrame.lookAt(Vector3.new(mid.X, 0.12, mid.Z), Vector3.new(mid.X, 0.12, mid.Z) + dir)
 	part({
 		name = "Path",
 		size = Vector3.new(width, 0.25, length),
-		cf = CFrame.lookAt(Vector3.new(mid.X, 0.12, mid.Z), Vector3.new(to.X, 0.12, to.Z)),
-		color = PATH,
-		material = Enum.Material.Slate,
+		cf = base,
+		color = rgb(122, 122, 132),
+		material = Enum.Material.Asphalt,
 		parent = parent,
 	})
+
+	-- edge lines in the destination's colour
+	for _, side in { -1, 1 } do
+		part({
+			name = "PathEdge",
+			size = Vector3.new(0.5, 0.2, length),
+			cf = base * CFrame.new(side * (width / 2 - 0.3), 0.05, 0),
+			color = trim,
+			material = Enum.Material.SmoothPlastic,
+			parent = parent,
+		})
+	end
+
+	-- chevrons pointing at the destination
+	local count = math.clamp(math.floor(length / CHEVRON_SPACING), 1, CHEVRON_MAX)
+	local step = length / (count + 1)
+	local arm = width * 0.42
+	for i = 1, count do
+		local along = -length / 2 + step * i
+		for _, side in { -1, 1 } do
+			part({
+				name = "PathChevron",
+				size = Vector3.new(0.85, 0.16, arm),
+				-- each half of the ">" is rotated in from the centre line
+				cf = base * CFrame.new(side * arm * 0.32, 0.09, along) * CFrame.Angles(0, side * math.rad(38), 0),
+				color = HAZARD,
+				material = Enum.Material.Neon,
+				parent = parent,
+			})
+		end
+	end
+
+	-- Markings painted on the floor foreshorten to almost nothing when you are
+	-- standing on them, which is exactly when you need them. Bollards give the
+	-- route a silhouette at eye level: you can see where it goes from across the
+	-- plaza, and which way, because the cap lights march toward the destination.
+	local posts = math.clamp(math.floor(length / BOLLARD_SPACING), 1, BOLLARD_MAX)
+	local postStep = length / (posts + 1)
+	for i = 1, posts do
+		local along = -length / 2 + postStep * i
+		for _, side in { -1, 1 } do
+			local at = base * CFrame.new(side * (width / 2 + 1.1), 0, along)
+			part({
+				name = "RouteBollard",
+				size = Vector3.new(0.55, 3.2, 0.55),
+				cf = at * CFrame.new(0, 1.5, 0),
+				color = INK,
+				parent = parent,
+			})
+			part({
+				name = "RouteBollardBand",
+				size = Vector3.new(0.7, 0.6, 0.7),
+				cf = at * CFrame.new(0, 2.1, 0),
+				color = HAZARD,
+				parent = parent,
+			})
+			part({
+				name = "RouteBollardCap",
+				size = Vector3.new(0.5, 0.35, 0.5),
+				cf = at * CFrame.new(0, 3.2, 0),
+				color = trim,
+				material = Enum.Material.Neon,
+				parent = parent,
+			})
+		end
+	end
 end
 
 local function lamp(parent: Instance, at: Vector3, color: Color3?)
@@ -271,14 +360,15 @@ local function buildHub(parent: Instance)
 	end
 	-- start outside the logo ring: four paths meeting at the exact centre would
 	-- overlap each other there
-	local function spoke(target: Vector3, width: number)
+	local function spoke(target: Vector3, width: number, accent: Color3?)
 		local dir = target.Unit
-		path(hub, dir * 20, target, width)
+		path(hub, dir * 20, target, width, accent)
 	end
-	spoke(workshopPos, 8)
-	spoke(beaconPos, 8)
-	spoke(atlasPos, 8)
-	spoke(Vector3.new(0, 0, -70), 10)
+	spoke(workshopPos, 8, HAZARD)
+	spoke(beaconPos, 8, rgb(120, 235, 255))
+	spoke(atlasPos, 8, rgb(120, 220, 150))
+	-- the route south leads to the crisis arena
+	spoke(Vector3.new(0, 0, -70), 10, rgb(255, 120, 100))
 
 	return {
 		model = hub,
@@ -358,7 +448,7 @@ local function buildArena(parent: Instance)
 		pylons[i] = { model = m, prompt = nil }
 	end
 
-	path(arena, Vector3.new(0, 0, -70), centre, 10)
+	path(arena, Vector3.new(0, 0, -70), centre, 10, rgb(255, 120, 100))
 	for i = 1, 6 do
 		lamp(arena, centre + polar(34, (i - 1) * 60), rgb(200, 230, 255))
 	end
@@ -652,8 +742,10 @@ local function buildRegion(parent: Instance, def: any)
 
 	local entrance = part({ name = "Entrance", size = Vector3.new(6, 1, 6), cf = gateCF * CFrame.new(0, 0.5, 14), transparency = 1, collide = false, query = false, parent = model })
 
-	path(model, Vector3.new(0, 0, 0), gatePos, 9)
-	path(model, gatePos, centre, 9)
+	-- a route edged in the region's own colour, so the way to Frostbite Peaks
+	-- looks different from the way to Cinder Canyon long before you can read the sign
+	path(model, polar(74, angle), gatePos, 9, def.color)
+	path(model, gatePos, centre, 9, def.color)
 	lamp(model, gatePos + Vector3.new(0, 0, 0) + polar(16, angle + 90), def.color)
 	lamp(model, gatePos + polar(16, angle - 90), def.color)
 
@@ -706,7 +798,7 @@ function MapBuilder.build()
 		local a = 22.5 + (i - 1) * 45
 		local pos = polar(140, a)
 		plots[i] = CFrame.lookAt(pos, Vector3.new(0, 0, 0))
-		path(map, polar(72, a), pos, 8)
+		path(map, polar(72, a), pos, 8, rgb(120, 200, 255))
 		lamp(map, polar(104, a))
 	end
 
