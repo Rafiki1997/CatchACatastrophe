@@ -61,9 +61,11 @@ end
 function Input.init()
 	local gui = W.screenGui("CatchInput", 5)
 	W.attachScale(gui)
+	-- touch buttons sit above the home indicator, not under it
+	local safe = W.safeArea(gui)
 
 	local container = W.frame({
-		parent = gui,
+		parent = safe,
 		name = "TouchActions",
 		size = UDim2.new(0, 150, 0, 130),
 		position = UDim2.new(1, -20, 1, -30),

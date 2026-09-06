@@ -589,8 +589,39 @@ local function toggleCapture()
 	end
 end
 
+-- The Containment Tether tool is the visible instrument for a capture, but it
+-- is not required: E, the touch button and the tool all reach the same action,
+-- so unequipping it never strands the player.
+local function watchTool()
+	local function hook(tool: Instance)
+		if tool:IsA("Tool") and tool.Name == "Containment Tether" then
+			tool.Activated:Connect(toggleCapture)
+		end
+	end
+	local function watch(container: Instance)
+		for _, child in container:GetChildren() do
+			hook(child)
+		end
+		container.ChildAdded:Connect(hook)
+	end
+	local backpack = player:FindFirstChildOfClass("Backpack")
+	if backpack then
+		watch(backpack)
+	end
+	player.ChildAdded:Connect(function(child)
+		if child:IsA("Backpack") then
+			watch(child)
+		end
+	end)
+	if player.Character then
+		watch(player.Character)
+	end
+	player.CharacterAdded:Connect(watch)
+end
+
 function CaptureController.init()
 	Input.onAction("Capture", toggleCapture)
+	watchTool()
 	Input.onAction("Cancel", function()
 		if captureState then
 			Net.fire("CancelCapture")

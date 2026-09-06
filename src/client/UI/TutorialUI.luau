@@ -152,9 +152,10 @@ end
 function TutorialUI.init()
 	local gui = W.screenGui("CatchTutorial", 3)
 	W.attachScale(gui)
+	local safe = W.safeArea(gui)
 
 	card = W.frame({
-		parent = gui,
+		parent = safe,
 		name = "TutorialCard",
 		size = UDim2.new(0, 300, 0, 132),
 		position = UDim2.new(1, -14, 1, -160),

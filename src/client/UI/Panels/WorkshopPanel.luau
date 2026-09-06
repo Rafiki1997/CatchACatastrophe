@@ -117,6 +117,26 @@ local function createUpgradeRow(def: any): any
 			Net.fire("BuyUpgrade", def.id)
 		end,
 	})
+	-- the button shows an abbreviated price; the tooltip gives the exact figure
+	-- and how far off it is
+	W.tooltip(button, function()
+		local snap = State.get()
+		if not snap then
+			return def.name
+		end
+		local level = snap.upgrades[def.id] or 0
+		if level >= maxLevelFor(def.id, snap) then
+			return def.name .. " is at its maximum level."
+		end
+		local cost = Config.Economy.upgradeCost(def.id, level)
+		local short = cost - snap.coins
+		return def.name
+			.. "\nCost: "
+			.. Format.commas(cost)
+			.. " Coins"
+			.. (if short > 0 then "\nYou need " .. Format.commas(short) .. " more." else "\nYou can afford this.")
+	end)
+
 	local record = { frame = card, icon = icon, title = title, levelLabel = levelLabel, effect = effect, button = button, def = def }
 	upgradeRows[def.id] = record
 	return record

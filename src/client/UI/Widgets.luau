@@ -7,6 +7,7 @@
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local GuiService = game:GetService("GuiService")
 
 local Theme = require(script.Parent.Theme)
 local Sounds = require(ReplicatedStorage.Shared.Config.Sounds)
@@ -465,6 +466,106 @@ function W.attachScale(gui: ScreenGui): UIScale
 	update()
 	camera:GetPropertyChangedSignal("ViewportSize"):Connect(update)
 	return scale
+end
+
+-- ------------------------------------------------------------ safe area
+
+-- A full-screen frame inset by whatever the device is covering: the Roblox top
+-- bar, and on a phone the notch and the home indicator. Anchor HUD elements
+-- inside this rather than to the ScreenGui, or they end up under the hardware.
+--
+-- GuiService reports the top-left and bottom-right insets; the bottom one is
+-- zero on desktop, so this costs nothing there.
+function W.safeArea(gui: ScreenGui): Frame
+	local existing = gui:FindFirstChild("SafeArea")
+	if existing and existing:IsA("Frame") then
+		return existing
+	end
+	local frame = W.frame({
+		parent = gui,
+		name = "SafeArea",
+		size = UDim2.fromScale(1, 1),
+		transparency = 1,
+	})
+	local function update()
+		local topLeft, bottomRight = GuiService:GetGuiInset()
+		-- the ScreenGui already accounts for the top bar (IgnoreGuiInset = false),
+		-- so only the part beyond it needs taking off here
+		local extraTop = math.max(0, topLeft.Y - 36)
+		frame.Position = UDim2.new(0, topLeft.X, 0, extraTop)
+		frame.Size = UDim2.new(1, -(topLeft.X + bottomRight.X), 1, -(extraTop + bottomRight.Y))
+	end
+	update()
+	GuiService:GetPropertyChangedSignal("TopbarInset"):Connect(update)
+	local camera = workspace.CurrentCamera
+	if camera then
+		camera:GetPropertyChangedSignal("ViewportSize"):Connect(update)
+	end
+	return frame
+end
+
+-- ------------------------------------------------------------ tooltips
+
+local tooltipGui: ScreenGui? = nil
+local tooltipLabel: TextLabel? = nil
+
+-- Hover (or long-press) help for anything whose meaning is not obvious from its
+-- face: an abbreviated number whose exact value matters, a button whose cost is
+-- elsewhere. Follows the pointer and never blocks input.
+function W.tooltip(target: GuiObject, text: string | () -> string)
+	if not tooltipGui then
+		local gui = W.screenGui("CatchTooltip", 50)
+		gui.ResetOnSpawn = false
+		local label = W.label({
+			parent = gui,
+			name = "Text",
+			text = "",
+			size = UDim2.new(0, 260, 0, 30),
+			textSize = 13,
+			font = Theme.fonts.body,
+			color = Theme.colors.text,
+			bg = Theme.colors.bgDeep,
+			radius = Theme.sizes.radiusSmall,
+			wrap = true,
+			automatic = true,
+			visible = false,
+			zindex = 60,
+		})
+		W.stroke(label, Theme.colors.ink, 2)
+		label.TextXAlignment = Enum.TextXAlignment.Center
+		tooltipGui = gui
+		tooltipLabel = label
+	end
+	local label = tooltipLabel
+	if not label then
+		return
+	end
+
+	local function show()
+		local value = if typeof(text) == "function" then text() else text
+		if value == nil or value == "" then
+			return
+		end
+		label.Text = value
+		label.Visible = true
+	end
+	local function hide()
+		label.Visible = false
+	end
+
+	target.MouseEnter:Connect(show)
+	target.MouseLeave:Connect(hide)
+	target.MouseMoved:Connect(function(x, y)
+		if label.Visible then
+			label.Position = UDim2.new(0, x + 14, 0, y - 34)
+		end
+	end)
+	-- a destroyed button must not leave its tooltip on screen
+	target.AncestryChanged:Connect(function()
+		if not target:IsDescendantOf(game) then
+			hide()
+		end
+	end)
 end
 
 -- ------------------------------------------------------------ tweens

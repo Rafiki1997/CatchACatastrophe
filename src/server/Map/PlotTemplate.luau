@@ -111,6 +111,9 @@ export type Plot = {
 	stations: { [number]: Folder },
 	machines: Folder,
 	booth: { model: Model, ventButton: Part, console: TextLabel },
+	-- filled in by RemoteRouter.attachPrompts; CircuitService toggles it so the
+	-- vent only offers itself while an Overdrive is actually running
+	ventPrompt: ProximityPrompt?,
 	collectPad: Part,
 	collectLabel: TextLabel,
 	billboardTitle: TextLabel,
@@ -389,6 +392,7 @@ function PlotTemplate.build(cframe: CFrame, index: number): Plot
 		stations = stations,
 		machines = machines,
 		booth = { model = booth, ventButton = ventButton, console = consoleLabel },
+		ventPrompt = nil,
 		collectPad = collectPad,
 		collectLabel = collectLabel,
 		billboardTitle = billboardTitle,

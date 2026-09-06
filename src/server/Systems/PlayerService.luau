@@ -67,6 +67,8 @@ local function onCharacterAdded(profile: Profile, character: Model)
 			return
 		end
 		PlayerService.applyCharacter(profile)
+		-- the backpack is rebuilt on respawn, so the tether is handed out again
+		try("Tools", "give", profile)
 		local humanoid = character:FindFirstChildOfClass("Humanoid")
 		if humanoid then
 			humanoid.Died:Connect(function()
@@ -99,6 +101,7 @@ function PlayerService.onJoin(player: Player)
 	try("Quests", "ensureDaily", profile)
 	try("City", "refreshAll", profile)
 	try("Circuits", "recalculate", profile)
+	try("Tools", "give", profile)
 	PlayerService.applyCharacter(profile)
 
 	Sync.push(profile)

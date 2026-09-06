@@ -48,10 +48,13 @@ function HUD.init()
 	local g = W.screenGui("CatchHUD", 2)
 	W.attachScale(g)
 	gui = g
+	-- anchor to the safe area, not the raw screen, so a notch or a home
+	-- indicator never sits on top of the wallet or the sidebar
+	local safe = W.safeArea(g)
 
 	-- ---------------------------------------------------------------- wallet
 	local wallet = W.frame({
-		parent = g,
+		parent = safe,
 		name = "Wallet",
 		size = UDim2.new(0, 264, 0, 132),
 		position = UDim2.new(0, 14, 0, Theme.hudSafeTop + 6),
@@ -124,7 +127,7 @@ function HUD.init()
 
 	-- ---------------------------------------------------------------- forecast
 	forecastRow = W.frame({
-		parent = g,
+		parent = safe,
 		name = "Forecast",
 		size = UDim2.new(0, 300, 0, 30),
 		position = UDim2.new(1, -14, 0, Theme.hudSafeTop + 6),
@@ -135,7 +138,7 @@ function HUD.init()
 
 	-- ---------------------------------------------------------------- sidebar
 	local sidebar = W.frame({
-		parent = g,
+		parent = safe,
 		name = "Sidebar",
 		size = UDim2.new(0, 72, 0, #SIDEBAR * 72),
 		position = UDim2.new(0, 14, 0.5, 20),
@@ -151,7 +154,7 @@ function HUD.init()
 
 	-- ---------------------------------------------------------------- offline card
 	offlineCard = W.frame({
-		parent = g,
+		parent = safe,
 		name = "Offline",
 		size = UDim2.new(0, 340, 0, 96),
 		position = UDim2.new(0.5, 0, 0, 60),
@@ -202,7 +205,7 @@ function HUD.init()
 
 	-- ---------------------------------------------------------------- visiting chip
 	visitChip = W.button({
-		parent = g,
+		parent = safe,
 		name = "Visiting",
 		text = "Visiting a city - go home",
 		size = UDim2.new(0, 250, 0, 34),
@@ -219,7 +222,7 @@ function HUD.init()
 
 	-- ---------------------------------------------------------------- data pill
 	dataPill = W.label({
-		parent = g,
+		parent = safe,
 		name = "DataPill",
 		text = "",
 		size = UDim2.new(0, 200, 0, 26),
@@ -231,6 +234,53 @@ function HUD.init()
 		bg = Theme.colors.bgDeep,
 		radius = Theme.sizes.radiusSmall,
 	})
+
+	-- Tooltips: the HUD abbreviates every number, so hovering gives the exact
+	-- figure and, where it helps, what the number actually means.
+	W.tooltip(coinsLabel :: GuiObject, function()
+		local snap = State.get()
+		if not snap then
+			return "Coins"
+		end
+		return "Coins: " .. Format.commas(math.floor(snap.coins)) .. "\nEarned all time: " .. Format.commas(math.floor(snap.lifetimeCoins))
+	end)
+	W.tooltip(incomeLabel :: GuiObject, function()
+		local snap = State.get()
+		if not snap then
+			return "City income"
+		end
+		local line = "Your city earns " .. Format.commas(math.floor(snap.cps)) .. " Coins every second."
+		if snap.cps > snap.normalCps + 0.5 then
+			line ..= "\nOverdrive is running. Without it: " .. Format.commas(math.floor(snap.normalCps)) .. "/s."
+		end
+		return line
+	end)
+	W.tooltip(bankLabel :: GuiObject, function()
+		local snap = State.get()
+		if not snap then
+			return "Bank"
+		end
+		return "Waiting to collect: "
+			.. Format.commas(math.floor(snap.bank))
+			.. "\nHolds up to "
+			.. Format.commas(math.floor(snap.bankCap))
+			.. " ("
+			.. Format.duration(snap.derived.bankCapSeconds)
+			.. " of production).\nIt stops filling when full, so collect before then."
+	end)
+	W.tooltip(collectButton :: GuiObject, "Move everything in the bank into your wallet. You can also step on the collection pad in your city.")
+	W.tooltip(dataPill :: GuiObject, function()
+		local snap = State.get()
+		if not snap then
+			return "Save status"
+		end
+		if not snap.dataSafe then
+			return "Your save could not be loaded, so nothing is being written this session. Your real city is untouched."
+		elseif snap.testAdapter then
+			return "Studio has DataStores turned off, so this city lives only while the server runs."
+		end
+		return "Your progress is being saved automatically."
+	end)
 
 	Net.on("Forecast", function(data)
 		if typeof(data) == "table" then

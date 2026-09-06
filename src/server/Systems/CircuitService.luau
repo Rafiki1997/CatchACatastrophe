@@ -238,6 +238,8 @@ function CircuitService.vent(profile: Profile): (boolean, string?)
 		return false, "Nothing to vent. Start Overdrive on a circuit first."
 	end
 	profile.dirty = true
+	-- nothing left to vent, so the prompt goes away again
+	CircuitService.applyMachineState(profile)
 	Notify.player(profile.player, "success", "Vented! No cooldown on " .. tostring(vented) .. (if vented == 1 then " circuit." else " circuits."), 4)
 	Notify.effectFor(profile.player, "overdrive", plot.booth.ventButton.Position)
 	return true, nil
@@ -269,10 +271,24 @@ end
 
 -- ---------------------------------------------------------------- machines
 
--- Write Working / Overdrive / Cooling onto the machine and its two workers.
+-- Write Working / Overdrive / Cooling onto the machine and its two workers,
+-- and show the vent prompt only while it can actually be used.
 function CircuitService.applyMachineState(profile: Profile)
 	local now = workspace:GetServerTimeNow()
 	local pairs_ = Stats.activePairs(profile)
+
+	local ventable = false
+	for _, od in profile.overdrives do
+		if od.phase == "active" and now < od.until_ and not od.vented then
+			ventable = true
+			break
+		end
+	end
+	local plot = profile.plot
+	if plot and plot.ventPrompt then
+		plot.ventPrompt.Enabled = ventable
+	end
+
 	for key, model in profile.machineModels do
 		local pair = pairs_[key]
 		local od = profile.overdrives[key]

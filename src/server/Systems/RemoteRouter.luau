@@ -245,6 +245,20 @@ function Router.init()
 			if profile.dirty then
 				Sync.push(profile)
 			end
+		elseif kind == "Collect" and S.Economy then
+			-- the spec offers two ways to bank: step on the pad, or press it
+			local plotIndex = host and host:GetAttribute("PlotIndex")
+			if plotIndex == profile.plotIndex and not profile.visiting then
+				local ok, result, message = pcall(S.Economy.collect, profile)
+				if ok and result == false and typeof(message) == "string" then
+					Notify.player(player, "error", message, 4)
+				end
+				if profile.dirty then
+					Sync.push(profile)
+				end
+			else
+				Notify.player(player, "error", "That is not your collection pad.", 4)
+			end
 		end
 	end)
 
@@ -349,7 +363,20 @@ function Router.attachPrompts(refs: any)
 
 	if S.City then
 		for _, plot in S.City.allPlots() do
-			addPrompt(plot.booth.ventButton, "Hold to vent", "Overdrive Vent", Config.Circuits.overdrive.ventHoldSeconds, 14)
+			-- The vent only means anything while a pair is in its active phase,
+			-- so it stays disabled until CircuitService switches it on. A prompt
+			-- that is always there but usually useless teaches the wrong lesson.
+			local vent = addPrompt(plot.booth.ventButton, "Hold to vent", "Overdrive Vent", Config.Circuits.overdrive.ventHoldSeconds, 14)
+			if vent then
+				vent.Enabled = false
+				plot.ventPrompt = vent
+			end
+
+			local collect = addPrompt(plot.collectPad, "Collect", "Collection Pad", 0, 14)
+			if collect then
+				plot.collectPad:SetAttribute("Prompt", "Collect")
+				plot.collectPad:SetAttribute("PlotIndex", plot.index)
+			end
 		end
 	end
 

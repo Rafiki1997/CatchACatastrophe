@@ -141,8 +141,31 @@ function Effects.play(kind: string, position: Vector3, extra: any?)
 	end
 end
 
+-- The Music slider drives this group. Roblox ships no `rbxasset://` music track
+-- and the spec forbids depending on an asset the player might not be able to
+-- load, so the group is currently silent: the wiring is real and complete, and
+-- adding a track means parenting one Sound here with SoundGroup set. Effects
+-- volume is fully live and applies to every sound the game plays.
+local function musicGroup(): SoundGroup
+	local existing = SoundService:FindFirstChild("Music")
+	if existing and existing:IsA("SoundGroup") then
+		return existing
+	end
+	local group = Instance.new("SoundGroup")
+	group.Name = "Music"
+	group.Volume = 0
+	group.Parent = SoundService
+	return group
+end
+
 function Effects.init()
-	-- nothing to build; the module is driven entirely by remotes
+	local group = musicGroup()
+	local function apply()
+		local s = settings()
+		group.Volume = math.clamp(s.music, 0, 1)
+	end
+	apply()
+	State.onChanged(apply)
 end
 
 return Effects

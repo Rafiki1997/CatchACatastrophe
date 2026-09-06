@@ -48,10 +48,11 @@ function CaptureHUD.init()
 	local g = W.screenGui("CatchCaptureHUD", 4)
 	W.attachScale(g)
 	gui = g
+	local safe = W.safeArea(g)
 
 	-- ---------------------------------------------------------------- warning
 	warningLabel = W.label({
-		parent = g,
+		parent = safe,
 		name = "HazardWarning",
 		text = "",
 		size = UDim2.new(0, 720, 0, 52),
@@ -66,7 +67,7 @@ function CaptureHUD.init()
 
 	-- ---------------------------------------------------------------- target card
 	local card = W.frame({
-		parent = g,
+		parent = safe,
 		name = "TargetCard",
 		size = UDim2.new(0, 330, 0, 108),
 		position = UDim2.new(0.5, 0, 1, -168),
@@ -111,7 +112,7 @@ function CaptureHUD.init()
 
 	-- ---------------------------------------------------------------- capture card
 	local cap = W.frame({
-		parent = g,
+		parent = safe,
 		name = "CaptureCard",
 		size = UDim2.new(0, 420, 0, 150),
 		position = UDim2.new(0.5, 0, 1, -150),
