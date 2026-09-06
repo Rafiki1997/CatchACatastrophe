@@ -50,7 +50,32 @@ Everything in the spec is **written and committed**: about 18,300 lines of Luau 
 
 ### Verification status
 
-**Static checks pass. Nothing has been executed.**
+**It runs.** Verified in a live Studio session: all 77 scripts compile, the server boots in 65 ms and
+builds a 1,027-part map, and the unit self-tests report **222 passed, 0 failed**.
+
+The spec's first verification item passes in full, driven through the real remotes as a client: capture
+a creature, deploy it, earn, collect, buy an upgrade. Income, bank cap, collect rounding and the
+tutorial chain all behaved exactly as configured.
+
+Three failures found on the first run are fixed:
+
+- Two creatures had `height` values that did not describe their models, and the test compared vertical
+  *extent* rather than the top of the model, which wrongly failed a hovering manta. The test now
+  measures the top, and eight heights were corrected against measurements. This matters in game because
+  the client offsets name labels by `height`.
+- One test asserted the wrong expected income for a circuit member, having assumed a Wind base rate for
+  a Storm creature. The game was right; the test is now derived from config so it cannot drift.
+
+**Still unverified:** the other five hazard patterns (only Wind was exercised live), circuits /
+Overdrive / the vent in a live session, relaunch, the offline claim on rejoin, the Containment Crisis,
+two clients at once, and all balance.
+
+A live suite for the world-touching cases now exists: `Harness.runLive` in `TestHarness.luau`, wired in
+`Main.server.luau` to run automatically in Studio once a player has been given a plot. It prints
+`[LiveTest] passed N, failed M`. It is written but has not yet been run — it needs a Studio session
+opened on the **current** build.
+
+### Static checks (no Studio needed)
 
 `rojo build` packages files without parsing Luau, so it proves nothing about syntax. Two checks in
 `tools/` fill part of that gap and both pass over all 77 files:
@@ -71,10 +96,7 @@ Between them these caught one genuine compile error (a search-and-replace had wr
 inside a Luau string in `CreaturesPanel.luau`), which is fixed.
 
 What they cannot catch: undefined globals, wrong argument counts, bad field names, and every runtime
-error. **The place has never been played.** Studio was opened on the built file and loaded it in Edit
-mode without complaint, but that Studio instance does not expose itself to the Studio MCP bridge, so
-Play could not be pressed or Output read from here. Expect to fix real errors on the first run; that is
-normal for a codebase this size that has never executed.
+error. Run them before opening Studio; they are seconds, not minutes.
 
 The in-game self tests (`TestHarness`) run automatically in Studio three seconds after the server starts
 and print `[SelfTest] passed N, failed M`. They cover config integrity, all 24 creature models building,
@@ -108,12 +130,16 @@ The user also asked to be told when the session nears its limit, and to be hande
 
 ## Next actions, in order
 
-1. Open `build/CatchACatastrophe.rbxl` in Studio, press Play, read Output. Fix compile errors until the
-   server prints `[Catch a Catastrophe!] server ready` and `[SelfTest] passed N, failed 0`.
-2. Walk the spec's verification list in section 13: tutorial to first capture to deploy to collect to
-   upgrade; all six hazard patterns; circuits granting once; Overdrive and the vent; double-claim
-   guards; relaunch keep/reset; rejoin and the offline claim; two clients.
+1. **Open the current build.** An earlier session drove a Studio *auto-recovery* copy, which is a side
+   file: edits made there never reach this repo, and it is now behind. Close it and open
+   `build/CatchACatastrophe.rbxl` fresh, then press Play. Expect `[SelfTest] passed 222, failed 0`, and
+   then `[LiveTest] passed N, failed M` once your character has been given a plot.
+2. Finish the spec's verification list in section 13. Item 1 (tutorial, capture, deploy, earn, collect,
+   upgrade) is done and passing. Remaining: the other five hazard patterns; circuits granting once and
+   recalculating when a member moves; Overdrive, the vent, and that reconnecting cannot reset it;
+   double-claim guards; relaunch keep/reset; rejoin and the offline claim; two clients at once.
 3. Balance pass: measure time to first capture (target under 60s), first upgrade (under 3 min) and
-   first relaunch (target 25-45 min), then tune `Config` and record what changed and why.
-4. Write `README.md` properly: layout, systems table, roster and balance tables, data schema, controls
-   guide, test results separating automated from live, and the remaining limitations.
+   first relaunch (target 25-45 min), then tune `Config` and record what changed and why in the plan's
+   rulings section. Nothing has been tuned; every number is still the spec's proposed starting value.
+4. Look at the 24 creature models. They build at sensible heights, but whether each one reads as the
+   animal it is meant to be is a judgement only eyes can make.
