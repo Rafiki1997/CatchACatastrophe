@@ -253,7 +253,10 @@ end
 
 -- ------------------------------------------------------------ rows
 
-local function createRow(): any
+-- Rows are pooled per uid (see M.update), so a row belongs to one creature for
+-- its whole life and the handlers can capture `uid` once. They read the live
+-- entry from the snapshot at click time so a stale row never acts on stale data.
+local function createRow(uid: string): any
 	local card = W.card(listScroll, 108)
 
 	local vp = W.viewport(card, UDim2.new(0, 60, 0, 60), UDim2.new(0, 4, 0, 4), Theme.colors.bgDeep)
@@ -351,11 +354,89 @@ local function createRow(): any
 		order = 5,
 	})
 
+	local function currentEntry(): CreatureEntry?
+		local snap = State.get()
+		return if snap then snap.creatures[uid] else nil
+	end
+
+	favButton.Activated:Connect(function()
+		local entry = currentEntry()
+		if entry then
+			Net.fire("SetFavorite", uid, not entry.favorite)
+		end
+	end)
+
+	primaryButton.Activated:Connect(function()
+		local entry = currentEntry()
+		if not entry then
+			return
+		end
+		if entry.pad then
+			Net.fire("StoreCreature", uid)
+		else
+			openPadPicker("Deploy", uid, nil)
+		end
+	end)
+
+	moveButton.Activated:Connect(function()
+		local entry = currentEntry()
+		if entry and entry.pad then
+			openPadPicker("Move", uid, entry.pad)
+		end
+	end)
+
+	sellButton.Activated:Connect(function()
+		local entry = currentEntry()
+		if not entry or entry.favorite or entry.anchored then
+			return
+		end
+		local def = Config.Species.byId[entry.id]
+		W.confirm(
+			gui,
+			"Sell " .. (if def then def.name else "creature") .. "?",
+			"You get about " .. Format.abbreviate(sellEstimate(entry)) .. " Coins. This creature is gone for good, but it stays in your Atlas.",
+			"Sell it",
+			function()
+				Net.fire("SellCreature", uid)
+			end,
+			true
+		)
+	end)
+
+	prismaticButton.Activated:Connect(function()
+		local snap = State.get()
+		local entry = currentEntry()
+		if not snap or not entry then
+			return
+		end
+		local ready = prismaticEligible(snap, entry)
+		if not ready then
+			return
+		end
+		local def = Config.Species.byId[entry.id]
+		local warning = if entry.favorite then "
+
+This one is a favorite. It will be transformed, not replaced." else ""
+		W.confirm(
+			gui,
+			"Make this " .. (if def then def.name else "creature") .. " Prismatic?",
+			"It becomes Prismatic (x"
+				.. tostring(Config.Variants.mult("Prismatic"))
+				.. " income). This transforms the creature you picked, it does not make a copy. Your progress towards the next one starts again from zero."
+				.. warning,
+			"Transform",
+			function()
+				Net.fire("PrismaticUpgrade", uid)
+			end,
+			false
+		)
+	end)
+
 	return {
 		frame = card,
 		vp = vp,
 		modelKey = "",
-		uid = "",
+		uid = uid,
 		nameLabel = nameLabel,
 		rarityBadge = rarityBadge,
 		variantBadge = variantBadge,
@@ -480,14 +561,6 @@ local function updateRow(row: any, uid: string, entry: CreatureEntry, snap: Snap
 	row.prismaticButton.Visible = hasMastery
 	W.setEnabled(row.prismaticButton, ready)
 	row.prismaticButton.Text = if ready then "Prismatic!" else "Prismatic"
-
-	row.favButton.Activated:Wait -- no-op placeholder to appease strict typing tools (never called)
-end
-
--- Rebinds the per-row click handlers to the current uid/entry (rows are
--- pooled, so handlers must be refreshed every render, not just at creation).
-local function bindRow(row: any, uid: string, entry: CreatureEntry)
-	row.favButton.MouseButton1Click:Wait -- unused
 end
 
 -- ------------------------------------------------------------ public
@@ -509,15 +582,12 @@ function M.update(snap: Snapshot?)
 	for i, item in order do
 		local row = rows[item.uid]
 		if not row then
-			row = createRow()
+			row = createRow(item.uid)
 			rows[item.uid] = row
 		end
 		live[item.uid] = true
 		row.frame.LayoutOrder = i
 		updateRow(row, item.uid, item.entry, snap)
-
-		-- (re)connect click handlers with fresh closures capturing this uid/entry
-		row.favButton.Activated:Once(function() end) -- flush any stale queued events (defensive)
 	end
 
 	local dead: { string } = {}
