@@ -29,7 +29,7 @@ type Tracked = {
 	phase: number,
 	base: CFrame,
 	tintable: { BasePart },
-	orbiters: { { part: BasePart, radius: number, speed: number, phase: number, tilt: number, height: number } },
+	orbiters: { { part: BasePart, radius: number, speed: number, phase: number, tilt: number, axis: string, centre: Vector3, rigid: boolean } },
 	flickers: { { part: BasePart, min: number, max: number } },
 	shiftGroups: { [number]: { BasePart } },
 	shiftCount: number,
@@ -60,7 +60,10 @@ local function collect(model: Model, t: Tracked)
 					speed = (inst:GetAttribute("OrbitSpeed") :: number?) or 1,
 					phase = (inst:GetAttribute("OrbitPhase") :: number?) or 0,
 					tilt = (inst:GetAttribute("OrbitTilt") :: number?) or 0,
-					height = (inst:GetAttribute("OrbitHeight") :: number?) or 2,
+					axis = (inst:GetAttribute("OrbitAxis") :: string?) or "Y",
+					centre = (inst:GetAttribute("OrbitCentre") :: Vector3?)
+						or Vector3.new(0, (inst:GetAttribute("OrbitHeight") :: number?) or 2, 0),
+					rigid = inst:GetAttribute("OrbitRigid") == true,
 				})
 			end
 			local fmin = inst:GetAttribute("FlickerMin")
@@ -180,20 +183,48 @@ function Animate.step(now: number, cameraPos: Vector3?)
 		if model:GetAttribute("Carried") then
 			continue
 		end
+		-- Machines and work stations idle when they are not producing. A model
+		-- with no Working attribute (every creature) always animates.
+		if model:GetAttribute("Working") == false then
+			continue
+		end
 		local base = pathPivot(model, now) or t.base
 		if cameraPos and (base.Position - cameraPos).Magnitude > CULL_DISTANCE then
 			continue
 		end
-		local tm = now * t.speed + t.phase
+		-- Overdrive doubles the tempo; a cooling pair slows to a crawl.
+		local tempo = 1
+		if model:GetAttribute("Overdrive") then
+			tempo = 2
+		elseif model:GetAttribute("Cooling") then
+			tempo = 0.25
+		end
+		local tm = now * t.speed * tempo + t.phase
 		local pivot = base * styleOffset(t.style, tm, t.amp)
 		model:PivotTo(pivot)
 
 		if #t.orbiters > 0 then
 			for _, o in t.orbiters do
 				local angle = tm * o.speed + o.phase
-				local cf = pivot * CFrame.Angles(0, angle, 0) * CFrame.new(o.radius, o.height, 0) * CFrame.Angles(o.tilt, 0, 0)
-				local spin = if o.part:GetAttribute("OrbitNoSpin") then 0 else angle
-				o.part.CFrame = CFrame.new(cf.Position) * CFrame.Angles(0, spin, spin * 0.5)
+				-- The circle lives in the plane normal to `axis`. "X" and "Z"
+				-- give vertical wheels (windmill blades, water wheels, turbines);
+				-- "Y" is the default horizontal ring, whose plane `tilt` tips over.
+				local local_: CFrame
+				if o.axis == "X" then
+					local_ = CFrame.new(o.centre) * CFrame.Angles(angle, 0, 0) * CFrame.new(0, o.radius, 0)
+				elseif o.axis == "Z" then
+					local_ = CFrame.new(o.centre) * CFrame.Angles(0, 0, angle) * CFrame.new(o.radius, 0, 0)
+				else
+					local_ = CFrame.new(o.centre) * CFrame.Angles(0, 0, o.tilt) * CFrame.Angles(0, angle, 0) * CFrame.new(o.radius, 0, 0)
+				end
+				local world = pivot * local_
+				if o.rigid then
+					-- blades and paddles keep the wheel's orientation
+					o.part.CFrame = world
+				else
+					local spin = if o.part:GetAttribute("OrbitNoSpin") then 0 else angle
+					o.part.CFrame = CFrame.new(world.Position) * CFrame.Angles(0, spin, spin * 0.5)
+				end
 			end
 		end
 		if #t.flickers > 0 then

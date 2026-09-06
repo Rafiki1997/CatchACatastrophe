@@ -348,11 +348,42 @@ end
 
 -- Marks `part` as revolving around the root. Angle advances `speed` rad/s.
 function Kit.orbiter(model: Model, part: BasePart, radius: number, speed: number, phase: number?, tilt: number?, height: number?)
-	part:SetAttribute("OrbitRadius", radius)
-	part:SetAttribute("OrbitSpeed", speed)
-	part:SetAttribute("OrbitPhase", phase or 0)
-	part:SetAttribute("OrbitTilt", tilt or 0)
-	part:SetAttribute("OrbitHeight", height or (part.Position - Kit.root(model).Position).Y)
+	Kit.orbit(model, part, {
+		radius = radius,
+		speed = speed,
+		phase = phase,
+		tilt = tilt,
+		centre = Vector3.new(0, height or (part.Position - Kit.root(model).Position).Y, 0),
+	})
+end
+
+export type OrbitProps = {
+	radius: number,
+	speed: number, -- radians per animated second; negative reverses
+	phase: number?,
+	axis: string?, -- "Y" (default, horizontal circle) | "X" | "Z" (vertical wheels)
+	centre: Vector3?, -- circle centre in model space, default the part's own height on the model axis
+	tilt: number?, -- Y axis only: tips the whole orbit plane over, in radians
+	rigid: boolean?, -- true = the part keeps the wheel's orientation (blades, paddles);
+	-- false/nil = the part tumbles as it travels (stones, pods, rings)
+}
+
+-- Revolve `part` around one of the model's axes. This is what makes windmill
+-- blades, water wheels and turbines turn: "X" and "Z" give vertical wheels,
+-- which a plain horizontal orbit cannot. The client's Animate module does the
+-- moving; nothing here runs on the server.
+function Kit.orbit(model: Model, part: BasePart, props: OrbitProps)
+	local axis = props.axis or "Y"
+	local centre = props.centre or Vector3.new(0, (part.Position - Kit.root(model).Position).Y, 0)
+	part:SetAttribute("OrbitRadius", props.radius)
+	part:SetAttribute("OrbitSpeed", props.speed)
+	part:SetAttribute("OrbitPhase", props.phase or 0)
+	part:SetAttribute("OrbitTilt", props.tilt or 0)
+	part:SetAttribute("OrbitAxis", axis)
+	part:SetAttribute("OrbitCentre", centre)
+	part:SetAttribute("OrbitRigid", props.rigid == true)
+	-- legacy field: the Y-axis height, kept so older readers still work
+	part:SetAttribute("OrbitHeight", centre.Y)
 	model:SetAttribute("HasOrbiters", true)
 end
 
