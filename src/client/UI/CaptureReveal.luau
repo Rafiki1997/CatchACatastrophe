@@ -121,9 +121,10 @@ function CaptureReveal.init()
 		zindex = 23,
 	})
 
-	W.button({
+	-- the creature is already in storage at this point; say so
+	local storeButton = W.button({
 		parent = card,
-		text = "Nice",
+		text = "Store",
 		size = UDim2.new(0, 140, 0, Theme.sizes.buttonHeight),
 		position = UDim2.new(0.5, -74, 1, -16),
 		anchor = Vector2.new(0.5, 1),
@@ -135,6 +136,7 @@ function CaptureReveal.init()
 			CaptureReveal.hide()
 		end,
 	})
+	W.tooltip(storeButton :: GuiObject, "Keeps it in storage. Deploy it later from Creatures or at a work pad.")
 	W.button({
 		parent = card,
 		text = "Deploy it",
