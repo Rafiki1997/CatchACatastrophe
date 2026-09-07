@@ -21,6 +21,10 @@
 
 | Commit | What |
 |---|---|
+| `992aeb8` | **Camera never cached** in CaptureController / CircuitEditor; **Studio-only click diagnostics** on PlayerGui (`ClickDiagCount/Last/Nearest`). Click-to-capture PROVEN with an injected click: picker found the creature, claim accepted, card shown. |
+| `1449a52` | **HUD Collect button removed** (it collected from anywhere); readout pops when the bank fills. "Remote Collector" Workshop upgrade approved for later. |
+| `c7ed59f` | **Roads stop at destinations**: plot driveways end at the apron (were 30 studs inside the lot, over the pads), kiosk spokes stop at base discs, region route = hub-gate + 30-stud stub, arena floor road removed. Neon edge lines, bigger chevrons. LiveTest 29. |
+| `deb77ee` | **Unlocked gate pane dissolves** (0.8 s) and stays invisible. User confirmed live. |
 | `eb5b5d9` | **Collection pad pays the moment you step on** (`Config.Economy.collectHoldSeconds = 0`, shared by server and indicator). Codex's 1 s hold read as broken. |
 | `b74234b` | **Route markings sunk into the slab**: 388 of 388 were 0.005-0.015 studs above the asphalt and shimmered; now 0. Left: 15 junction slab overlaps and the plot Platform/Apron seam. |
 | `281b0a5` | **Creatures no longer teleport** (legs continue from the last leg's end), Gust/Ice Wave walls are 3 studs and jumpable, hitPenalty 2 -> 1, knockback 38 -> 16. A standing-still probe caught a Common in 10.7 s; it never finished before. SelfTest 451. |
@@ -53,9 +57,17 @@ Earlier (09-06): gate unlock at the gate + nudge loop, walk speed x1.5, pad pick
 | Suites | SelfTest **451** / 0 · LiveTest **27** / 0 |
 | Client errors | none from game code (one stock `rbxasset://` sound, pre-existing) |
 
-**Not verified by a probe (a probe cannot click):** a real left-click on a creature. The user
-reported the first version (raycast) did not work; the screen-space version was in Play for
-them but no confirmation has been recorded. Escape closing the pad picker likewise.
+**Click-to-capture is verified** with real injected mouse input (`user_mouse_input`): with a
+camera tracking a creature so it sits at the screen centre, one left click made the game's own
+handler log `creatureUnderPoint=breeze_bean`, the server accepted the claim, the capture card
+showed. The user still reports clicks doing nothing; the Studio-only diagnostics in
+CaptureController record their clicks. Read PlayerGui attributes `ClickDiagLast` and
+`ClickDiagNearest` after they click. Remove the diagnostics once explained.
+
+**Probe lessons from that hunt:** the assistant's probes do NOT receive UserInputService input
+(plugin context), so a probe-side InputBegan recorder sees nothing; only game scripts or
+`user_mouse_input` count. And aim at where the creature IS at click time: they roam 4 studs/s, and
+the seconds between framing and clicking made every early injected click a clean miss.
 
 ---
 
@@ -112,7 +124,7 @@ button it named is hidden when a keyboard exists; there was no mouse binding for
 | # | Playtest item | State |
 |---|---|---|
 | 1 | Travel via plane/portals | Parked by the user |
-| 2 | UI declutter / routes faint | Routes: **done** (lights + signs). Sidebar: Codex rebuilt it. Progression-gated panels: not started |
+| 2 | UI declutter / routes faint | Routes: **done** (lights, signs, Neon edges, roads end at destinations). Sidebar: Codex rebuilt it. Progression-gated panels: not started |
 | 3 | Movement speed | Done (`4e50529`) |
 | 4 | Change creatures at the pad | Done (`2c152fe`) |
 | 5 | Plot rework so creatures stand out | Parked ("maybe") |
@@ -135,6 +147,13 @@ seconds. Re-test with the friends first.
 - **Z-fighting left over:** 15 road-slab overlaps at junctions (both tops at 0.525) and each plot's
   Platform/Apron one-stud seam. Small patches; alternate slab heights or trim at the junction.
 - **Mobile pass** — nothing today was checked on touch.
+
+## Approved but not built
+
+- **Remote Collector** Workshop upgrade: paid convenience that restores collecting from anywhere.
+- **Portals** (fast travel between hub, gates and your city, gated to unlocked regions). User: future idea.
+- Widen the animator's 220-stud camera cull if far creatures snapping into place still reads as teleporting.
+- **Region roads clip four plot corners** (angles 30/150/210/330 vs plots at 22.5+45k, radius 140). Needs a dog-leg through the gap between plots, or a different plot ring.
 
 ## Suggested next task
 
