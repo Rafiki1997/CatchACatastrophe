@@ -21,6 +21,7 @@
 
 | Commit | What |
 |---|---|
+| `dc00d2c` | **Live build stamp**: `tools/stamp.py` writes gitignored `Shared/Build.luau` (hash, dirty, times); HUD pill, Settings footer and boot log show it; post-commit hook refreshes it. Run `python tools/stamp.py` before every sync. LiveTest 33. |
 | `d847050` | CircuitEditor pad picker adds the GUI inset before its ray (same 58 px mismatch). |
 | `ce8858e` | **Click picker in viewport space** (`GetMouseLocation`): clicks were 58 px (topbar inset) above the projection; hidden up close, fatal at the 60-stud zoom cap. Measured with an injected click. |
 | `489ac60` | **Click target floor 24 px, click ray 1000 studs** (CaptureController). |
@@ -110,6 +111,7 @@ button it named is hidden when a keyboard exists; there was no mouse binding for
 
 ## Traps for probes (execute_luau)
 
+- **Which build is running?** Read the HUD pill (`BuildPill`) or the boot line `[Catch a Catastrophe!] Build <hash>`; a `*` means uncommitted changes were stamped in. Run `python tools/stamp.py` after editing and before syncing, or the pill lies.
 - **Coordinate spaces.** `InputObject.Position` and `user_mouse_input` are screen space (GUI inset removed). `UserInputService:GetMouseLocation()`, `WorldToViewportPoint` and `ViewportPointToRay` are viewport space. They differ by `GuiService:GetGuiInset()` = 58 px with the current topbar. Never compare across the two without converting.
 - **CameraGuard** resets a Scriptable or re-subjected camera within a second. Before a positioned `screen_capture` or a scripted frame, `workspace.CurrentCamera:SetAttribute("ScriptedCamera", true)`; clear it after. And do not do it in the user's session at all between sets.
 - **StudioTester** gives every Studio profile 5,120 Coins/s a few seconds after the live suite. Bank and wallet numbers in Studio include it; a teleport onto the collection pad pays hundreds of thousands.
