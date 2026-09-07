@@ -88,6 +88,11 @@ function CaptureReveal.init()
 		color = Theme.colors.textDim,
 		zindex = 21,
 	})
+	W.tooltip(metaLabel :: GuiObject, function()
+		local v = metaLabel and metaLabel:GetAttribute("Variant")
+		return if typeof(v) == "string" and v ~= "Normal" then Config.Variants.describe(v) else ""
+	end)
+
 	incomeLabel = W.label({
 		parent = card,
 		text = "",
@@ -188,6 +193,7 @@ function CaptureReveal.show(result: any)
 		nameLabel.TextColor3 = Config.Rarities.color(def.rarity)
 	end
 	if metaLabel then
+		metaLabel:SetAttribute("Variant", variant)
 		local variantText = if variant ~= "Normal" then "   " .. variantInfo.icon .. " " .. variantInfo.label else ""
 		metaLabel.Text = Config.Rarities.label(def.rarity) .. "   " .. def.element .. variantText
 	end

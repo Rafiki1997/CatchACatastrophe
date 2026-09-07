@@ -279,6 +279,11 @@ local function createRow(uid: string): any
 	W.list(badgeRow, Enum.FillDirection.Horizontal, 4)
 	local rarityBadge = W.badge(badgeRow, "", Theme.colors.textDim, 1)
 	local variantBadge = W.badge(badgeRow, "", Theme.colors.textDim, 2)
+	-- badges read as mystery labels without this (playtest: what is Prismatic and Overcharged?)
+	variantBadge:SetAttribute("Variant", "Normal")
+	W.tooltip(variantBadge :: GuiObject, function()
+		return Config.Variants.describe(variantBadge:GetAttribute("Variant") or "Normal")
+	end)
 
 	local cpsLabel = W.label({
 		parent = card,
@@ -524,6 +529,7 @@ local function updateRow(row: any, uid: string, entry: CreatureEntry, snap: Snap
 	if showVariant and variantInfo then
 		row.variantBadge.Text = variantInfo.icon .. " " .. variantInfo.label
 		row.variantBadge.BackgroundColor3 = variantInfo.color
+		row.variantBadge:SetAttribute("Variant", entry.variant)
 	end
 
 	-- a stored creature earns nothing now; show what it would earn so a fresh

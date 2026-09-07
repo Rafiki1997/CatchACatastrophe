@@ -110,7 +110,8 @@ local function creatureRow(parent: Instance, snap: Snapshot, entry: CreatureEntr
 	W.badge(badges, Config.Rarities.label(rarity), Config.Rarities.color(rarity), 1)
 	local variantInfo = Config.Variants.info[entry.variant]
 	if entry.variant ~= "Normal" and variantInfo then
-		W.badge(badges, variantInfo.icon .. " " .. variantInfo.label, variantInfo.color, 2)
+		local badge = W.badge(badges, variantInfo.icon .. " " .. variantInfo.label, variantInfo.color, 2)
+		W.tooltip(badge :: GuiObject, Config.Variants.describe(entry.variant))
 	end
 	W.badge(badges, Format.abbreviate(incomeEstimate(snap, entry)) .. "/s", Theme.colors.coin, 3)
 
