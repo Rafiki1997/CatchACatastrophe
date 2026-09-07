@@ -722,6 +722,17 @@ local function buildRegion(parent: Instance, def: any)
 	})
 	gate:SetAttribute("RegionId", def.id)
 	CollectionService:AddTag(gate, "RegionGate")
+	if def.unlockCost > 0 then
+		local unlockPrompt = Instance.new("ProximityPrompt")
+		unlockPrompt.Name = "UnlockPrompt"
+		unlockPrompt.ActionText = "Unlock"
+		unlockPrompt.ObjectText = def.name .. "  " .. Format.abbreviate(def.unlockCost) .. " Coins"
+		unlockPrompt.KeyboardKeyCode = Enum.KeyCode.E
+		unlockPrompt.HoldDuration = 0
+		unlockPrompt.RequiresLineOfSight = false
+		unlockPrompt.MaxActivationDistance = 16
+		unlockPrompt.Parent = gate
+	end
 	-- gate frame
 	for _, side in { -1, 1 } do
 		part({ name = "GatePost", size = Vector3.new(2.4, 15, 2.4), cf = gateCF * CFrame.new(side * 11, 7.5, 0), color = DECK, collide = true, parent = model })

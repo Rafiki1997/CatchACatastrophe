@@ -231,7 +231,7 @@ function Notifications.push(kind: string, text: string, duration: number?)
 		parent = inner,
 		name = "Text",
 		text = text,
-		size = UDim2.new(1, 0, 0, 0),
+		size = UDim2.new(1, -22, 0, 0),
 		textSize = 15,
 		font = Theme.fonts.bold,
 		color = Theme.colors.text,
@@ -251,6 +251,25 @@ function Notifications.push(kind: string, text: string, duration: number?)
 		dying = false,
 	}
 	table.insert(toasts, toast)
+
+	-- A toast that keeps re-arming itself is inescapable without this.
+	W.button({
+		parent = inner,
+		name = "Close",
+		text = "✕",
+		size = UDim2.new(0, 18, 0, 18),
+		position = UDim2.new(1, 0, 0, 0),
+		anchor = Vector2.new(1, 0),
+		color = Theme.colors.bgAlt,
+		textColor = Theme.colors.textDim,
+		textSize = 13,
+		radius = 4,
+		zindex = 3,
+		silent = true,
+		onClick = function()
+			fadeOut(toast)
+		end,
+	})
 
 	W.pop(frame, 1.12)
 	scheduleDismiss(toast, seconds)

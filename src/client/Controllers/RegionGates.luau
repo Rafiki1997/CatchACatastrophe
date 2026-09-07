@@ -7,6 +7,7 @@
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
+local ProximityPromptService = game:GetService("ProximityPromptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config)
@@ -17,9 +18,15 @@ local Net = require(script.Parent.Parent.Net)
 local RegionGates = {}
 
 local TAG = "RegionGate"
+local PROMPT = "UnlockPrompt"
+-- The nudge must outlast its own toast or it re-arms the moment it fades.
+local NUDGE_SECONDS = 4
+local NUDGE_COOLDOWN = 15
 local player = Players.LocalPlayer
 local forecast: { [string]: { nextLegendaryAt: number, surgeUntil: number } } = {}
 local lastNudge = 0
+local widgets: any = nil
+local confirmGui: ScreenGui? = nil
 
 local function signOf(gate: BasePart): { title: TextLabel?, cost: TextLabel?, forecast: TextLabel? }?
 	local region = gate.Parent
@@ -41,6 +48,10 @@ end
 local function applyGate(gate: BasePart, unlocked: boolean)
 	gate.CanCollide = not unlocked
 	gate.Transparency = if unlocked then 0.8 else 0.45
+	local prompt = gate:FindFirstChild(PROMPT)
+	if prompt and prompt:IsA("ProximityPrompt") then
+		prompt.Enabled = not unlocked
+	end
 	local labels = signOf(gate)
 	if labels and labels.cost then
 		local regionId = gate:GetAttribute("RegionId")
@@ -100,6 +111,52 @@ function RegionGates.forecastFor(regionId: string)
 	return forecast[regionId]
 end
 
+-- The gate is where the tutorial sends you, so the gate has to be able to open.
+-- This only asks; WorkshopService.unlockRegion charges and refuses.
+local function askToUnlock(gate: BasePart)
+	if not widgets then
+		return
+	end
+	local regionId = gate:GetAttribute("RegionId")
+	local def = if typeof(regionId) == "string" then Config.Regions.byId[regionId] else nil
+	if not def then
+		return
+	end
+	local snap = State.get()
+	if snap and snap.regions[def.id] then
+		return
+	end
+	if not confirmGui then
+		confirmGui = widgets.screenGui("GateUnlock", 60)
+		widgets.attachScale(confirmGui)
+	end
+	local coins = if snap then snap.coins else 0
+	local short = coins < def.unlockCost
+	local body = def.desc
+		.. "\n\nCost: "
+		.. Format.abbreviate(def.unlockCost)
+		.. " Coins    You have: "
+		.. Format.abbreviate(coins)
+	if short then
+		body = body .. "\n\nYou cannot afford this yet."
+	end
+	widgets.confirm(confirmGui, "Open " .. def.name .. "?", body, "Unlock", function()
+		Net.fire("UnlockRegion", def.id)
+	end)
+end
+
+local function watchPrompts()
+	ProximityPromptService.PromptTriggered:Connect(function(prompt, who)
+		if who ~= player or prompt.Name ~= PROMPT then
+			return
+		end
+		local gate = prompt.Parent
+		if gate and gate:IsA("BasePart") and CollectionService:HasTag(gate, TAG) then
+			askToUnlock(gate)
+		end
+	end)
+end
+
 -- Bumping a closed gate should explain itself rather than just stopping you.
 local function watchBumps(Notifications: any)
 	task.spawn(function()
@@ -108,7 +165,7 @@ local function watchBumps(Notifications: any)
 			local snap = State.get()
 			local character = player.Character
 			local hrp = character and character:FindFirstChild("HumanoidRootPart")
-			if snap and hrp and hrp:IsA("BasePart") and os.clock() - lastNudge > 5 then
+			if snap and hrp and hrp:IsA("BasePart") and os.clock() - lastNudge > NUDGE_COOLDOWN then
 				for _, gate in CollectionService:GetTagged(TAG) do
 					if gate:IsA("BasePart") and gate.CanCollide then
 						if (gate.Position - hrp.Position).Magnitude < 16 then
@@ -118,8 +175,8 @@ local function watchBumps(Notifications: any)
 								lastNudge = os.clock()
 								Notifications.push(
 									"info",
-									"Unlock " .. def.name .. " for " .. Format.abbreviate(def.unlockCost) .. " Coins in the Upgrade Workshop.",
-									5
+									"Hold E at the gate to open " .. def.name .. " for " .. Format.abbreviate(def.unlockCost) .. " Coins.",
+									NUDGE_SECONDS
 								)
 							end
 							break
@@ -131,7 +188,8 @@ local function watchBumps(Notifications: any)
 	end)
 end
 
-function RegionGates.init(Notifications: any?)
+function RegionGates.init(Notifications: any?, W: any?)
+	widgets = W
 	refreshAll()
 	State.onChanged(refreshAll)
 	CollectionService:GetInstanceAddedSignal(TAG):Connect(refreshAll)
@@ -145,6 +203,7 @@ function RegionGates.init(Notifications: any?)
 		end
 	end)
 
+	watchPrompts()
 	watchBumps(Notifications)
 end
 

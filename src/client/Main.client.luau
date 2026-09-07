@@ -84,7 +84,7 @@ safeCall("CaptureController.init", CaptureController and CaptureController.init)
 safeCall("CircuitEditor.init", CircuitEditor and CircuitEditor.init)
 if RegionGates and RegionGates.init then
 	safeCall("RegionGates.init", function()
-		RegionGates.init(Notifications)
+		RegionGates.init(Notifications, W)
 	end)
 end
 
