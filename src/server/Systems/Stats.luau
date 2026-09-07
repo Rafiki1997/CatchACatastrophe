@@ -54,7 +54,7 @@ function Stats.compute(profile: Profile): Computed
 		relaunchMult = Config.Relaunch.incomeMultiplier(d.relaunch),
 		tetherRange = math.min(Config.Capture.tetherRange + level(profile, "tether_range") * U.tether_range.perLevel, U.tether_range.cap or Config.Capture.tetherRangeCap),
 		tetherSpeedMult = 1 + level(profile, "tether_speed") * U.tether_speed.perLevel,
-		walkSpeed = math.min(16 + level(profile, "move_speed") * U.move_speed.perLevel, U.move_speed.cap or 24),
+		walkSpeed = math.min(24 + level(profile, "move_speed") * U.move_speed.perLevel, U.move_speed.cap or 36),
 		circuitBonusExtra = level(profile, "circuit_efficiency") * U.circuit_efficiency.perLevel,
 		bankCapSeconds = Config.Economy.income.bankCapSeconds + level(profile, "bank_capacity") * U.bank_capacity.perLevel,
 		storageMax = math.min(Config.Economy.storage.base + level(profile, "storage") * U.storage.perLevel, Config.Economy.storage.max),

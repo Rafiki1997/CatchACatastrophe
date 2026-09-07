@@ -370,7 +370,7 @@ local function testUpgrades()
 	check("tether range caps at 30", computed.tetherRange == 30, tostring(computed.tetherRange))
 	profile.data.upgrades.move_speed = 99
 	computed = Stats.compute(profile)
-	check("walk speed caps at 24", computed.walkSpeed == 24, tostring(computed.walkSpeed))
+	check("walk speed caps at 36", computed.walkSpeed == 36, tostring(computed.walkSpeed))
 	profile.data.upgrades.storage = 99
 	computed = Stats.compute(profile)
 	check("storage caps at 120", computed.storageMax == 120, tostring(computed.storageMax))

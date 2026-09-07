@@ -39,7 +39,7 @@ local function effectText(id: string, level: number, snap: Snapshot): string
 	elseif id == "tether_range" then
 		return tostring(math.min(Config.Capture.tetherRange + level * def.perLevel, def.cap or 30)) .. " studs"
 	elseif id == "move_speed" then
-		return tostring(math.min(16 + level * def.perLevel, def.cap or 24)) .. " walk speed"
+		return tostring(math.min(24 + level * def.perLevel, def.cap or 36)) .. " walk speed"
 	elseif id == "habitat_capacity" then
 		return tostring(math.min(Config.Relaunch.startingPads(snap.relaunch) + level, Config.Economy.deploy.hardCap)) .. " work pads"
 	elseif id == "circuit_efficiency" then

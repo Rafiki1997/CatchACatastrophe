@@ -47,7 +47,7 @@ Economy.sellMin = 5
 Economy.upgrades = {
 	{ id = "tether_speed", name = "Tether Speed", desc = "+10% capture speed per level", icon = "⏩", maxLevel = 8, baseCost = 120, costMult = 1.8, perLevel = 0.10 },
 	{ id = "tether_range", name = "Tether Range", desc = "+2 studs tether range per level (max 30)", icon = "📡", maxLevel = 6, baseCost = 200, costMult = 1.9, perLevel = 2, cap = 30 },
-	{ id = "move_speed", name = "Running Shoes", desc = "+1 walk speed per level (max 24)", icon = "👟", maxLevel = 8, baseCost = 150, costMult = 1.7, perLevel = 1, cap = 24 },
+	{ id = "move_speed", name = "Running Shoes", desc = "+1.5 walk speed per level (max 36)", icon = "👟", maxLevel = 8, baseCost = 150, costMult = 1.7, perLevel = 1.5, cap = 36 },
 	{ id = "habitat_capacity", name = "Extra Work Pad", desc = "+1 work pad per level (city max 24)", icon = "🏗", maxLevel = 18, baseCost = 400, costMult = 1.6, perLevel = 1, cap = 24 },
 	{ id = "circuit_efficiency", name = "Circuit Efficiency", desc = "+2% circuit bonus per level", icon = "🔌", maxLevel = 5, baseCost = 2000, costMult = 2.0, perLevel = 0.02 },
 	{ id = "bank_capacity", name = "Bigger Bank", desc = "+30 minutes of bank storage per level", icon = "🏦", maxLevel = 6, baseCost = 500, costMult = 2.0, perLevel = 1800 },
