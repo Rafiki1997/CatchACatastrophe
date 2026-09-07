@@ -70,7 +70,8 @@ function CaptureReveal.init()
 	nameLabel = W.label({
 		parent = card,
 		text = "",
-		size = UDim2.new(1, -24, 0, 30),
+		-- leaves room for the PERFECT pill at the right end of this row
+		size = UDim2.new(1, -124, 0, 30),
 		position = UDim2.new(0, 12, 0, 210),
 		textSize = 22,
 		font = Theme.fonts.title,
@@ -98,13 +99,15 @@ function CaptureReveal.init()
 		zindex = 21,
 	})
 
+	-- A pill in the name row, right of the name. The old 190-wide ribbon was
+	-- anchored at y 180 across a picture that ends at y 202, so it sat on the edge.
 	perfectRibbon = W.label({
 		parent = card,
-		text = "PERFECT CAPTURE",
-		size = UDim2.new(0, 190, 0, 26),
-		position = UDim2.new(0.5, 0, 0, 180),
-		anchor = Vector2.new(0.5, 0),
-		textSize = 15,
+		text = "PERFECT",
+		size = UDim2.new(0, 92, 0, 22),
+		position = UDim2.new(1, -12, 0, 214),
+		anchor = Vector2.new(1, 0),
+		textSize = 13,
 		font = Theme.fonts.bold,
 		color = Theme.colors.ink,
 		bg = Theme.colors.gold,
