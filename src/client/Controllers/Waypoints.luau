@@ -3,12 +3,14 @@
 -- own city, floating in the air above it in that place's colour, outlined in
 -- ink. The text is sized as if it were TITLE_HEIGHT studs tall in the world, so
 -- a far gate reads as a small name on the horizon and a near one as a big one,
--- the way a painted sign would. The size is set in pixels every frame from the
--- camera depth, clamped so a sign never grows past its size at NEAR studs (no
--- ballooning when you walk up) and never shrinks below its size at FAR studs
--- (far names stay legible). BillboardGui.DistanceLowerLimit / UpperLimit were
--- meant to do this natively and measurably do nothing (see RELAY traps). A sign
--- hides once you are close enough to see the place itself.
+-- the way a painted sign would, only steeper: real perspective left a gate 400
+-- studs off as legible as one 200 off, so the size is set in pixels every frame
+-- from the camera depth raised to EXAGGERATE, and clamped so a sign never grows
+-- past its size at NEAR studs (no ballooning when you walk up) and never shrinks
+-- below its size at FAR studs (a small coloured name, not nothing).
+-- BillboardGui.DistanceLowerLimit / UpperLimit were meant to do the clamping
+-- natively and measurably do nothing (see RELAY traps). A sign hides once you
+-- are close enough to see the place itself.
 --
 -- Gates come from the "RegionGate" tag (RegionId -> Config.Regions): a locked
 -- one carries a gold "Unlock X Coins" line under its name. Other destinations
@@ -34,8 +36,14 @@ local GATE_TAG = "RegionGate"
 local WAYPOINT_TAG = "Waypoint"
 local HIDE_WITHIN = 28 -- studs: you are there; the sign would only cover the thing
 local MAX_DISTANCE = 900
-local NEAR = 35 -- studs: closer than this the sign stops growing
-local FAR = 200 -- studs: farther than this it stops shrinking
+local NEAR = 30 -- studs: closer than this the sign stops growing
+local FAR = 420 -- studs: farther than this it stops shrinking (about one map width)
+local REF = 60 -- studs: the depth at which a sign renders at its world size
+-- Real perspective halves a sign for each doubling of depth. At 1.25 a doubling
+-- shrinks it 2.4x, so from the plaza the six gates read as six sizes and the far
+-- side of the map is a row of small names rather than a wall of equal ones.
+local EXAGGERATE = 1.25
+local DETAIL_MIN_PX = 14 -- title height below which the gold line hides: a smudge says nothing
 -- World size of one sign, in studs, before the depth scaling. The frame is
 -- invisible; it is wide enough that the longest name ("Catastrophe Atlas")
 -- renders at full height.
@@ -46,7 +54,7 @@ local DETAIL_HEIGHT = 2.6
 -- letter height every frame: thick on a near sign, thin on a far one, never
 -- swallowing the letters.
 local STROKE_RATIO = 0.07
-local STROKE_MIN, STROKE_MAX = 1.5, 4.5
+local STROKE_MIN, STROKE_MAX = 1, 4.5
 local TICK = 0.25
 local player = Players.LocalPlayer
 
@@ -56,6 +64,7 @@ type Sign = {
 	detail: TextLabel,
 	strokes: { UIStroke },
 	regionId: string?,
+	locked: boolean,
 }
 local signs: { [BasePart]: Sign } = {}
 local cityPart: BasePart? = nil
@@ -98,7 +107,7 @@ local function build(part: BasePart, name: string, color: Color3, height: number
 	local title, titleStroke = outlined(gui, "Title", name, color, UDim2.fromScale(1, TITLE_HEIGHT / total), UDim2.fromScale(0, 0))
 	local detail, detailStroke = outlined(gui, "Detail", "", Theme.colors.gold, UDim2.fromScale(1, DETAIL_HEIGHT / total), UDim2.fromScale(0, TITLE_HEIGHT / total))
 	detail.Visible = false
-	return { gui = gui, title = title, detail = detail, strokes = { titleStroke, detailStroke }, regionId = regionId }
+	return { gui = gui, title = title, detail = detail, strokes = { titleStroke, detailStroke }, regionId = regionId, locked = false }
 end
 
 local function addGate(inst: Instance)
@@ -187,10 +196,12 @@ function Waypoints.titleHeights(): { [string]: number }
 end
 
 -- Pixel size for this frame: the world size the sign would have at the camera
--- depth, clamped to [NEAR, FAR]. Depth (distance along the camera's look
--- vector) is what perspective scales by; Roblox's own stud-sized billboards
--- measured exactly studs * k / depth straight ahead. The outline is drawn in
--- pixels, so it follows the letter height here too.
+-- depth (clamped to [NEAR, FAR]), with the depth ratio raised to EXAGGERATE.
+-- Depth (distance along the camera's look vector) is what perspective scales
+-- by; Roblox's own stud-sized billboards measured exactly studs * k / depth
+-- straight ahead, which is the EXAGGERATE = 1 case. The outline is drawn in
+-- pixels, so it follows the letter height here too, and the gold line goes
+-- when the title is too small for a second line to say anything.
 local function resize()
 	local cam = workspace.CurrentCamera
 	if not cam then
@@ -202,10 +213,12 @@ local function resize()
 		if not sign.gui.Enabled or not part.Parent then
 			continue
 		end
-		local depth = cam:WorldToViewportPoint(part.Position + sign.gui.StudsOffsetWorldSpace).Z
-		local pxPerStud = k / math.clamp(depth, NEAR, FAR)
+		local depth = math.clamp(cam:WorldToViewportPoint(part.Position + sign.gui.StudsOffsetWorldSpace).Z, NEAR, FAR)
+		local pxPerStud = (k / REF) * (REF / depth) ^ EXAGGERATE
+		local titlePx = TITLE_HEIGHT * pxPerStud
 		sign.gui.Size = UDim2.fromOffset(SIGN_WIDTH * pxPerStud, (TITLE_HEIGHT + DETAIL_HEIGHT) * pxPerStud)
-		local thickness = math.clamp(TITLE_HEIGHT * pxPerStud * STROKE_RATIO, STROKE_MIN, STROKE_MAX)
+		sign.detail.Visible = sign.locked and titlePx >= DETAIL_MIN_PX
+		local thickness = math.clamp(titlePx * STROKE_RATIO, STROKE_MIN, STROKE_MAX)
 		for _, stroke in sign.strokes do
 			stroke.Thickness = thickness
 		end
@@ -258,7 +271,7 @@ function Waypoints.init()
 			if def and locked then
 				sign.detail.Text = "Unlock " .. Format.abbreviate(def.unlockCost) .. " Coins"
 			end
-			sign.detail.Visible = locked
+			sign.locked = locked -- resize() shows the line only while the title is big enough
 		end
 	end)
 	RunService.RenderStepped:Connect(resize)
