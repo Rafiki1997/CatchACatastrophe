@@ -526,7 +526,9 @@ local function updateRow(row: any, uid: string, entry: CreatureEntry, snap: Snap
 		row.variantBadge.BackgroundColor3 = variantInfo.color
 	end
 
-	row.cpsLabel.Text = Format.cps(entry.cps)
+	-- a stored creature earns nothing now; show what it would earn so a fresh
+	-- catch from a rich region does not read as worthless
+	row.cpsLabel.Text = if entry.pad then Format.cps(entry.cps) else Format.cps(entry.potentialCps or entry.normalCps) .. " when deployed"
 	if entry.circuitId then
 		local circuit = Config.Circuits.byId[entry.circuitId]
 		row.cpsLabel.Text ..= "  (" .. (if circuit then circuit.name else entry.circuitId) .. ")"
