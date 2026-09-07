@@ -695,6 +695,40 @@ function Harness.runLive(profile: any)
 			end
 		end
 		check("hub destinations carry waypoint names", signs >= 4, tostring(signs))
+		-- roads stop at what they lead to
+		local roads = {}
+		for _, d in workspace:GetDescendants() do
+			if d:IsA("BasePart") and d.Name == "Path" then
+				table.insert(roads, d)
+			end
+		end
+		local insidePlot = 0
+		local plots = workspace:FindFirstChild("Plots")
+		for _, plotModel in (if plots then plots:GetChildren() else {}) do
+			local platform = plotModel:FindFirstChild("Platform")
+			if platform and platform:IsA("BasePart") then
+				for _, r in roads do
+					local half = r.CFrame.LookVector * (r.Size.Z / 2)
+					for _, pt in { r.Position + half, r.Position - half } do
+						local l = platform.CFrame:PointToObjectSpace(pt)
+						if math.abs(l.X) < platform.Size.X / 2 - 0.5 and math.abs(l.Z) < platform.Size.Z / 2 - 0.5 then
+							insidePlot += 1
+						end
+					end
+				end
+			end
+		end
+		check("no road ends inside a plot platform", insidePlot == 0, tostring(insidePlot))
+		local arena = workspace:FindFirstChild("Arena")
+		local arenaRoads = 0
+		if arena then
+			for _, d in arena:GetDescendants() do
+				if d:IsA("BasePart") and d.Name == "Path" then
+					arenaRoads += 1
+				end
+			end
+		end
+		check("no road crosses the arena floor", arenaRoads == 0, tostring(arenaRoads))
 	end
 
 	local function income()

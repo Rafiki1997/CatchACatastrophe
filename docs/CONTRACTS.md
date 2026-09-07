@@ -180,6 +180,7 @@ local refs = MapBuilder.build()
 
 Wayfinding the client reads off the built map:
 
+- Roads end at the **edge** of what they lead to, never its centre: plot driveways stop at the front apron (radius 97), kiosk spokes stop at the base disc, the region route is hub → gate plus a 30-stud stub onto the region ground, and nothing crosses the arena floor. The live suite asserts the plot and arena cases.
 - Every `path()` call is one route. Its chevrons are **Neon** parts tagged `"RouteChevron"` with attributes `RouteId` (string, unique per route), `Index` (1..`Count`, increasing toward the destination) and `Count`. `Controllers.RouteLights` runs a light along them.
 - Hub destinations (`workshopTerminal`, `beaconTerminal`, `atlasTerminal`, the arena `bossSpot`) are tagged `"Waypoint"` with `WaypointName` (string), `WaypointColor` (Color3) and `WaypointHeight` (studs above the part). `Controllers.Waypoints` hangs a sign on each; gates need no tag because `RegionGate` + `RegionId` already say everything.
 

@@ -176,10 +176,10 @@ local function path(parent: Instance, from: Vector3, to: Vector3, width: number,
 	for _, side in { -1, 1 } do
 		part({
 			name = "PathEdge",
-			size = Vector3.new(0.75, 0.12, length),
-			cf = base * CFrame.new(side * (width / 2 - 0.5), slabTop, 0),
+			size = Vector3.new(1.0, 0.12, length),
+			cf = base * CFrame.new(side * (width / 2 - 0.6), slabTop, 0),
 			color = trim,
-			material = Enum.Material.SmoothPlastic,
+			material = Enum.Material.Neon,
 			parent = parent,
 		})
 	end
@@ -189,7 +189,7 @@ local function path(parent: Instance, from: Vector3, to: Vector3, width: number,
 	-- (Controllers.RouteLights); painted arrows alone vanish when you stand on them.
 	local count = math.clamp(math.floor(length / CHEVRON_SPACING), 1, CHEVRON_MAX)
 	local step = length / (count + 1)
-	local arm = width * 0.52
+	local arm = width * 0.6
 	routeCounter += 1
 	local routeId = "route" .. tostring(routeCounter)
 	for i = 1, count do
@@ -197,7 +197,7 @@ local function path(parent: Instance, from: Vector3, to: Vector3, width: number,
 		for _, side in { -1, 1 } do
 			local chevron = part({
 				name = "PathChevron",
-				size = Vector3.new(2.1, 0.16, arm),
+				size = Vector3.new(2.6, 0.16, arm),
 				-- each half of the ">" is rotated in from the centre line
 				cf = base * CFrame.new(side * arm * 0.32, slabTop, along) * CFrame.Angles(0, side * math.rad(38), 0),
 				color = rgb(210, 125, 12),
@@ -386,15 +386,17 @@ local function buildHub(parent: Instance)
 	end
 	-- start outside the logo ring: four paths meeting at the exact centre would
 	-- overlap each other there
-	local function spoke(target: Vector3, width: number, accent: Color3?)
+	-- A spoke stops at the edge of what it leads to. A road run to a kiosk's
+	-- centre carried on under the kiosk; `stopShort` is the destination's footprint.
+	local function spoke(target: Vector3, stopShort: number, width: number, accent: Color3?)
 		local dir = target.Unit
-		path(hub, dir * 20, target, width, accent)
+		path(hub, dir * 20, target - dir * stopShort, width, accent)
 	end
-	spoke(workshopPos, 8, HAZARD)
-	spoke(beaconPos, 8, rgb(120, 235, 255))
-	spoke(atlasPos, 8, rgb(120, 220, 150))
-	-- the route south leads to the crisis arena
-	spoke(Vector3.new(0, 0, -70), 10, rgb(255, 120, 100))
+	spoke(workshopPos, 10, 8, HAZARD)
+	spoke(beaconPos, 13, 8, rgb(120, 235, 255)) -- base disc radius 12
+	spoke(atlasPos, 10, 8, rgb(120, 220, 150)) -- base disc radius 9
+	-- the route south leads to the crisis arena; its wall ring is at z -75
+	spoke(Vector3.new(0, 0, -70), 0, 10, rgb(255, 120, 100))
 
 	return {
 		model = hub,
@@ -478,7 +480,8 @@ local function buildArena(parent: Instance)
 		pylons[i] = { model = m, prompt = nil }
 	end
 
-	path(arena, Vector3.new(0, 0, -70), centre, 10, rgb(255, 120, 100))
+	-- (no road across the floor: the hub spoke ends at the entrance, and the
+	-- old one ran through the wall ring to the boss spot)
 	for i = 1, 6 do
 		lamp(arena, centre + polar(34, (i - 1) * 60), rgb(200, 230, 255))
 	end
@@ -786,7 +789,10 @@ local function buildRegion(parent: Instance, def: any)
 	-- a route edged in the region's own colour, so the way to Frostbite Peaks
 	-- looks different from the way to Cinder Canyon long before you can read the sign
 	path(model, polar(74, angle), gatePos, 9, def.color)
-	path(model, gatePos, centre, 9, def.color)
+	-- Past the gate the route is a stub, not a runway to the middle: the wild
+	-- ground stays open for creatures to roam and hazards to play out on. The
+	-- ground disc (radius 75 about the centre at 280) begins at 205.
+	path(model, gatePos, polar(230, angle), 9, def.color)
 	lamp(model, gatePos + Vector3.new(0, 0, 0) + polar(16, angle + 90), def.color)
 	lamp(model, gatePos + polar(16, angle - 90), def.color)
 
@@ -929,7 +935,8 @@ function MapBuilder.build()
 		local a = 22.5 + (i - 1) * 45
 		local pos = polar(140, a)
 		plots[i] = CFrame.lookAt(pos, Vector3.new(0, 0, 0))
-		path(map, polar(72, a), pos, 8, rgb(120, 200, 255))
+		-- a driveway to the front apron (local z -43 .. -29), not a strip across the pads
+		path(map, polar(72, a), polar(97, a), 8, rgb(120, 200, 255))
 		lamp(map, polar(104, a))
 	end
 
