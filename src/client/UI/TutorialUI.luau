@@ -250,8 +250,12 @@ local function ensureBeam()
 		line.Color = ColorSequence.new(Theme.colors.accent)
 		line.LightEmission = 0.9
 		line.Texture = "rbxasset://textures/particles/sparkles_main.dds"
-		line.TextureSpeed = 3
-		line.TextureLength = 6
+		-- Wrap repeats the texture every TextureLength studs on every segment, so
+		-- the guide is a row of dots whatever the segment length (Stretch spread a
+		-- fixed count over each beam: lines on long legs, dots on short ones).
+		line.TextureMode = Enum.TextureMode.Wrap
+		line.TextureLength = 3
+		line.TextureSpeed = 2
 		line.Transparency = NumberSequence.new(0.1)
 		line.Enabled = false
 		line.Parent = holder
