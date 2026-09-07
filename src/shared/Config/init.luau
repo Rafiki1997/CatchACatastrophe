@@ -19,7 +19,12 @@ local Config = {
 
 Config.GameName = "Catch a Catastrophe!"
 Config.CompanyName = "Catastrophe Containment Co."
-Config.MaxPlayers = 8
+-- Map layout under comparison (2026-09-07). A: eight cities every 45 degrees and
+-- the region roads dog-leg around them. B: six cities seated between the six
+-- straight region roads, and the crisis arena moved out past the Frostbite gate
+-- (see MapBuilder). Cities per server follows the layout.
+Config.MapLayout = "B"
+Config.MaxPlayers = if Config.MapLayout == "B" then 6 else 8
 Config.DataVersion = 1
 Config.DataStoreName = "CatchCatastrophe_v1"
 -- Studio test adapter namespace (in-memory, never touches production keys).

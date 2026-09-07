@@ -732,7 +732,8 @@ function Harness.runLive(profile: any)
 						local hit = false
 						for i = 0, steps do
 							local l = slab.CFrame:PointToObjectSpace(a:Lerp(b, i / steps))
-							if math.abs(l.X) < slab.Size.X / 2 and math.abs(l.Z) < slab.Size.Z / 2 then
+							-- a quarter stud in: a driveway ending exactly at the apron edge is a touch, not a crossing
+							if math.abs(l.X) < slab.Size.X / 2 - 0.25 and math.abs(l.Z) < slab.Size.Z / 2 - 0.25 then
 								hit = true
 							end
 						end

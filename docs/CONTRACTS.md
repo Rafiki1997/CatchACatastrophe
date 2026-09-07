@@ -41,7 +41,7 @@ Config.Quests.tutorial[1..7] = { step, title, body, target, info }, .tutorialDon
 Config.Events.crisis = { interval, warning, duration, pylons, pylonBaseWork, pylonWorkPerExtraPlayer, holdRate, qualifyWork, bossScale, bossHazardSpeed, bossAttackInterval, rewardSeconds, rewardMin, rewardMax, fallbackBoss }
 Config.Milestones.list / .byCount[n] = { count, decoration, decorationName, title }
 Config.Sounds.ids[name], .volume[name] -- click tether_start tether_tick capture hit warn break_ deploy collect purchase circuit overdrive relaunch crisis error quest
-Config.GameName, .CompanyName, .MaxPlayers (8), .DataVersion, .DataStoreName, .TestNamespace
+Config.GameName, .CompanyName, .MapLayout ("A" | "B", chosen B 2026-09-07), .MaxPlayers (follows the layout: B = 6, A = 8), .DataVersion, .DataStoreName, .TestNamespace
 ```
 
 Utilities: `Shared.Util.Format` (`abbreviate(n)` → "1.5K", `commas`, `clock(sec)` → "1:05", `duration(sec)` → "1m 5s", `coins`, `cps`, `percent(frac)`, `date(unix)`), `Shared.Util.Weighted` (`pick(weights)`, `pickIndex(items, getWeight)`, `pickChance(entries)`).
@@ -120,7 +120,7 @@ Workspace.Arena                      -- Model, event area. Floor disc radius 30 
    .Pylons.Pylon_<1..3>              -- Models from MachineryBuilders.buildPylon at radius 20, angles 90 / 210 / 330 deg around the arena centre; each has attribute PylonIndex; server adds the ProximityPrompt
    .BossSpot                         -- Part (invisible) at arena centre y = 0 where the boss model is pivoted
    .Screen                           -- Part 18 x 8 x 1 at (0, 12, -134) facing +Z with SurfaceGui `Gui` -> TextLabel `Text`
-Workspace.Plots.Plot_<1..8>          -- Model per city plot (PlotTemplate). Ring radius 140, angle (22.5 + 45*(n-1)) deg, front (local -Z) facing the origin.
+Workspace.Plots.Plot_<1..MaxPlayers>  -- Model per city plot (PlotTemplate). Ring radius 140, front (local -Z) facing the origin. Layout B: six at (60 + 60*(n-1)) deg, each centred between two region roads. Layout A: eight at (22.5 + 45*(n-1)) deg.
                                         Attributes: OwnerUserId (0 = free), OwnerName, PlotIndex
 Workspace.Regions.<regionId>         -- Model per region. Centre at radius 280, angle (90 + 60*(index-1)) deg. Area ~150 x 150.
    .Wild                             -- Folder: wild creature models are parented here by EncounterService
@@ -182,6 +182,7 @@ Wayfinding the client reads off the built map:
 
 - Roads end at the **edge** of what they lead to, never its centre: plot driveways stop at the front apron (radius 97), kiosk spokes stop at the base disc, the region route is hub → gate plus a 30-stud stub onto the region ground, and nothing crosses the arena floor. The live suite asserts the plot and arena cases.
 - `TutorialUI` draws its guide as a chain of beams along the **road graph** (every `Path` part is an edge, its ends are nodes): player → nearest road → shortest road route → nearest road to the target → target. A straight line only when neither end is near a road.
+- **Map layout** (`Config.MapLayout`). Six region roads at 60-degree spacing cannot pass between eight cities at 45-degree spacing without clipping a corner, and the crisis arena sat on the Frostbite (270) road line. Layout **B (chosen)**: six cities seated between the straight region roads, the arena moved to polar(262, 300) between the Frostbite and Thunderworks regions with its front on a 101-stud spur off the Frostbite road at radius 182, and scenery whose footprint comes within 40 studs of the arena centre removed at build. Layout A (kept behind the switch): eight cities, roads dog-leg through the 45-degree gaps with connectors at radius 186. Live checks: no road centre line inside a city Platform/Apron (quarter-stud tolerance) or the arena floor disc.
 - Every `path()` call is one route. Its chevrons are **Neon** parts tagged `"RouteChevron"` with attributes `RouteId` (string, unique per route), `Index` (1..`Count`, increasing toward the destination) and `Count`. `Controllers.RouteLights` runs a light along them.
 - Hub destinations (`workshopTerminal`, `beaconTerminal`, `atlasTerminal`, the arena `bossSpot`) are tagged `"Waypoint"` with `WaypointName` (string), `WaypointColor` (Color3) and `WaypointHeight` (studs above the part). `Controllers.Waypoints` hangs a sign on each; gates need no tag because `RegionGate` + `RegionId` already say everything.
 
@@ -257,7 +258,7 @@ Panel names (exact strings): `"Creatures"`, `"Atlas"`, `"Recipes"`, `"Workshop"`
 | `client/UI/Panels/QuestsPanel.luau` ("Quests") | sections Tutorial (current step), Daily (3 items, progress bars, reward, **Claim** `ClaimDaily index`, "Resets in 4:12:05" from `daily.resetsAt`), Repeatable (progress, cycle count, **Claim** `ClaimQuest id`) | UI-B |
 | `client/UI/Panels/RelaunchPanel.luau` ("Relaunch") | current level, multiplier, next: cost vs coins, species vs required (progress bars); two lists "What resets" / "What you keep" from `Config.Relaunch`; anchor picker (choose up to `derived.anchorSlots` owned creatures, viewport + name); list of favorites that would be lost with a mandatory checkbox "I understand"; **Relaunch** → `W.confirm` → `Net.fire("DoRelaunch", uids)`; disabled with reason while capturing / at max | UI-B |
 | `client/UI/Panels/SettingsPanel.luau` ("Settings") | sliders Music / Effects (0..1, `SetSetting key value`), toggles Reduced motion / Reduced flashing / Notifications; data status line; controls guide text (mouse / touch / controller) | UI-B |
-| `client/UI/Panels/CitiesPanel.luau` ("Cities") | tabs Leaderboards (income / collection / relaunches from `Leaderboard` events) and Visit (8 plots: owner name or "Empty", **Visit** `VisitCity n`, **Inspect** → `Net.invoke("GetCityInfo", n)` shows creatures + recipes) | UI-B |
+| `client/UI/Panels/CitiesPanel.luau` ("Cities") | tabs Leaderboards (income / collection / relaunches from `Leaderboard` events) and Visit (one row per plot, `Config.MaxPlayers`: owner name or "Empty", **Visit** `VisitCity n`, **Inspect** → `Net.invoke("GetCityInfo", n)` shows creatures + recipes) | UI-B |
 | `client/UI/Panels/CrisisPanel.luau` ("Crisis") + banner | `init()`, `update(snap)`, `setCrisis(state?)` — banner (phase, timer, boss name, pylon progress x3, "Your work: 3.2 / 4 ✓") and the panel with rules and reward range | UI-B |
 
 `Main.client.luau` (lead) wires remotes → modules, init order, panel prompts (`OpensPanel` attribute), Escape closes panels, applies `snap.settings` to `W.sfxEnabled`.

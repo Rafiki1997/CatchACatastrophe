@@ -8,8 +8,11 @@
 --
 -- Layout, in studs, ground top surface at y = 0:
 --   Hub plaza      radius 70 around the origin
---   Arena          radius 30 centred (0, 0, -105)
---   Plot ring      radius 140, one every 45 degrees from 22.5
+--   Arena          radius 30; layout A at (0, 0, -105), layout B at polar(262, 300)
+--                  between the Frostbite and Thunderworks regions, reached by a
+--                  spur off the Frostbite road (Config.MapLayout, chosen: B)
+--   Plot ring      radius 140; A: eight every 45 degrees from 22.5;
+--                  B: six every 60 degrees from 60, between the region roads
 --   Regions        radius 280, one every 60 degrees from 90
 --   Region gates   radius 200 on the region's own angle
 
@@ -72,6 +75,12 @@ end
 local function polar(radius: number, degrees: number, y: number?): Vector3
 	local a = math.rad(degrees)
 	return Vector3.new(math.cos(a) * radius, y or 0, math.sin(a) * radius)
+end
+
+-- Where city i sits on the ring. Layout A: eight from 22.5 every 45. Layout B:
+-- six from 60 every 60, each centred between two region roads (roads at 30 + 60k).
+local function plotAngle(i: number): number
+	return if Config.MapLayout == "B" then 60 + (i - 1) * 60 else 22.5 + (i - 1) * 45
 end
 
 -- A flat disc approximated by a cylinder standing on its end.
@@ -381,8 +390,8 @@ local function buildHub(parent: Instance)
 	boardText.TextYAlignment = Enum.TextYAlignment.Top
 
 	-- lamps and paths around the plaza
-	for i = 1, 8 do
-		lamp(hub, polar(64, 22.5 + (i - 1) * 45))
+	for i = 1, Config.MaxPlayers do
+		lamp(hub, polar(64, plotAngle(i)))
 	end
 	-- start outside the logo ring: four paths meeting at the exact centre would
 	-- overlap each other there
@@ -800,6 +809,11 @@ local function buildRegion(parent: Instance, def: any)
 		-- so the road through the 270 gap ran straight across the arena floor
 		gap = 315
 	end
+	if Config.MapLayout == "B" then
+		-- B seats the cities between the roads and moves the arena away, so every
+		-- region road is straight
+		gap = angle
+	end
 	if math.abs(gap - angle) < 1 then
 		path(model, polar(74, angle), gatePos, 9, def.color)
 	else
@@ -938,6 +952,22 @@ function MapBuilder.build()
 
 	local hub = buildHub(map)
 	local arena = buildArena(map)
+	if Config.MapLayout == "B" then
+		-- Layout B: six cities at 60-degree spacing put a city on either side of
+		-- the arena with their corners on its wall, and the straight Frostbite road
+		-- through its middle. The arena moves out between the Frostbite and
+		-- Thunderworks regions (141 studs from each centre, 33 clear of both), its
+		-- front facing a spur that leaves the Frostbite road behind the city ring.
+		local newCentre = polar(262, 300)
+		local spurFrom = polar(182, 270)
+		local front = Vector3.new(spurFrom.X - newCentre.X, 0, spurFrom.Z - newCentre.Z).Unit
+		-- the arena was built with its front on +Z (toward the hub); turn +Z onto `front`
+		local turn = CFrame.lookAt(Vector3.zero, -front)
+		local move = CFrame.new(newCentre) * turn * CFrame.new(-arena.centre)
+		arena.model:PivotTo(move * arena.model:GetPivot())
+		arena.centre = newCentre
+		path(map, spurFrom, newCentre + front * 37, 10, rgb(255, 120, 100))
+	end
 
 	local regionsFolder = Instance.new("Folder")
 	regionsFolder.Name = "Regions"
@@ -959,7 +989,7 @@ function MapBuilder.build()
 	plotsFolder.Parent = workspace
 	local plots: { [number]: CFrame } = {}
 	for i = 1, Config.MaxPlayers do
-		local a = 22.5 + (i - 1) * 45
+		local a = plotAngle(i)
 		local pos = polar(140, a)
 		plots[i] = CFrame.lookAt(pos, Vector3.new(0, 0, 0))
 		-- a driveway to the front apron (local z -43 .. -29), not a strip across the pads
@@ -968,6 +998,35 @@ function MapBuilder.build()
 	end
 
 	buildLandscape(map)
+	if Config.MapLayout == "B" then
+		-- Scenery that landed under or against the relocated arena goes: props and
+		-- landscape mounds whose ground footprint comes within 40 studs of the
+		-- centre (walls at 30, lamps at 34). Roads and anything as large as a region
+		-- ground disc are left alone.
+		local cx, cz = arena.centre.X, arena.centre.Z
+		local removed = 0
+		for _, d in map:GetDescendants() do
+			if d:IsA("BasePart") and not d:IsDescendantOf(arena.model) and d.Size.Magnitude < 120
+				and not d.Name:find("Path") and not d.Name:find("Chevron") and d.Name ~= "Ground" then
+				local minX, maxX, minZ, maxZ = math.huge, -math.huge, math.huge, -math.huge
+				for _, sx in { -1, 1 } do
+					for _, sz in { -1, 1 } do
+						local c = d.CFrame:PointToWorldSpace(Vector3.new(sx * d.Size.X / 2, 0, sz * d.Size.Z / 2))
+						minX, maxX = math.min(minX, c.X), math.max(maxX, c.X)
+						minZ, maxZ = math.min(minZ, c.Z), math.max(maxZ, c.Z)
+					end
+				end
+				local nx, nz = math.clamp(cx, minX, maxX), math.clamp(cz, minZ, maxZ)
+				if math.sqrt((nx - cx) ^ 2 + (nz - cz) ^ 2) < 40 then
+					d:Destroy()
+					removed += 1
+				end
+			end
+		end
+		if removed > 0 then
+			print(("[MapBuilder] layout B: %d scenery parts cleared from under the arena"):format(removed))
+		end
+	end
 
 	local effects = Instance.new("Folder")
 	effects.Name = "Effects"
