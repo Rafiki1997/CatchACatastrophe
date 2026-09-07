@@ -107,6 +107,7 @@ function CaptureReveal.init()
 		size = UDim2.new(0, 92, 0, 22),
 		position = UDim2.new(1, -12, 0, 214),
 		anchor = Vector2.new(1, 0),
+		xalign = Enum.TextXAlignment.Center,
 		textSize = 13,
 		font = Theme.fonts.bold,
 		color = Theme.colors.ink,
