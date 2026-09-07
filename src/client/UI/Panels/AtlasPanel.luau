@@ -69,12 +69,12 @@ local function createCard(speciesId: string): any
 		strokeThickness = 2,
 	})
 
-	local vp = W.viewport(card, UDim2.new(1, -8, 0, 84), UDim2.new(0, 4, 0, 4), Theme.colors.bgDeep)
+	local vp = W.viewport(card, UDim2.new(1, -8, 0, 96), UDim2.new(0, 4, 0, 4), Theme.colors.bgDeep)
 
 	local nameLabel = W.label({
 		parent = card,
 		size = UDim2.new(1, -8, 0, 20),
-		position = UDim2.new(0, 4, 0, 90),
+		position = UDim2.new(0, 4, 0, 102),
 		textSize = 14,
 		font = Theme.fonts.bold,
 	})
@@ -83,25 +83,26 @@ local function createCard(speciesId: string): any
 	local rarityLabel = W.label({
 		parent = card,
 		size = UDim2.new(1, -8, 0, 16),
-		position = UDim2.new(0, 4, 0, 110),
+		position = UDim2.new(0, 4, 0, 122),
 		textSize = 12,
 		color = Theme.colors.textDim,
 	})
 	local incomeLabel = W.label({
 		parent = card,
 		size = UDim2.new(1, -8, 0, 16),
-		position = UDim2.new(0, 4, 0, 126),
+		position = UDim2.new(0, 4, 0, 138),
 		textSize = 12,
 		color = Theme.colors.coin,
 	})
 	local statsLabel = W.label({
 		parent = card,
-		size = UDim2.new(1, -8, 0, 30),
-		position = UDim2.new(0, 4, 0, 142),
+		size = UDim2.new(1, -8, 0, 40),
+		position = UDim2.new(0, 4, 0, 154),
 		textSize = 11,
 		color = Theme.colors.textDim,
 		wrap = true,
 	})
+	statsLabel.TextTruncate = Enum.TextTruncate.AtEnd
 
 	local variantRow = W.frame({
 		parent = card,
@@ -275,7 +276,9 @@ function M.init()
 	if not gui:FindFirstChildOfClass("UIScale") then
 		W.attachScale(gui)
 	end
-	panel = W.panel(gui, "Atlas", "Catastrophe Atlas", UDim2.new(0, 640, 0, 440))
+	-- 640 x 440 truncated every region tab and cut the card text; six 136 px
+	-- tabs and four 200 px cards need the width, three description lines the height
+	panel = W.panel(gui, "Atlas", "Catastrophe Atlas", UDim2.new(0, 880, 0, 600))
 	local body = panel.body
 
 	headerLabel = W.label({
@@ -302,19 +305,19 @@ function M.init()
 		refresh()
 	end, 32)
 
-	cardScroll = W.scrollGrid(body, UDim2.new(0, 148, 0, 190), UDim2.new(1, 0, 0, 214), UDim2.new(0, 0, 0, 62), 8)
+	cardScroll = W.scrollGrid(body, UDim2.new(0, 200, 0, 224), UDim2.new(1, 0, 0, 240), UDim2.new(0, 0, 0, 62), 8)
 
 	W.label({
 		parent = body,
 		text = "Collection milestones",
 		size = UDim2.new(1, 0, 0, 20),
-		position = UDim2.new(0, 0, 0, 280),
+		position = UDim2.new(0, 0, 0, 308),
 		textSize = 14,
 		font = Theme.fonts.bold,
 		color = Theme.colors.accent,
 		xalign = Enum.TextXAlignment.Left,
 	})
-	milestoneScroll = W.scroll(body, UDim2.new(1, 0, 1, -304), UDim2.new(0, 0, 0, 304), 6)
+	milestoneScroll = W.scroll(body, UDim2.new(1, 0, 1, -332), UDim2.new(0, 0, 0, 332), 6)
 
 	built = true
 	panel.refresh = refresh
