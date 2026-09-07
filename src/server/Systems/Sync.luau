@@ -7,6 +7,7 @@
 -- the economy pays can never disagree.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 
 local Config = require(ReplicatedStorage.Shared.Config)
 local Remotes = require(ReplicatedStorage.Shared.Remotes)
@@ -66,6 +67,7 @@ function Sync.build(profile: Profile): Snapshot
 	local now = workspace:GetServerTimeNow()
 	local computed = Stats.compute(profile)
 	local income = Stats.income(profile, now, computed)
+	local placeVersion = game.PlaceVersion
 
 	-- creatures
 	local creatures: { [string]: Types.CreatureEntry } = {}
@@ -155,6 +157,10 @@ function Sync.build(profile: Profile): Snapshot
 		quests = questsFrom(profile),
 		offline = offline,
 		settings = d.settings,
+		build = {
+			placeVersion = placeVersion,
+			environment = if RunService:IsStudio() then "Studio" else "Live",
+		},
 		stats = {
 			captures = d.stats.captures,
 			perfect = d.stats.perfect,

@@ -118,6 +118,11 @@ export type Snapshot = {
 		notifications: boolean,
 	},
 
+	build: {
+		placeVersion: number,
+		environment: string, -- "Studio" | "Live"
+	},
+
 	stats: {
 		captures: number,
 		perfect: number,

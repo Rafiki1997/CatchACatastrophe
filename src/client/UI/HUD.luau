@@ -6,6 +6,7 @@
 -- its own, so the HUD and the server cannot drift apart.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 
 local Config = require(ReplicatedStorage.Shared.Config)
 local Format = require(ReplicatedStorage.Shared.Util.Format)
@@ -40,6 +41,7 @@ local dataPill: TextLabel? = nil
 local offlineCard: Frame? = nil
 local offlineText: TextLabel? = nil
 local visitChip: TextButton? = nil
+local buildPill: TextLabel? = nil
 local forecastRow: Frame? = nil
 local forecastChips: { [string]: TextLabel } = {}
 local forecastData: { [string]: { nextLegendaryAt: number, surgeUntil: number } } = {}
@@ -221,6 +223,19 @@ function HUD.init()
 	visitChip.Visible = false
 
 	-- ---------------------------------------------------------------- data pill
+	buildPill = W.label({
+		parent = safe,
+		name = "BuildPill",
+		text = "",
+		size = UDim2.new(0, 240, 0, 26),
+		position = UDim2.new(1, -14, 1, -44),
+		anchor = Vector2.new(1, 1),
+		textSize = 13,
+		font = Theme.fonts.bold,
+		color = Theme.colors.textDim,
+		bg = Theme.colors.bgDeep,
+		radius = Theme.sizes.radiusSmall,
+	})
 	dataPill = W.label({
 		parent = safe,
 		name = "DataPill",
@@ -388,6 +403,16 @@ function HUD.update(snap: Types.Snapshot)
 
 	if visitChip then
 		visitChip.Visible = snap.visiting ~= nil
+	end
+
+	if buildPill then
+		if RunService:IsStudio() or snap.testAdapter then
+			buildPill.Visible = true
+			buildPill.Text = ("Build %d | %s"):format(snap.build.placeVersion, snap.build.environment)
+			buildPill.TextColor3 = if snap.build.environment == "Live" then Theme.colors.success else Theme.colors.warn
+		else
+			buildPill.Visible = false
+		end
 	end
 
 	if dataPill then
