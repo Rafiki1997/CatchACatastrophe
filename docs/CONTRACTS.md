@@ -68,6 +68,12 @@ Kit.finalize(model)                      -- called by the dispatcher, NOT by bui
 ```
 Conventions: feet at y = 0, +Y up, **face on -Z**. Use `role = "fixed"` for eyes/teeth/glass so variants do not tint them. Cylinders are long along X — rotate with `CFrame.Angles(0, 0, math.rad(90))` to stand them up. 14–45 parts per creature; ≤ 2 PointLights and ≤ 3 ParticleEmitters. Total height should match `def.height` (±20%).
 
+`Shared.Models.ToyFace` provides `eyes(model, centreCF, spacing, radius)`,
+`smile(model, centreCF, width)`, `cheeks(model, centreCF, spacing, size, color)`,
+and `ink: Color3`. It uses the approved creature face style with fixed colours.
+`ModelKit.applyVariant` and `applyRarityGlow` add effects only within the remaining
+two-light/three-emitter budget; builder-specific effects take priority.
+
 ### CreatureModels — DONE (`Shared.Models.CreatureModels`)
 `CreatureModels.build(speciesId, variant?, silhouette?, scale?) -> Model` merges every module under `CreatureBuilders/`.
 `CreatureModels.hasBuilder(id)`, `.builderIds()`.

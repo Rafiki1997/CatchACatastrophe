@@ -263,7 +263,7 @@ local function buildHub(parent: Instance)
 			name = "LogoTile",
 			size = Vector3.new(3.2, 0.16, 1.6),
 			cf = CFrame.new(polar(16, a, 0.32)) * CFrame.Angles(0, math.rad(-a), 0),
-			color = if i % 2 == 0 then HAZARD else INK,
+			color = if i % 2 == 0 then rgb(150, 157, 166) else rgb(105, 114, 126),
 			parent = hub,
 		})
 	end
@@ -760,6 +760,96 @@ local function buildRegion(parent: Instance, def: any)
 	}
 end
 
+-- Scenery stays outside the playable ring and region interiors. The underlying
+-- ground remains continuous; hills use embedded ellipsoids with no flat seams.
+-- Fixed placement avoids changing the gameplay random sequence on each boot.
+local function buildLandscape(parent: Instance)
+	local scenery = Instance.new("Folder")
+	scenery.Name = "Landscape"
+	scenery.Parent = parent
+	local function rock(host: Instance, name: string, pos: Vector3, size: Vector3, color: Color3, material: Enum.Material, rounded: boolean?): Part
+		return part({ name = name, size = size, cf = CFrame.new(pos), color = color,
+			material = material, shape = if rounded then Enum.PartType.Ball else Enum.PartType.Block,
+			collide = true, query = false, parent = host })
+	end
+	local function tree(host: Instance, pos: Vector3, scale: number, snowy: boolean)
+		rock(host, "Trunk", pos + Vector3.new(0, 4 * scale, 0), Vector3.new(1.6, 8, 1.6) * scale, rgb(94, 76, 59), Enum.Material.Wood)
+		for tier = 1, 3 do
+			local width = (12 - tier * 2) * scale
+			local color = if snowy then rgb(213, 232, 236) else rgb(67 + tier * 10, 120 + tier * 12, 76 + tier * 5)
+			local material = if snowy then Enum.Material.Snow else Enum.Material.Grass
+			rock(host, "Canopy", pos + Vector3.new(0, (5 + tier * 2.5) * scale, 0), Vector3.new(width, 6 * scale, width), color, material, true)
+		end
+	end
+
+	-- Low banks in the empty wedges between destinations, beyond all city plots.
+	for i = 1, 6 do
+		local angle = 120 + (i - 1) * 60
+		local centre = polar(230, angle)
+		local clear = true
+		for _, def in Config.Regions.list do
+			if (centre - polar(280, 90 + 60 * (def.index - 1))).Magnitude < 110 then
+				clear = false
+			end
+		end
+		if clear then
+			rock(scenery, "MeadowBank", centre + Vector3.new(0, -2, 0), Vector3.new(52, 17, 44), rgb(108, 150, 91), Enum.Material.Grass, true)
+			rock(scenery, "MeadowShoulder", centre + polar(21, angle + 90, -1.5), Vector3.new(32, 11, 29), rgb(119, 159, 98), Enum.Material.Grass, true)
+			tree(scenery, centre + polar(31, angle, 0), 0.9, false)
+		end
+	end
+
+	for _, def in Config.Regions.list do
+		local angle = 90 + 60 * (def.index - 1)
+		local centre = polar(280, angle)
+		local group = Instance.new("Folder")
+		group.Name = def.id
+		group.Parent = scenery
+		local element = def.element
+		local material = if element == "Water" then Enum.Material.Sand elseif element == "Frost" then Enum.Material.Snow elseif element == "Heat" then Enum.Material.Sandstone elseif element == "Wind" then Enum.Material.Grass else Enum.Material.Slate
+		-- The semicircle faces away from the hub: entrances and signs stay open.
+		for i = 1, 7 do
+			local bearing = angle - 84 + (i - 1) * 28
+			local at = centre + polar(119 + (i % 2) * 8, bearing)
+			local height = 22 + (i % 3) * 8
+			local tint = def.groundColor:Lerp(rgb(118, 130, 112), 0.18)
+			if element == "Water" or element == "Wind" then
+				rock(group, "Dune", at + Vector3.new(0, -3, 0), Vector3.new(57, height * 0.7, 48), tint, material, true)
+			elseif element == "Heat" then
+				for tier = 1, 3 do
+					local width = 44 - tier * 7
+					rock(group, "CanyonStratum", at + Vector3.new(0, (tier - 0.5) * height / 3 - 1, 0), Vector3.new(width, height / 3, width * 0.8),
+						tint:Lerp(rgb(205, 139, 89), tier * 0.15), material)
+				end
+			else
+				local ridge = rock(group, "Ridge", at + Vector3.new(0, height * 0.25, 0), Vector3.new(32, height, 30), tint, material)
+				ridge.CFrame *= CFrame.Angles(0, math.rad(bearing), math.rad(18))
+				if element == "Frost" then
+					rock(group, "SnowCap", at + Vector3.new(0, height * 0.73, 0), Vector3.new(28, 9, 27), rgb(239, 246, 249), Enum.Material.Snow, true)
+				elseif element == "Cosmic" then
+					local floating = rock(group, "FloatingShard", at + Vector3.new(0, height + 12, 0), Vector3.new(6, 10, 6), def.color, Enum.Material.Slate)
+					floating.CFrame *= CFrame.Angles(0.3, 0.6, 0.4)
+					floating.CanCollide = false
+					local seam = rock(group, "CrystalSeam", at + Vector3.new(0, height + 12, 0), Vector3.new(6.3, 0.5, 6.3), def.color, Enum.Material.Neon)
+					seam.CFrame = floating.CFrame
+					seam.CanCollide = false
+				end
+			end
+			-- A lower apron softens the transition from plain grass to each biome.
+			local shoulder = centre + polar(94, bearing)
+			rock(group, "BiomeShoulder", shoulder + Vector3.new(0, -1.3, 0), Vector3.new(25, 7, 24), def.groundColor, material, true)
+			if element == "Wind" or element == "Frost" then
+				tree(group, centre + polar(98, bearing + 7), 0.85 + (i % 3) * 0.16, element == "Frost")
+			elseif element == "Water" then
+				local reeds = centre + polar(91, bearing + 7)
+				for stem = 1, 3 do
+					rock(group, "BeachGrass", reeds + Vector3.new(stem - 2, 1.8, 0), Vector3.new(0.35, 3.6 + stem * 0.4, 0.35), rgb(120, 145, 90), Enum.Material.Grass)
+				end
+			end
+		end
+	end
+end
+
 -- ============================================================ build
 
 function MapBuilder.build()
@@ -801,6 +891,8 @@ function MapBuilder.build()
 		path(map, polar(72, a), pos, 8, rgb(120, 200, 255))
 		lamp(map, polar(104, a))
 	end
+
+	buildLandscape(map)
 
 	local effects = Instance.new("Folder")
 	effects.Name = "Effects"

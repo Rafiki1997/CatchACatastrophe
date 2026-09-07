@@ -472,6 +472,30 @@ local Rarities = require(script.Parent.Parent.Config.Rarities)
 
 local TINTABLE = { primary = true, secondary = true, accent = true }
 
+-- Creature-specific effects take priority. Variant and rarity decoration share
+-- the remaining budget instead of stacking another full set on top of them.
+local function effectCount(model: Model, className: string): number
+	local count = 0
+	for _, inst in model:GetDescendants() do
+		if inst:IsA(className) then
+			count += 1
+		end
+	end
+	return count
+end
+
+local function decorationParticles(model: Model, preset: string, color: Color3)
+	if effectCount(model, "ParticleEmitter") < 3 then
+		Kit.particles(Kit.root(model), preset, color)
+	end
+end
+
+local function decorationLight(model: Model, color: Color3, brightness: number, range: number)
+	if effectCount(model, "Light") < 2 then
+		Kit.light(Kit.root(model), color, brightness, range)
+	end
+end
+
 function Kit.applyVariant(model: Model, variantId: string)
 	local info = Variants.info[variantId]
 	if not info or variantId == "Normal" then
@@ -500,13 +524,13 @@ function Kit.applyVariant(model: Model, variantId: string)
 		end
 	end
 	if info.particles then
-		Kit.particles(Kit.root(model), info.particles, info.color)
+		decorationParticles(model, info.particles, info.color)
 	end
 	if info.rainbow then
 		model:SetAttribute("Rainbow", true)
 	end
 	if info.glow then
-		Kit.light(Kit.root(model), info.color, 1.0, 12)
+		decorationLight(model, info.color, 1.0, 12)
 	end
 end
 
@@ -516,18 +540,17 @@ function Kit.applyRarityGlow(model: Model, rarity: string)
 	if not info or info.glow == 0 then
 		return
 	end
-	local root = Kit.root(model)
 	if info.glow == 1 then
-		Kit.particles(root, "stars", info.color)
-		Kit.light(root, info.color, 0.9, 12)
+		decorationParticles(model, "stars", info.color)
+		decorationLight(model, info.color, 0.9, 12)
 	elseif info.glow == 2 then
-		Kit.particles(root, "aura", info.color)
-		Kit.particles(root, "sparkle", Color3.fromRGB(255, 240, 180))
-		Kit.light(root, info.color, 1.4, 16)
+		decorationParticles(model, "aura", info.color)
+		decorationParticles(model, "sparkle", Color3.fromRGB(255, 240, 180))
+		decorationLight(model, info.color, 1.4, 16)
 	else
-		Kit.particles(root, "motes", Color3.fromRGB(60, 0, 20))
-		Kit.particles(root, "aura", info.color)
-		Kit.light(root, info.color, 1.8, 20)
+		decorationParticles(model, "motes", Color3.fromRGB(60, 0, 20))
+		decorationParticles(model, "aura", info.color)
+		decorationLight(model, info.color, 1.8, 20)
 	end
 end
 

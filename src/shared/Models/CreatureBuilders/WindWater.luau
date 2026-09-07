@@ -4,6 +4,7 @@
 -- face on -Z. The dispatcher (CreatureModels) calls finalize/variant/glow.
 
 local Kit = require(script.Parent.Parent.ModelKit)
+local ToyFace = require(script.Parent.Parent.ToyFace)
 
 local B = {}
 
@@ -13,6 +14,12 @@ end
 
 -- A cylinder stood upright (Kit cylinders are long along X).
 local UP = CFrame.Angles(0, 0, math.rad(90))
+
+-- Gusty Gardens style: soft toy proportions, dark readable eyes, small glints.
+-- Fixed face colours remain legible when the body receives a variant tint.
+local FACE_INK = ToyFace.ink
+local windEyes = ToyFace.eyes
+local windSmile = ToyFace.smile
 
 -- ---------------------------------------------------------------- Wind
 
@@ -30,7 +37,7 @@ B.breeze_bean = function(model: Model, _root: BasePart, palette, def)
 			name = "Leaf",
 			shape = "Ball",
 			mesh = "Sphere",
-			size = Vector3.new(1.5, 0.16, 0.75),
+			size = Vector3.new(1.5, 0.24, 0.85),
 			cf = leafCF,
 			color = palette.secondary,
 			role = "secondary",
@@ -39,7 +46,7 @@ B.breeze_bean = function(model: Model, _root: BasePart, palette, def)
 		Kit.part(model, {
 			name = "Vein",
 			size = Vector3.new(1.3, 0.06, 0.06),
-			cf = leafCF * CFrame.new(0, 0.05, 0),
+			cf = leafCF * CFrame.new(0, 0.13, 0),
 			color = Kit.lighten(palette.secondary, 0.3),
 			role = "secondary",
 		})
@@ -49,9 +56,14 @@ B.breeze_bean = function(model: Model, _root: BasePart, palette, def)
 	Kit.part(model, { name = "Stem", shape = "Cylinder", size = Vector3.new(0.45, 0.14, 0.14), cf = CFrame.new(0.2, 2.5, 0.05) * UP, color = palette.secondary, role = "secondary" })
 	Kit.blob(model, Vector3.new(0.4, 0.4, 0.4), CFrame.new(0.2, 2.75, 0.05), palette.accent, "accent")
 
-	Kit.eyes(model, CFrame.new(0.1, 1.6, -0.62), 0.42, 0.2)
-	-- little smile
-	Kit.part(model, { name = "Smile", size = Vector3.new(0.42, 0.08, 0.08), cf = CFrame.new(0.1, 1.28, -0.68), color = rgb(60, 50, 40), role = "fixed" })
+	-- Cream face patch and peach cheeks separate the expression from the leaves.
+	Kit.blob(model, Vector3.new(1.1, 0.96, 0.24), CFrame.new(0.1, 1.48, -0.6), palette.accent, "accent")
+	windEyes(model, CFrame.new(0.1, 1.66, -0.74), 0.51, 0.21)
+	windSmile(model, CFrame.new(0.1, 1.32, -0.74), 0.37)
+	for _, side in { -1, 1 } do
+		Kit.blob(model, Vector3.new(0.22, 0.12, 0.08), CFrame.new(0.1 + side * 0.42, 1.43, -0.72), rgb(242, 177, 139), "fixed")
+		Kit.blob(model, Vector3.new(0.28, 0.38, 0.3), CFrame.new(side * 0.64, 0.85, -0.04), palette.primary)
+	end
 
 	-- breeze swirl underneath (it floats)
 	local swirl = Kit.part(model, { name = "Breeze", shape = "Cylinder", size = Vector3.new(0.1, 0.9, 0.9), cf = CFrame.new(0, 0.28, 0) * UP, color = palette.accent, material = Enum.Material.Neon, transparency = 0.55, role = "accent" })
@@ -63,8 +75,9 @@ end
 -- Gust Bunny: upright rabbit standing on two little cyclones.
 B.gust_bunny = function(model: Model, root: BasePart, palette, def)
 	local _ = root
-	Kit.blob(model, Vector3.new(1.3, 1.5, 1.1), CFrame.new(0, 1.55, 0), palette.primary) -- torso
-	Kit.blob(model, Vector3.new(1.15, 1.05, 1.05), CFrame.new(0, 2.5, -0.08), palette.primary) -- head
+	Kit.blob(model, Vector3.new(1.45, 1.55, 1.2), CFrame.new(0, 1.55, 0), palette.primary) -- torso
+	Kit.blob(model, Vector3.new(1.38, 1.18, 1.18), CFrame.new(0, 2.5, -0.08), palette.primary) -- head
+	Kit.blob(model, Vector3.new(0.86, 0.96, 0.2), CFrame.new(0, 1.52, -0.55), palette.secondary, "secondary")
 
 	-- long ears
 	for _, side in { -1, 1 } do
@@ -72,7 +85,7 @@ B.gust_bunny = function(model: Model, root: BasePart, palette, def)
 			name = "Ear",
 			shape = "Ball",
 			mesh = "Sphere",
-			size = Vector3.new(0.32, 1.25, 0.22),
+			size = Vector3.new(0.43, 1.25, 0.3),
 			cf = CFrame.new(side * 0.32, 3.35, -0.05) * CFrame.Angles(0, 0, side * math.rad(11)),
 			color = palette.primary,
 		})
@@ -80,8 +93,8 @@ B.gust_bunny = function(model: Model, root: BasePart, palette, def)
 			name = "EarInner",
 			shape = "Ball",
 			mesh = "Sphere",
-			size = Vector3.new(0.17, 0.95, 0.12),
-			cf = CFrame.new(side * 0.32, 3.35, -0.14) * CFrame.Angles(0, 0, side * math.rad(11)),
+			size = Vector3.new(0.23, 0.93, 0.13),
+			cf = CFrame.new(side * 0.32, 3.35, -0.2) * CFrame.Angles(0, 0, side * math.rad(11)),
 			color = palette.accent,
 			role = "accent",
 		})
@@ -92,27 +105,32 @@ B.gust_bunny = function(model: Model, root: BasePart, palette, def)
 		Kit.blob(model, Vector3.new(0.34, 0.8, 0.34), CFrame.new(side * 0.75, 1.7, -0.05) * CFrame.Angles(0, 0, side * math.rad(-14)), palette.primary)
 	end
 
-	-- cyclone feet: three stacked cones per foot, marked as orbiters so they spin
+	-- Each funnel widens toward the body and orbits its own foot, not the root.
 	for _, side in { -1, 1 } do
 		local x = side * 0.36
-		local widths = { 0.75, 0.55, 0.34 }
+		local widths = { 0.3, 0.51, 0.72 }
 		for i, w in widths do
 			local p = Kit.part(model, {
 				name = "Cyclone",
-				shape = "Cylinder",
-				size = Vector3.new(0.24, w, w),
-				cf = CFrame.new(x, 0.16 + (i - 1) * 0.26, 0) * UP,
+				shape = "Ball",
+				mesh = "Sphere",
+				size = Vector3.new(w, 0.24, w),
+				cf = CFrame.new(x, 0.16 + (i - 1) * 0.26, 0),
 				color = palette.secondary,
 				material = Enum.Material.Neon,
 				transparency = 0.35 + i * 0.05,
 				role = "secondary",
 			})
-			Kit.orbiter(model, p, 0.09 * i, 6 - i, i * 2, 0, 0.16 + (i - 1) * 0.26)
+			Kit.orbit(model, p, { radius = 0.035, speed = side * (6 - i), phase = i * 2, centre = Vector3.new(x, 0.16 + (i - 1) * 0.26, 0), rigid = true })
 		end
 	end
 
-	Kit.eyes(model, CFrame.new(0, 2.62, -0.55), 0.3, 0.18)
-	Kit.part(model, { name = "Nose", shape = "Ball", size = Vector3.new(0.18, 0.14, 0.14), cf = CFrame.new(0, 2.4, -0.6), color = palette.accent, role = "accent" })
+	windEyes(model, CFrame.new(0, 2.64, -0.64), 0.53, 0.21)
+	for _, side in { -1, 1 } do
+		Kit.blob(model, Vector3.new(0.34, 0.27, 0.23), CFrame.new(side * 0.15, 2.34, -0.65), rgb(252, 247, 239), "fixed")
+	end
+	Kit.part(model, { name = "Nose", shape = "Ball", size = Vector3.new(0.19, 0.14, 0.15), cf = CFrame.new(0, 2.42, -0.81), color = palette.accent, role = "accent" })
+	Kit.part(model, { name = "BunnyTooth", size = Vector3.new(0.15, 0.17, 0.1), cf = CFrame.new(0, 2.19, -0.75), color = rgb(255, 255, 255), role = "fixed" })
 	-- puffy tail
 	Kit.blob(model, Vector3.new(0.45, 0.45, 0.45), CFrame.new(0, 1.35, 0.6), rgb(255, 255, 255), "fixed")
 
@@ -137,9 +155,10 @@ B.twister_terrier = function(model: Model, root: BasePart, palette, def)
 	end
 
 	-- head at the top of the corkscrew
-	Kit.blob(model, Vector3.new(1.05, 0.95, 1.15), CFrame.new(0, 2.85, -0.15), palette.primary)
-	Kit.blob(model, Vector3.new(0.5, 0.4, 0.55), CFrame.new(0, 2.68, -0.78), palette.secondary, "secondary") -- snout
-	Kit.part(model, { name = "Nose", shape = "Ball", size = Vector3.new(0.22, 0.18, 0.18), cf = CFrame.new(0, 2.76, -1.02), color = rgb(45, 40, 40), role = "fixed" })
+	Kit.blob(model, Vector3.new(1.35, 1.08, 1.2), CFrame.new(0, 2.85, -0.15), palette.primary)
+	Kit.blob(model, Vector3.new(0.82, 0.48, 0.61), CFrame.new(0, 2.66, -0.79), Kit.lighten(palette.primary, 0.48), "primary")
+	Kit.part(model, { name = "Nose", shape = "Ball", size = Vector3.new(0.3, 0.22, 0.2), cf = CFrame.new(0, 2.76, -1.07), color = FACE_INK, role = "fixed" })
+	windSmile(model, CFrame.new(0, 2.56, -1.08), 0.48)
 
 	-- floppy ears
 	for _, side in { -1, 1 } do
@@ -147,19 +166,22 @@ B.twister_terrier = function(model: Model, root: BasePart, palette, def)
 			name = "Ear",
 			shape = "Ball",
 			mesh = "Sphere",
-			size = Vector3.new(0.22, 0.8, 0.45),
-			cf = CFrame.new(side * 0.52, 2.8, 0.02) * CFrame.Angles(0, 0, side * math.rad(24)),
+			size = Vector3.new(0.35, 0.92, 0.53),
+			cf = CFrame.new(side * 0.66, 2.8, 0.02) * CFrame.Angles(0, 0, side * math.rad(24)),
 			color = palette.secondary,
 			role = "secondary",
 		})
 	end
 
 	-- goggles: strap + two lenses
-	Kit.part(model, { name = "Strap", size = Vector3.new(1.15, 0.2, 1.15), cf = CFrame.new(0, 3.05, -0.15), color = rgb(60, 50, 45), role = "fixed" })
+	Kit.part(model, { name = "Strap", size = Vector3.new(1.37, 0.16, 0.83), cf = CFrame.new(0, 3.05, -0.07), color = rgb(60, 50, 45), role = "fixed" })
 	for _, side in { -1, 1 } do
-		Kit.part(model, { name = "LensRim", shape = "Cylinder", size = Vector3.new(0.12, 0.46, 0.46), cf = CFrame.new(side * 0.27, 3.05, -0.66) * CFrame.Angles(0, math.rad(90), 0), color = rgb(70, 60, 52), role = "fixed" })
-		Kit.part(model, { name = "Lens", shape = "Cylinder", size = Vector3.new(0.06, 0.36, 0.36), cf = CFrame.new(side * 0.27, 3.05, -0.72) * CFrame.Angles(0, math.rad(90), 0), color = palette.accent, material = Enum.Material.Glass, transparency = 0.25, reflectance = 0.3, role = "fixed" })
+		Kit.part(model, { name = "LensRim", shape = "Cylinder", size = Vector3.new(0.13, 0.57, 0.57), cf = CFrame.new(side * 0.32, 3.05, -0.67) * CFrame.Angles(0, math.rad(90), 0), color = rgb(77, 66, 56), role = "fixed" })
+		Kit.part(model, { name = "Lens", shape = "Cylinder", size = Vector3.new(0.06, 0.43, 0.43), cf = CFrame.new(side * 0.32, 3.05, -0.77) * CFrame.Angles(0, math.rad(90), 0), color = palette.accent, material = Enum.Material.SmoothPlastic, reflectance = 0.12, role = "fixed" })
+		Kit.part(model, { name = "Pupil", shape = "Ball", size = Vector3.new(0.13, 0.21, 0.07), cf = CFrame.new(side * 0.32, 3.04, -0.825), color = FACE_INK, role = "fixed", castShadow = false })
+		Kit.part(model, { name = "EyeGlint", shape = "Ball", size = Vector3.one * 0.065, cf = CFrame.new(side * 0.32 - 0.05, 3.12, -0.85), color = rgb(255, 255, 255), role = "fixed", castShadow = false })
 	end
+	Kit.part(model, { name = "GoggleBridge", size = Vector3.new(0.14, 0.09, 0.12), cf = CFrame.new(0, 3.05, -0.72), color = rgb(77, 66, 56), role = "fixed" })
 
 	-- tail, curled
 	Kit.part(model, { name = "Tail", shape = "Cylinder", size = Vector3.new(0.7, 0.2, 0.2), cf = CFrame.new(0, 2.15, 0.7) * CFrame.Angles(math.rad(35), 0, 0), color = palette.secondary, role = "secondary" })
@@ -178,24 +200,31 @@ B.sir_spins_a_lot = function(model: Model, root: BasePart, palette, def)
 	for i, w in widths do
 		local p = Kit.part(model, {
 			name = "Funnel" .. tostring(i),
-			shape = "Cylinder",
-			size = Vector3.new(0.62, w, w),
-			cf = CFrame.new(math.sin(i * 1.1) * 0.1, 0.55 + (i - 1) * 0.62, math.cos(i * 1.1) * 0.08) * UP,
+			shape = "Ball",
+			mesh = "Sphere",
+			size = Vector3.new(w, 0.7, w),
+			cf = CFrame.new(math.sin(i * 1.1) * 0.1, 0.55 + (i - 1) * 0.62, math.cos(i * 1.1) * 0.08),
 			color = if i % 2 == 0 then palette.secondary else palette.primary,
 			material = Enum.Material.SmoothPlastic,
 			transparency = 0.12,
 			role = if i % 2 == 0 then "secondary" else "primary",
 		})
-		Kit.orbiter(model, p, 0.12, 2.4, i, 0, 0.55 + (i - 1) * 0.62)
+		Kit.orbit(model, p, { radius = 0.12, speed = 2.4, phase = i, centre = Vector3.new(0, 0.55 + (i - 1) * 0.62, 0), rigid = true })
 	end
 
 	-- knight helmet on top
-	Kit.blob(model, Vector3.new(1.5, 1.3, 1.5), CFrame.new(0, 4.5, -0.05), palette.secondary, "secondary", Enum.Material.Metal)
-	Kit.part(model, { name = "Visor", size = Vector3.new(1.15, 0.34, 0.2), cf = CFrame.new(0, 4.5, -0.78), color = rgb(30, 32, 42), role = "fixed" })
-	Kit.part(model, { name = "VisorSlot", size = Vector3.new(0.9, 0.12, 0.1), cf = CFrame.new(0, 4.5, -0.86), color = palette.accent, material = Enum.Material.Neon, role = "accent" })
+	Kit.blob(model, Vector3.new(1.72, 1.35, 1.55), CFrame.new(0, 4.5, -0.05), palette.secondary, "secondary", Enum.Material.Metal)
+	Kit.part(model, { name = "Visor", size = Vector3.new(1.3, 0.44, 0.2), cf = CFrame.new(0, 4.5, -0.8), color = FACE_INK, role = "fixed" })
+	for _, side in { -1, 1 } do
+		Kit.part(model, { name = "VisorEye", size = Vector3.new(0.27, 0.14, 0.08), cf = CFrame.new(side * 0.29, 4.51, -0.94), color = rgb(255, 242, 185), material = Enum.Material.Neon, role = "fixed" })
+		Kit.part(model, { name = "HelmetRivet", shape = "Ball", size = Vector3.one * 0.16, cf = CFrame.new(side * 0.72, 4.48, -0.51), color = palette.accent, role = "accent", material = Enum.Material.Metal })
+	end
+	Kit.part(model, { name = "HelmetCrest", size = Vector3.new(0.18, 0.4, 0.1), cf = CFrame.new(0, 4.91, -0.72), color = palette.accent, role = "accent", material = Enum.Material.Metal })
 	-- plume
-	Kit.blob(model, Vector3.new(0.4, 0.75, 0.4), CFrame.new(0, 5.3, 0.1), palette.accent, "accent")
-	Kit.blob(model, Vector3.new(0.3, 0.55, 0.3), CFrame.new(0, 5.6, 0.28), palette.accent, "accent")
+	Kit.blob(model, Vector3.new(0.5, 0.8, 0.52), CFrame.new(0, 5.28, 0.12), palette.accent, "accent")
+	Kit.blob(model, Vector3.new(0.42, 0.48, 0.75), CFrame.new(0, 5.53, 0.4) * CFrame.Angles(math.rad(-20), 0, 0), palette.accent, "accent")
+	Kit.part(model, { name = "Breastplate", shape = "Ball", size = Vector3.new(0.96, 0.68, 0.24), cf = CFrame.new(0, 3.64, -1.06), color = palette.secondary, role = "secondary", material = Enum.Material.Metal })
+	Kit.part(model, { name = "WindBadge", shape = "Ball", size = Vector3.new(0.32, 0.32, 0.1), cf = CFrame.new(0, 3.67, -1.21), color = palette.accent, role = "accent", material = Enum.Material.Metal })
 
 	-- weather-vane lance held out to the right
 	local shaft = Kit.part(model, { name = "Lance", shape = "Cylinder", size = Vector3.new(3.1, 0.18, 0.18), cf = CFrame.new(1.7, 3.3, -0.6) * CFrame.Angles(0, math.rad(12), math.rad(18)), color = rgb(120, 92, 60), role = "fixed" })
@@ -213,7 +242,6 @@ B.sir_spins_a_lot = function(model: Model, root: BasePart, palette, def)
 		Kit.part(model, { name = "Stripe", size = Vector3.new(0.54, 0.1, 0.3), cf = CFrame.new(side * 0.42, 0.24, -0.5), color = rgb(90, 190, 255), role = "fixed" })
 	end
 
-	Kit.particles(Kit.root(model), "sparkle", palette.accent)
 	Kit.setAnim(model, "sway", def.animSpeed, 1.2)
 end
 
@@ -223,7 +251,8 @@ end
 B.drizzle_duck = function(model: Model, root: BasePart, palette, def)
 	local _ = root
 	Kit.blob(model, Vector3.new(1.45, 1.3, 1.65), CFrame.new(0, 0.85, 0), palette.primary) -- body
-	Kit.blob(model, Vector3.new(0.95, 0.95, 0.95), CFrame.new(0, 1.72, -0.42), palette.primary) -- head
+	Kit.blob(model, Vector3.new(1.12, 1.02, 1.0), CFrame.new(0, 1.72, -0.42), palette.primary) -- head
+	Kit.blob(model, Vector3.new(0.92, 0.86, 0.22), CFrame.new(0, 0.88, -0.72), rgb(255, 244, 195), "fixed")
 
 	-- bill
 	Kit.part(model, { name = "Bill", size = Vector3.new(0.55, 0.18, 0.62), cf = CFrame.new(0, 1.6, -0.98), color = palette.secondary, role = "secondary" })
@@ -254,7 +283,8 @@ B.drizzle_duck = function(model: Model, root: BasePart, palette, def)
 	Kit.blob(model, Vector3.new(0.75, 0.5, 0.75), CFrame.new(0.55, 2.58, -0.42), palette.accent, "accent")
 	Kit.particles(cloud, "rain", rgb(150, 200, 255))
 
-	Kit.eyes(model, CFrame.new(0, 1.88, -0.75), 0.3, 0.16)
+	ToyFace.eyes(model, CFrame.new(0, 1.88, -0.86), 0.49, 0.2)
+	ToyFace.cheeks(model, CFrame.new(0, 1.67, -0.85), 0.83, 0.2, rgb(246, 181, 119))
 	Kit.setAnim(model, "waddle", def.animSpeed, 1)
 end
 
@@ -266,7 +296,7 @@ B.puddle_pug = function(model: Model, root: BasePart, palette, def)
 	local body = Kit.blob(model, Vector3.new(1.6, 1.15, 1.9), CFrame.new(0, 0.78, 0.1), palette.primary, "primary", glass)
 	body.Reflectance = 0.25
 	-- big head
-	local head = Kit.blob(model, Vector3.new(1.35, 1.2, 1.15), CFrame.new(0, 1.42, -0.85), palette.primary, "primary", glass)
+	local head = Kit.blob(model, Vector3.new(1.52, 1.3, 1.23), CFrame.new(0, 1.42, -0.85), palette.primary, "primary", glass)
 	head.Reflectance = 0.25
 	-- wrinkle rolls
 	for i = 1, 3 do
@@ -282,7 +312,7 @@ B.puddle_pug = function(model: Model, root: BasePart, palette, def)
 		})
 	end
 	-- flat pug muzzle
-	Kit.blob(model, Vector3.new(0.7, 0.5, 0.35), CFrame.new(0, 1.24, -1.45), palette.secondary, "secondary")
+	Kit.blob(model, Vector3.new(0.87, 0.52, 0.36), CFrame.new(0, 1.24, -1.45), Kit.lighten(palette.secondary, 0.22), "secondary")
 	Kit.part(model, { name = "Nose", shape = "Ball", size = Vector3.new(0.26, 0.2, 0.16), cf = CFrame.new(0, 1.34, -1.62), color = rgb(40, 50, 70), role = "fixed" })
 
 	-- folded ears
@@ -319,7 +349,9 @@ B.puddle_pug = function(model: Model, root: BasePart, palette, def)
 		end
 	end
 
-	Kit.eyes(model, CFrame.new(0, 1.6, -1.32), 0.34, 0.2)
+	ToyFace.eyes(model, CFrame.new(0, 1.67, -1.44), 0.6, 0.23)
+	ToyFace.smile(model, CFrame.new(0, 1.12, -1.65), 0.42)
+	Kit.blob(model, Vector3.new(0.18, 0.23, 0.09), CFrame.new(0.09, 1.02, -1.65), rgb(245, 165, 180), "fixed")
 	Kit.setAnim(model, "waddle", def.animSpeed, 0.9)
 end
 
@@ -328,7 +360,7 @@ B.monsoon_manta = function(model: Model, root: BasePart, palette, def)
 	local _ = root
 	local y = 2.0
 	-- central body
-	Kit.blob(model, Vector3.new(1.15, 0.55, 2.0), CFrame.new(0, y, 0), palette.primary)
+	Kit.blob(model, Vector3.new(1.4, 0.68, 2.0), CFrame.new(0, y, 0), palette.primary)
 
 	-- wings: three tapering slabs each side, swept back and tilted
 	for _, side in { -1, 1 } do
@@ -369,7 +401,11 @@ B.monsoon_manta = function(model: Model, root: BasePart, palette, def)
 	local curtain = Kit.part(model, { name = "RainZone", shape = "Cylinder", size = Vector3.new(0.1, 3.4, 3.4), cf = CFrame.new(0, y - 0.5, 0) * UP, color = palette.accent, material = Enum.Material.Neon, transparency = 0.85, role = "accent" })
 	Kit.particles(curtain, "rain", palette.accent)
 
-	Kit.eyes(model, CFrame.new(0, y + 0.12, -0.85), 0.5, 0.2)
+	ToyFace.eyes(model, CFrame.new(0, y + 0.14, -0.92), 0.62, 0.23)
+	ToyFace.smile(model, CFrame.new(0, y - 0.13, -1.02), 0.43)
+	for _, side in { -1, 1 } do
+		Kit.blob(model, Vector3.new(0.48, 0.09, 0.65), CFrame.new(side * 1.3, y + 0.2, -0.2), palette.secondary, "secondary")
+	end
 	Kit.setAnim(model, "hover", def.animSpeed, 1.3)
 end
 
@@ -408,12 +444,12 @@ B.tsunami_toad = function(model: Model, root: BasePart, palette, def)
 	Kit.blob(model, Vector3.new(1.75, 1.05, 1.35), CFrame.new(0, ty + 0.75, -0.85), palette.primary) -- head
 	-- wide toad mouth
 	Kit.part(model, { name = "Mouth", size = Vector3.new(1.35, 0.12, 0.12), cf = CFrame.new(0, ty + 0.5, -1.5), color = rgb(50, 70, 55), role = "fixed" })
-	-- bulging eyes on top
+	-- Raised eye sockets preserve the toad's distinctive silhouette.
 	for _, side in { -1, 1 } do
 		Kit.blob(model, Vector3.new(0.55, 0.55, 0.55), CFrame.new(side * 0.5, ty + 1.28, -0.95), palette.primary)
-		Kit.part(model, { name = "Eye", shape = "Ball", size = Vector3.new(0.4, 0.4, 0.4), cf = CFrame.new(side * 0.5, ty + 1.38, -1.05), color = rgb(255, 255, 255), role = "fixed" })
-		Kit.part(model, { name = "Iris", shape = "Ball", size = Vector3.new(0.2, 0.2, 0.2), cf = CFrame.new(side * 0.5, ty + 1.38, -1.22), color = rgb(30, 30, 40), role = "fixed" })
 	end
+	ToyFace.eyes(model, CFrame.new(0, ty + 1.38, -1.08), 1.0, 0.25)
+	ToyFace.cheeks(model, CFrame.new(0, ty + 0.72, -1.45), 1.13, 0.28, rgb(187, 224, 153))
 	-- warty spots
 	for i = 1, 5 do
 		Kit.blob(model, Vector3.new(0.28, 0.2, 0.28), CFrame.new(-0.7 + (i - 1) * 0.35, ty + 0.6, -0.1), Kit.darken(palette.primary, 0.22))
@@ -439,7 +475,6 @@ B.tsunami_toad = function(model: Model, root: BasePart, palette, def)
 		})
 	end
 
-	Kit.particles(Kit.root(model), "sparkle", rgb(200, 235, 255))
 	Kit.setAnim(model, "bob", def.animSpeed, 1.1)
 end
 

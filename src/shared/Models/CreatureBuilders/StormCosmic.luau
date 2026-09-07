@@ -3,6 +3,7 @@
 -- Feet at y = 0, +Y up, face on -Z. The dispatcher calls finalize/variant/glow.
 
 local Kit = require(script.Parent.Parent.ModelKit)
+local ToyFace = require(script.Parent.Parent.ToyFace)
 
 local B = {}
 
@@ -21,7 +22,8 @@ B.static_sprout = function(model: Model, _root: BasePart, palette, def)
 	-- stem
 	Kit.part(model, { name = "Stem", shape = "Cylinder", size = Vector3.new(0.95, 0.42, 0.42), cf = CFrame.new(0, 0.95, 0) * UP, color = palette.primary })
 	-- body / head bud
-	Kit.blob(model, Vector3.new(1.0, 1.0, 0.95), CFrame.new(0, 1.6, -0.05), palette.primary)
+	Kit.blob(model, Vector3.new(1.17, 1.06, 1.0), CFrame.new(0, 1.6, -0.05), palette.primary)
+	Kit.blob(model, Vector3.new(0.85, 0.68, 0.18), CFrame.new(0, 1.57, -0.51), rgb(232, 240, 186), "fixed")
 
 	-- two leaf arms
 	for _, side in { -1, 1 } do
@@ -53,20 +55,20 @@ B.static_sprout = function(model: Model, _root: BasePart, palette, def)
 	Kit.particles(tip, "lightning", palette.secondary)
 	Kit.light(tip, palette.secondary, 1.1, 10)
 
-	Kit.eyes(model, CFrame.new(0, 1.72, -0.5), 0.32, 0.17)
-	Kit.part(model, { name = "Smile", size = Vector3.new(0.3, 0.06, 0.06), cf = CFrame.new(0, 1.42, -0.52), color = rgb(40, 60, 35), role = "fixed" })
+	ToyFace.eyes(model, CFrame.new(0, 1.73, -0.6), 0.49, 0.2)
+	ToyFace.smile(model, CFrame.new(0, 1.41, -0.61), 0.34)
 	Kit.setAnim(model, "bob", def.animSpeed, 1.2)
 end
 
 -- Zap Raccoon: a raccoon whose tail is banded with lightning.
 B.zap_raccoon = function(model: Model, _root: BasePart, palette, def)
 	Kit.blob(model, Vector3.new(1.25, 1.15, 1.5), CFrame.new(0, 1.0, 0.1), palette.primary)
-	Kit.blob(model, Vector3.new(1.0, 0.95, 0.95), CFrame.new(0, 1.82, -0.5), palette.primary)
+	Kit.blob(model, Vector3.new(1.23, 1.08, 1.02), CFrame.new(0, 1.82, -0.5), palette.primary)
 	-- pointed snout
 	Kit.part(model, { name = "Snout", shape = "Wedge", size = Vector3.new(0.4, 0.34, 0.45), cf = CFrame.new(0, 1.68, -1.05) * CFrame.Angles(0, math.rad(180), 0), color = Kit.lighten(palette.primary, 0.25) })
 	Kit.part(model, { name = "Nose", shape = "Ball", size = Vector3.new(0.16, 0.14, 0.12), cf = CFrame.new(0, 1.74, -1.28), color = rgb(30, 30, 36), role = "fixed" })
 	-- bandit mask
-	Kit.part(model, { name = "Mask", size = Vector3.new(0.85, 0.28, 0.12), cf = CFrame.new(0, 1.95, -0.93), color = rgb(35, 35, 45), role = "fixed" })
+	Kit.part(model, { name = "Mask", shape = "Ball", mesh = "Sphere", size = Vector3.new(1.03, 0.43, 0.2), cf = CFrame.new(0, 1.96, -0.96), color = rgb(35, 35, 45), role = "fixed" })
 	-- ears
 	for _, side in { -1, 1 } do
 		Kit.part(model, { name = "Ear", shape = "Wedge", size = Vector3.new(0.14, 0.42, 0.36), cf = CFrame.new(side * 0.42, 2.42, -0.42) * CFrame.Angles(0, side * math.rad(12), 0), color = palette.primary })
@@ -98,7 +100,8 @@ B.zap_raccoon = function(model: Model, _root: BasePart, palette, def)
 	end
 	Kit.legs(model, CFrame.new(0, 0.5, 0.1), Vector2.new(0.62, 0.7), 0.5, 0.28, Kit.darken(palette.primary, 0.2), "secondary")
 
-	Kit.eyes(model, CFrame.new(0, 1.95, -0.98), 0.3, 0.15, rgb(255, 235, 90))
+	ToyFace.eyes(model, CFrame.new(0, 1.99, -1.07), 0.54, 0.21)
+	ToyFace.smile(model, CFrame.new(0, 1.58, -1.26), 0.34)
 	Kit.setAnim(model, "waddle", def.animSpeed, 1.1)
 end
 
@@ -111,10 +114,10 @@ B.thunder_thumper = function(model: Model, _root: BasePart, palette, def)
 	Kit.part(model, { name = "Chest", shape = "Ball", mesh = "Sphere", size = Vector3.new(1.3, 1.2, 0.3), cf = CFrame.new(0, 2.4, -0.78), color = Kit.lighten(palette.primary, 0.22), role = "secondary" })
 
 	-- head, low between the shoulders
-	Kit.blob(model, Vector3.new(1.3, 1.15, 1.2), CFrame.new(0, 3.6, -0.25), palette.primary)
+	Kit.blob(model, Vector3.new(1.49, 1.22, 1.26), CFrame.new(0, 3.6, -0.25), palette.primary)
 	Kit.blob(model, Vector3.new(0.95, 0.62, 0.55), CFrame.new(0, 3.4, -0.85), Kit.lighten(palette.primary, 0.3), "secondary") -- brow/muzzle
-	Kit.part(model, { name = "Brow", size = Vector3.new(1.05, 0.2, 0.3), cf = CFrame.new(0, 3.78, -0.8), color = Kit.darken(palette.primary, 0.2) })
-	Kit.part(model, { name = "Mouth", size = Vector3.new(0.55, 0.08, 0.08), cf = CFrame.new(0, 3.18, -1.05), color = rgb(35, 35, 45), role = "fixed" })
+	Kit.part(model, { name = "Brow", shape = "Ball", mesh = "Sphere", size = Vector3.new(1.16, 0.21, 0.3), cf = CFrame.new(0, 3.95, -0.82), color = Kit.darken(palette.primary, 0.2) })
+	ToyFace.smile(model, CFrame.new(0, 3.19, -1.13), 0.54)
 	for _, side in { -1, 1 } do
 		Kit.part(model, { name = "Ear", shape = "Cylinder", size = Vector3.new(0.12, 0.34, 0.34), cf = CFrame.new(side * 0.68, 3.65, -0.2) * CFrame.Angles(0, math.rad(90), 0), color = palette.primary })
 	end
@@ -138,7 +141,7 @@ B.thunder_thumper = function(model: Model, _root: BasePart, palette, def)
 		Kit.part(model, { name = "Foot", size = Vector3.new(0.7, 0.22, 1.0), cf = CFrame.new(side * 0.6, 0.11, -0.1), color = Kit.darken(palette.primary, 0.15) })
 	end
 
-	Kit.eyes(model, CFrame.new(0, 3.62, -0.82), 0.4, 0.16, rgb(255, 235, 90))
+	ToyFace.eyes(model, CFrame.new(0, 3.7, -0.94), 0.64, 0.24)
 	Kit.setAnim(model, "pulse", def.animSpeed, 1)
 end
 
@@ -152,8 +155,8 @@ B.boltjaw_behemoth = function(model: Model, _root: BasePart, palette, def)
 	end
 
 	-- head, jutting forward and down
-	Kit.blob(model, Vector3.new(1.4, 1.3, 1.9), CFrame.new(0, 2.85, -2.2), palette.primary)
-	Kit.part(model, { name = "Snout", shape = "Wedge", size = Vector3.new(1.0, 0.7, 0.9), cf = CFrame.new(0, 2.6, -3.05) * CFrame.Angles(0, math.rad(180), 0), color = palette.primary })
+	Kit.blob(model, Vector3.new(1.62, 1.38, 1.95), CFrame.new(0, 2.85, -2.2), palette.primary)
+	Kit.part(model, { name = "Snout", shape = "Ball", mesh = "Sphere", size = Vector3.new(1.18, 0.74, 0.95), cf = CFrame.new(0, 2.6, -3.05), color = Kit.lighten(palette.primary, 0.18) })
 	-- glowing jaw line
 	local jaw = Kit.part(model, { name = "Boltjaw", size = Vector3.new(0.95, 0.12, 0.85), cf = CFrame.new(0, 2.42, -2.95), color = palette.accent, material = Enum.Material.Neon, role = "accent" })
 	Kit.flickerPart(jaw, 0, 0.3)
@@ -196,7 +199,10 @@ B.boltjaw_behemoth = function(model: Model, _root: BasePart, palette, def)
 		Kit.part(model, { name = "Tail", size = Vector3.new(0.16, 1.3, 0.16), cf = CFrame.new(side * 0.2, 2.9, 2.2) * CFrame.Angles(math.rad(55), 0, side * math.rad(18)), color = palette.accent, material = Enum.Material.Neon, role = "accent" })
 	end
 
-	Kit.eyes(model, CFrame.new(0, 3.1, -2.9), 0.55, 0.2, rgb(255, 250, 180))
+	ToyFace.eyes(model, CFrame.new(0, 3.12, -3.02), 0.79, 0.27)
+	for _, side in { -1, 1 } do
+		Kit.part(model, { name = "Nostril", shape = "Ball", size = Vector3.new(0.13, 0.11, 0.08), cf = CFrame.new(side * 0.28, 2.66, -3.52), color = ToyFace.ink, role = "fixed" })
+	end
 	Kit.setAnim(model, "sway", def.animSpeed, 0.9)
 end
 
@@ -217,13 +223,13 @@ B.orbit_orb = function(model: Model, _root: BasePart, palette, def)
 		local a = (i / 8) * math.pi * 2
 		local seg = Kit.part(model, {
 			name = "Ring" .. tostring(i),
-			size = Vector3.new(0.55, 0.1, 0.16),
+			size = Vector3.new(0.16, 0.1, 0.85),
 			cf = CFrame.new(math.sin(a) * 1.25, bodyY + 0.1, math.cos(a) * 1.25) * CFrame.Angles(0, a, math.rad(12)),
 			color = palette.accent,
 			material = Enum.Material.Neon,
 			role = "accent",
 		})
-		Kit.orbiter(model, seg, 1.25, 1.4, (i / 8) * math.pi * 2, math.rad(12), bodyY + 0.1)
+		Kit.orbit(model, seg, { radius = 1.25, speed = 1.4, phase = (i / 8) * math.pi * 2, tilt = math.rad(12), centre = Vector3.new(0, bodyY + 0.1, 0), rigid = true })
 	end
 	-- a little antenna dish riding the ring
 	local dish = Kit.part(model, { name = "Sat", shape = "Cylinder", size = Vector3.new(0.1, 0.34, 0.34), cf = CFrame.new(1.25, bodyY + 0.35, 0) * UP, color = palette.secondary, role = "secondary" })
@@ -235,8 +241,8 @@ B.orbit_orb = function(model: Model, _root: BasePart, palette, def)
 		Kit.part(model, { name = "Foot", size = Vector3.new(0.36, 0.14, 0.5), cf = CFrame.new(side * 0.35, 0.07, -0.1), color = palette.secondary, role = "secondary" })
 	end
 
-	Kit.eyes(model, CFrame.new(0, bodyY + 0.15, -0.8), 0.42, 0.2, rgb(90, 200, 255))
-	Kit.part(model, { name = "Smile", size = Vector3.new(0.34, 0.07, 0.07), cf = CFrame.new(0, bodyY - 0.32, -0.82), color = rgb(70, 70, 90), role = "fixed" })
+	ToyFace.eyes(model, CFrame.new(0, bodyY + 0.22, -0.82), 0.6, 0.24)
+	ToyFace.smile(model, CFrame.new(0, bodyY - 0.27, -0.83), 0.42)
 	Kit.particles(Kit.root(model), "stars", palette.accent)
 	Kit.setAnim(model, "orbit", def.animSpeed, 0.8)
 end
@@ -245,9 +251,9 @@ end
 B.comet_cat = function(model: Model, _root: BasePart, palette, def)
 	local y = 1.25
 	Kit.blob(model, Vector3.new(0.95, 0.85, 1.55), CFrame.new(0, y, 0.1), palette.primary)
-	Kit.blob(model, Vector3.new(0.85, 0.8, 0.8), CFrame.new(0, y + 0.55, -0.85), palette.primary)
+	Kit.blob(model, Vector3.new(1.04, 0.91, 0.89), CFrame.new(0, y + 0.55, -0.85), palette.primary)
 	-- muzzle
-	Kit.blob(model, Vector3.new(0.42, 0.3, 0.3), CFrame.new(0, y + 0.38, -1.25), Kit.lighten(palette.primary, 0.25), "secondary")
+	Kit.blob(model, Vector3.new(0.58, 0.33, 0.33), CFrame.new(0, y + 0.38, -1.25), rgb(217, 210, 231), "fixed")
 	Kit.part(model, { name = "Nose", shape = "Wedge", size = Vector3.new(0.14, 0.12, 0.12), cf = CFrame.new(0, y + 0.46, -1.38) * CFrame.Angles(math.rad(180), 0, 0), color = palette.accent, role = "accent" })
 	-- pointed ears
 	for _, side in { -1, 1 } do
@@ -289,7 +295,8 @@ B.comet_cat = function(model: Model, _root: BasePart, palette, def)
 		end
 	end
 
-	Kit.eyes(model, CFrame.new(0, y + 0.62, -1.18), 0.34, 0.17, rgb(255, 240, 160))
+	ToyFace.eyes(model, CFrame.new(0, y + 0.66, -1.26), 0.49, 0.21)
+	ToyFace.smile(model, CFrame.new(0, y + 0.29, -1.43), 0.28)
 	Kit.setAnim(model, "drift", def.animSpeed, 1)
 end
 
@@ -298,21 +305,21 @@ B.gravity_gobbler = function(model: Model, _root: BasePart, palette, def)
 	local y = 1.7
 	Kit.part(model, { name = "Body", shape = "Ball", size = Vector3.new(2.4, 2.4, 2.4), cf = CFrame.new(0, y, 0), color = palette.primary })
 	-- starry mouth: a dark oval with neon stars inside
-	Kit.part(model, { name = "Maw", shape = "Ball", size = Vector3.new(1.35, 1.05, 0.5), cf = CFrame.new(0, y - 0.28, -1.0), color = palette.secondary, role = "secondary" })
+	Kit.part(model, { name = "Maw", shape = "Ball", mesh = "Sphere", size = Vector3.new(1.35, 1.05, 0.2), cf = CFrame.new(0, y - 0.28, -1.28), color = rgb(30, 25, 50), role = "fixed" })
 	for i = 1, 6 do
 		local a = (i / 6) * math.pi * 2
 		Kit.part(model, {
 			name = "MawStar" .. tostring(i),
 			shape = "Ball",
 			size = Vector3.new(0.15, 0.15, 0.15),
-			cf = CFrame.new(math.sin(a) * 0.42, y - 0.28 + math.cos(a) * 0.3, -1.15),
+			cf = CFrame.new(math.sin(a) * 0.42, y - 0.28 + math.cos(a) * 0.3, -1.4),
 			color = palette.accent,
 			material = Enum.Material.Neon,
 			role = "accent",
 		})
 	end
 	-- lip ring
-	Kit.part(model, { name = "Lip", shape = "Cylinder", size = Vector3.new(0.14, 1.5, 1.2), cf = CFrame.new(0, y - 0.28, -1.02) * CFrame.Angles(0, math.rad(90), 0), color = Kit.lighten(palette.primary, 0.2), role = "secondary" })
+	Kit.part(model, { name = "Lip", shape = "Ball", mesh = "Sphere", size = Vector3.new(1.65, 1.28, 0.35), cf = CFrame.new(0, y - 0.28, -1.08), color = Kit.lighten(palette.primary, 0.2), role = "secondary" })
 
 	-- orbiting stones at two radii
 	for i = 1, 5 do
@@ -336,7 +343,7 @@ B.gravity_gobbler = function(model: Model, _root: BasePart, palette, def)
 		Kit.part(model, { name = "Foot", size = Vector3.new(0.42, 0.16, 0.55), cf = CFrame.new(side * 0.5, 0.08, -0.08), color = palette.secondary, role = "secondary" })
 	end
 
-	Kit.eyes(model, CFrame.new(0, y + 0.72, -1.0), 0.6, 0.24, rgb(255, 200, 255))
+	ToyFace.eyes(model, CFrame.new(0, y + 0.69, -1.04), 0.77, 0.28)
 	Kit.particles(Kit.root(model), "motes", palette.accent)
 	Kit.setAnim(model, "orbit", def.animSpeed, 0.9)
 end
@@ -351,13 +358,13 @@ B.the_big_whoops = function(model: Model, _root: BasePart, palette, def)
 		local a = (i / 12) * math.pi * 2
 		local seg = Kit.part(model, {
 			name = "Disc" .. tostring(i),
-			size = Vector3.new(0.75, 0.12, 0.3),
+			size = Vector3.new(0.3, 0.12, 0.92),
 			cf = CFrame.new(math.sin(a) * 1.85, y, math.cos(a) * 1.85) * CFrame.Angles(0, a, math.rad(20)),
 			color = Kit.blend(palette.secondary, palette.accent, (i % 4) / 4),
 			material = Enum.Material.Neon,
 			role = "accent",
 		})
-		Kit.orbiter(model, seg, 1.85, 2.2, a, math.rad(20), y)
+		Kit.orbit(model, seg, { radius = 1.85, speed = 2.2, phase = a, tilt = math.rad(20), centre = Vector3.new(0, y, 0), rigid = true })
 	end
 	Kit.light(Kit.root(model), palette.secondary, 1.8, 22)
 	Kit.particles(Kit.root(model), "motes", palette.secondary)
@@ -369,19 +376,19 @@ B.the_big_whoops = function(model: Model, _root: BasePart, palette, def)
 		Kit.part(model, { name = "Cuff", shape = "Cylinder", size = Vector3.new(0.18, 0.75, 0.75), cf = CFrame.new(side * 1.42, y - 0.2, -0.15) * CFrame.Angles(0, math.rad(90), 0), color = palette.accent, role = "accent" })
 	end
 
-	-- orbiting warning sign: a yellow triangle with a bang
-	local sign = Kit.part(model, { name = "SignFace", shape = "CornerWedge", size = Vector3.new(0.95, 0.85, 0.12), cf = CFrame.new(0, y + 1.9, -1.7), color = palette.accent, material = Enum.Material.Neon, role = "accent" })
-	Kit.orbiter(model, sign, 1.7, 0.75, 0, math.rad(-8), y + 1.9)
-	local bang = Kit.part(model, { name = "SignBang", size = Vector3.new(0.12, 0.4, 0.16), cf = CFrame.new(0, y + 1.85, -1.62), color = rgb(30, 25, 20), role = "fixed" })
-	Kit.orbiter(model, bang, 1.7, 0.75, 0, math.rad(-8), y + 1.85)
-	local dot = Kit.part(model, { name = "SignDot", size = Vector3.new(0.12, 0.12, 0.16), cf = CFrame.new(0, y + 1.58, -1.62), color = rgb(30, 25, 20), role = "fixed" })
-	Kit.orbiter(model, dot, 1.7, 0.75, 0, math.rad(-8), y + 1.58)
-
-	-- glowing eyes and a sheepish grin on the horizon
-	for _, side in { -1, 1 } do
-		Kit.part(model, { name = "Eye", shape = "Ball", size = Vector3.new(0.4, 0.4, 0.4), cf = CFrame.new(side * 0.42, y + 0.35, -1.02), color = rgb(255, 245, 220), material = Enum.Material.Neon, role = "fixed" })
-		Kit.part(model, { name = "Iris", shape = "Ball", size = Vector3.new(0.18, 0.18, 0.18), cf = CFrame.new(side * 0.42, y + 0.35, -1.16), color = rgb(25, 20, 35), role = "fixed" })
+	-- A round caution placard: all three pieces share an orbit translation and
+	-- retain their front-facing orientation, keeping the punctuation attached.
+	local sign = Kit.part(model, { name = "SignFace", shape = "Ball", mesh = "Sphere", size = Vector3.new(0.98, 0.98, 0.12), cf = CFrame.new(0, y + 1.9, -1.7), color = palette.accent, role = "accent" })
+	local bang = Kit.part(model, { name = "SignBang", size = Vector3.new(0.14, 0.39, 0.05), cf = CFrame.new(0, y + 1.98, -1.79), color = ToyFace.ink, role = "fixed" })
+	local dot = Kit.part(model, { name = "SignDot", shape = "Ball", mesh = "Sphere", size = Vector3.new(0.14, 0.14, 0.05), cf = CFrame.new(0, y + 1.63, -1.79), color = ToyFace.ink, role = "fixed" })
+	for _, p in { sign, bang, dot } do
+		local offset = p.Position - sign.Position
+		Kit.orbit(model, p, { radius = 1.7, speed = 0.75, phase = -math.pi / 2, centre = Vector3.new(0, y + 1.9, 0) + offset })
+		p:SetAttribute("OrbitNoSpin", true)
 	end
+
+	-- Bright eyes and the original sheepish grin on the dark horizon.
+	ToyFace.eyes(model, CFrame.new(0, y + 0.38, -1.04), 0.84, 0.25)
 	for i = 1, 5 do
 		local a = math.rad(-56 + (i - 1) * 28)
 		Kit.part(model, { name = "Grin" .. tostring(i), size = Vector3.new(0.16, 0.08, 0.08), cf = CFrame.new(math.sin(a) * 0.5, y - 0.35 - math.cos(a) * 0.18, -1.05) * CFrame.Angles(0, 0, -a), color = rgb(255, 245, 220), material = Enum.Material.Neon, role = "fixed" })

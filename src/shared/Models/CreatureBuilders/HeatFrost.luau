@@ -3,6 +3,7 @@
 -- Feet at y = 0, +Y up, face on -Z. The dispatcher calls finalize/variant/glow.
 
 local Kit = require(script.Parent.Parent.ModelKit)
+local ToyFace = require(script.Parent.Parent.ToyFace)
 
 local B = {}
 
@@ -17,7 +18,7 @@ local UP = CFrame.Angles(0, 0, math.rad(90))
 -- Cinder Chick: a sooty round chick with a burning crest.
 B.cinder_chick = function(model: Model, _root: BasePart, palette, def)
 	Kit.blob(model, Vector3.new(1.25, 1.2, 1.15), CFrame.new(0, 0.72, 0), palette.primary) -- body
-	Kit.blob(model, Vector3.new(0.95, 0.9, 0.9), CFrame.new(0, 1.5, -0.12), palette.primary) -- head
+	Kit.blob(model, Vector3.new(1.1, 0.98, 0.96), CFrame.new(0, 1.5, -0.12), palette.primary) -- head
 
 	-- ember crest: three neon flames of rising height
 	for i = 1, 3 do
@@ -53,7 +54,8 @@ B.cinder_chick = function(model: Model, _root: BasePart, palette, def)
 		Kit.part(model, { name = "Foot", size = Vector3.new(0.3, 0.1, 0.42), cf = CFrame.new(side * 0.27, 0.05, -0.1), color = palette.accent, role = "accent" })
 	end
 
-	Kit.eyes(model, CFrame.new(0, 1.62, -0.46), 0.26, 0.16)
+	ToyFace.eyes(model, CFrame.new(0, 1.63, -0.55), 0.48, 0.2)
+	ToyFace.cheeks(model, CFrame.new(0, 1.43, -0.53), 0.8, 0.18, rgb(240, 149, 95))
 	Kit.particles(Kit.root(model), "smoke", rgb(90, 80, 80))
 	Kit.setAnim(model, "hop", def.animSpeed, 1)
 end
@@ -66,8 +68,9 @@ B.sizzle_salamander = function(model: Model, _root: BasePart, palette, def)
 		Kit.blob(model, Vector3.new(w, w * 0.75, 0.75), CFrame.new(0, 0.55, -0.45 + (i - 1) * 0.6), palette.primary)
 	end
 	-- head
-	Kit.blob(model, Vector3.new(0.95, 0.6, 0.95), CFrame.new(0, 0.58, -1.15), palette.primary)
-	Kit.part(model, { name = "Jaw", size = Vector3.new(0.7, 0.1, 0.1), cf = CFrame.new(0, 0.38, -1.6), color = rgb(50, 30, 25), role = "fixed" })
+	Kit.blob(model, Vector3.new(1.15, 0.68, 1.02), CFrame.new(0, 0.58, -1.15), palette.primary)
+	Kit.blob(model, Vector3.new(0.86, 0.25, 0.34), CFrame.new(0, 0.4, -1.54), palette.secondary, "secondary")
+	ToyFace.smile(model, CFrame.new(0, 0.42, -1.72), 0.58)
 
 	-- tapering tail
 	for i = 1, 4 do
@@ -103,7 +106,7 @@ B.sizzle_salamander = function(model: Model, _root: BasePart, palette, def)
 		end
 	end
 
-	Kit.eyes(model, CFrame.new(0, 0.78, -1.5), 0.2, 0.12, rgb(255, 220, 90))
+	ToyFace.eyes(model, CFrame.new(0, 0.77, -1.57), 0.48, 0.17)
 	Kit.particles(Kit.root(model), "fire", palette.secondary)
 	Kit.setAnim(model, "sway", def.animSpeed, 0.8)
 end
@@ -127,11 +130,11 @@ B.magma_muncher = function(model: Model, _root: BasePart, palette, def)
 	-- upper and lower jaw plates
 	Kit.part(model, { name = "UpperJaw", shape = "Wedge", size = Vector3.new(2.0, 0.5, 0.7), cf = CFrame.new(0, 1.72, -1.05) * CFrame.Angles(math.rad(20), math.rad(180), 0), color = palette.primary })
 	Kit.part(model, { name = "LowerJaw", shape = "Wedge", size = Vector3.new(2.0, 0.45, 0.7), cf = CFrame.new(0, 0.42, -1.05) * CFrame.Angles(math.rad(-155), math.rad(180), 0), color = palette.primary })
-	-- teeth
-	for i = 1, 5 do
-		local x = -0.7 + (i - 1) * 0.35
-		Kit.part(model, { name = "ToothUp", shape = "Wedge", size = Vector3.new(0.2, 0.34, 0.18), cf = CFrame.new(x, 1.42, -1.0) * CFrame.Angles(math.rad(180), 0, 0), color = rgb(245, 240, 225), role = "fixed" })
-		Kit.part(model, { name = "ToothDown", shape = "Wedge", size = Vector3.new(0.2, 0.3, 0.18), cf = CFrame.new(x + 0.17, 0.66, -1.0), color = rgb(245, 240, 225), role = "fixed" })
+	-- Chunky blunt teeth keep the furnace grin mischievous rather than sharp.
+	for i = 1, 4 do
+		local x = -0.65 + (i - 1) * 0.4
+		Kit.part(model, { name = "ToothUp", shape = "Ball", size = Vector3.new(0.26, 0.34, 0.2), cf = CFrame.new(x, 1.42, -1.08), color = rgb(245, 240, 225), role = "fixed" })
+		Kit.part(model, { name = "ToothDown", shape = "Ball", size = Vector3.new(0.26, 0.3, 0.2), cf = CFrame.new(x + 0.12, 0.66, -1.08), color = rgb(245, 240, 225), role = "fixed" })
 	end
 
 	-- lava seams
@@ -142,8 +145,7 @@ B.magma_muncher = function(model: Model, _root: BasePart, palette, def)
 	-- stubby legs
 	Kit.legs(model, CFrame.new(0, 0.5, 0), Vector2.new(1.2, 1.0), 0.5, 0.44, Kit.darken(palette.primary, 0.1), "secondary")
 
-	-- small angry eyes above the mouth
-	Kit.eyes(model, CFrame.new(0, 2.05, -0.98), 0.46, 0.2, rgb(255, 200, 60))
+	ToyFace.eyes(model, CFrame.new(0, 2.05, -1.02), 0.78, 0.25)
 	Kit.particles(Kit.root(model), "smoke", rgb(70, 60, 58))
 	Kit.setAnim(model, "pulse", def.animSpeed, 1)
 end
@@ -184,13 +186,12 @@ B.mount_chomp = function(model: Model, _root: BasePart, palette, def)
 	Kit.blob(model, Vector3.new(4.0, 1.5, 3.4), CFrame.new(0, 1.5, 0), palette.primary)
 	-- head on a thick neck
 	Kit.blob(model, Vector3.new(1.1, 1.0, 1.3), CFrame.new(0, 1.6, -1.9), palette.primary)
-	Kit.blob(model, Vector3.new(1.35, 1.15, 1.35), CFrame.new(0, 1.75, -2.75), palette.primary)
-	Kit.part(model, { name = "Mouth", size = Vector3.new(0.85, 0.1, 0.1), cf = CFrame.new(0, 1.42, -3.36), color = rgb(45, 55, 40), role = "fixed" })
-	Kit.eyes(model, CFrame.new(0, 1.98, -3.3), 0.52, 0.2)
-	-- nostril smoke
+	Kit.blob(model, Vector3.new(1.55, 1.22, 1.42), CFrame.new(0, 1.75, -2.75), palette.primary)
+	ToyFace.smile(model, CFrame.new(0, 1.42, -3.43), 0.8)
+	ToyFace.eyes(model, CFrame.new(0, 2.0, -3.37), 0.71, 0.25)
+	-- The crater provides smoke; nostrils remain readable dark details.
 	for _, side in { -1, 1 } do
-		local n = Kit.part(model, { name = "Nostril", shape = "Ball", size = Vector3.new(0.14, 0.14, 0.1), cf = CFrame.new(side * 0.24, 1.66, -3.38), color = rgb(40, 50, 38), role = "fixed" })
-		Kit.particles(n, "smoke", rgb(120, 110, 105))
+		Kit.part(model, { name = "Nostril", shape = "Ball", size = Vector3.new(0.14, 0.14, 0.1), cf = CFrame.new(side * 0.24, 1.66, -3.45), color = rgb(40, 50, 38), role = "fixed" })
 	end
 
 	-- four heavy legs
@@ -215,11 +216,11 @@ B.flurry_ferret = function(model: Model, _root: BasePart, palette, def)
 		Kit.blob(model, Vector3.new(0.72, 0.7, 0.85), CFrame.new(0, 0.68 + math.sin(i * 0.8) * 0.06, -0.7 + (i - 1) * 0.55), palette.primary)
 	end
 	-- head
-	Kit.blob(model, Vector3.new(0.72, 0.66, 0.8), CFrame.new(0, 0.82, -1.32), palette.primary)
+	Kit.blob(model, Vector3.new(0.89, 0.73, 0.88), CFrame.new(0, 0.82, -1.32), palette.primary)
 	Kit.part(model, { name = "Snout", shape = "Wedge", size = Vector3.new(0.34, 0.26, 0.36), cf = CFrame.new(0, 0.72, -1.78) * CFrame.Angles(0, math.rad(180), 0), color = palette.secondary, role = "secondary" })
 	Kit.part(model, { name = "Nose", shape = "Ball", size = Vector3.new(0.16, 0.13, 0.12), cf = CFrame.new(0, 0.78, -1.95), color = rgb(70, 90, 120), role = "fixed" })
 	-- mask markings
-	Kit.part(model, { name = "Mask", size = Vector3.new(0.6, 0.2, 0.1), cf = CFrame.new(0, 0.95, -1.62), color = palette.accent, role = "accent" })
+	Kit.part(model, { name = "Mask", shape = "Ball", mesh = "Sphere", size = Vector3.new(0.79, 0.34, 0.15), cf = CFrame.new(0, 0.98, -1.67), color = palette.accent, role = "accent" })
 	-- round ears
 	for _, side in { -1, 1 } do
 		Kit.part(model, { name = "Ear", shape = "Cylinder", size = Vector3.new(0.1, 0.3, 0.3), cf = CFrame.new(side * 0.28, 1.14, -1.25) * CFrame.Angles(0, math.rad(90), 0), color = palette.secondary, role = "secondary" })
@@ -257,7 +258,8 @@ B.flurry_ferret = function(model: Model, _root: BasePart, palette, def)
 		end
 	end
 
-	Kit.eyes(model, CFrame.new(0, 0.95, -1.62), 0.24, 0.12, rgb(90, 150, 220))
+	ToyFace.eyes(model, CFrame.new(0, 1.0, -1.75), 0.4, 0.16)
+	ToyFace.smile(model, CFrame.new(0, 0.64, -1.94), 0.25)
 	Kit.particles(Kit.root(model), "sparkle", palette.accent)
 	Kit.setAnim(model, "waddle", def.animSpeed, 1)
 end
@@ -290,17 +292,18 @@ B.slush_sloth = function(model: Model, _root: BasePart, palette, def)
 	-- the sloth, hanging below
 	local by = 1.65
 	Kit.blob(model, Vector3.new(1.2, 1.5, 1.05), CFrame.new(0, by, -0.05), palette.primary)
-	Kit.blob(model, Vector3.new(1.0, 0.95, 0.95), CFrame.new(0, by + 0.95, -0.15), palette.primary)
+	Kit.blob(model, Vector3.new(1.16, 1.04, 1.0), CFrame.new(0, by + 0.95, -0.15), palette.primary)
 	-- shaggy chest
 	Kit.blob(model, Vector3.new(0.85, 1.0, 0.5), CFrame.new(0, by - 0.05, -0.55), palette.secondary, "secondary")
 	-- face mask
-	Kit.part(model, { name = "Face", shape = "Ball", mesh = "Sphere", size = Vector3.new(0.75, 0.6, 0.2), cf = CFrame.new(0, by + 0.92, -0.62), color = palette.secondary, role = "secondary" })
+	Kit.part(model, { name = "Face", shape = "Ball", mesh = "Sphere", size = Vector3.new(0.89, 0.7, 0.22), cf = CFrame.new(0, by + 0.92, -0.65), color = rgb(218, 227, 231), role = "fixed" })
 	-- sleepy closed eyes (lines)
 	for _, side in { -1, 1 } do
-		Kit.part(model, { name = "Eyelid", size = Vector3.new(0.2, 0.05, 0.06), cf = CFrame.new(side * 0.2, by + 1.0, -0.7), color = rgb(45, 55, 70), role = "fixed" })
+		Kit.part(model, { name = "Eyelid", size = Vector3.new(0.24, 0.07, 0.06), cf = CFrame.new(side * 0.23, by + 1.0, -0.78) * CFrame.Angles(0, 0, side * math.rad(12)), color = ToyFace.ink, role = "fixed" })
 	end
-	Kit.part(model, { name = "Nose", shape = "Ball", size = Vector3.new(0.16, 0.12, 0.1), cf = CFrame.new(0, by + 0.82, -0.72), color = rgb(50, 62, 80), role = "fixed" })
-	Kit.part(model, { name = "Smile", size = Vector3.new(0.26, 0.05, 0.06), cf = CFrame.new(0, by + 0.68, -0.7), color = rgb(50, 62, 80), role = "fixed" })
+	Kit.part(model, { name = "Nose", shape = "Ball", size = Vector3.new(0.19, 0.14, 0.1), cf = CFrame.new(0, by + 0.82, -0.78), color = ToyFace.ink, role = "fixed" })
+	ToyFace.smile(model, CFrame.new(0, by + 0.69, -0.76), 0.3)
+	ToyFace.cheeks(model, CFrame.new(0, by + 0.84, -0.75), 0.68, 0.19, rgb(191, 175, 191))
 
 	-- long arms reaching up to the arch
 	for _, side in { -1, 1 } do
@@ -330,11 +333,11 @@ B.blizzard_bison = function(model: Model, _root: BasePart, palette, def)
 		Kit.blob(model, Vector3.new(0.6, 0.75, 0.6), CFrame.new(math.sin(a) * 1.0, 1.55 + math.cos(a * 2) * 0.15, -0.55 + math.cos(a) * 0.9), Kit.lighten(palette.primary, 0.1))
 	end
 	-- snow on the back
-	Kit.blob(model, Vector3.new(1.75, 0.4, 1.7), CFrame.new(0, 2.95, -0.55), palette.secondary, "secondary")
+	Kit.blob(model, Vector3.new(1.75, 0.4, 1.7), CFrame.new(0, 3.05, -0.55), palette.secondary, "secondary")
 
 	-- low head
-	Kit.blob(model, Vector3.new(1.15, 1.15, 1.3), CFrame.new(0, 1.55, -1.95), palette.primary)
-	Kit.blob(model, Vector3.new(0.8, 0.6, 0.55), CFrame.new(0, 1.28, -2.55), palette.secondary, "secondary") -- muzzle
+	Kit.blob(model, Vector3.new(1.37, 1.27, 1.36), CFrame.new(0, 1.55, -1.95), palette.primary)
+	Kit.blob(model, Vector3.new(1.0, 0.63, 0.6), CFrame.new(0, 1.28, -2.55), palette.secondary, "secondary") -- muzzle
 	for _, side in { -1, 1 } do
 		local n = Kit.part(model, { name = "Nostril", shape = "Ball", size = Vector3.new(0.14, 0.12, 0.1), cf = CFrame.new(side * 0.2, 1.3, -2.78), color = rgb(60, 75, 95), role = "fixed" })
 		Kit.particles(n, "smoke", rgb(225, 240, 255))
@@ -357,7 +360,8 @@ B.blizzard_bison = function(model: Model, _root: BasePart, palette, def)
 	end
 	Kit.part(model, { name = "Tail", shape = "Cylinder", size = Vector3.new(0.9, 0.16, 0.16), cf = CFrame.new(0, 1.75, 2.05) * CFrame.Angles(0, math.rad(90), math.rad(-60)), color = palette.primary })
 
-	Kit.eyes(model, CFrame.new(0, 1.78, -2.5), 0.44, 0.16, rgb(80, 140, 200))
+	ToyFace.eyes(model, CFrame.new(0, 1.79, -2.55), 0.65, 0.23)
+	ToyFace.smile(model, CFrame.new(0, 1.12, -2.85), 0.5)
 	Kit.setAnim(model, "bob", def.animSpeed, 0.9)
 end
 
@@ -367,9 +371,9 @@ B.king_coldsnout = function(model: Model, _root: BasePart, palette, def)
 	-- huge body
 	Kit.blob(model, Vector3.new(3.0, 2.7, 3.4), CFrame.new(0, 2.55, 0.35), palette.primary)
 	-- shaggy skirt of fur
-	for i = 1, 10 do
-		local a = (i / 10) * math.pi * 2
-		Kit.blob(model, Vector3.new(0.7, 1.3, 0.7), CFrame.new(math.sin(a) * 1.4, 1.75, 0.35 + math.cos(a) * 1.6), palette.secondary, "secondary")
+	for i = 1, 8 do
+		local a = (i / 8) * math.pi * 2
+		Kit.blob(model, Vector3.new(0.84, 1.3, 0.84), CFrame.new(math.sin(a) * 1.4, 1.75, 0.35 + math.cos(a) * 1.6), palette.secondary, "secondary")
 	end
 	-- domed head
 	Kit.blob(model, Vector3.new(2.0, 2.0, 1.8), CFrame.new(0, 3.15, -1.75), palette.primary)
@@ -384,8 +388,13 @@ B.king_coldsnout = function(model: Model, _root: BasePart, palette, def)
 	end
 	-- tusks
 	for _, side in { -1, 1 } do
-		Kit.part(model, { name = "Tusk", shape = "Cylinder", size = Vector3.new(1.6, 0.3, 0.3), cf = CFrame.new(side * 0.72, 2.5, -2.5) * CFrame.Angles(math.rad(20), 0, side * math.rad(72)), color = rgb(248, 246, 235), role = "fixed" })
-		Kit.part(model, { name = "TuskTip", shape = "Wedge", size = Vector3.new(0.22, 0.6, 0.26), cf = CFrame.new(side * 1.3, 2.05, -2.9) * CFrame.Angles(math.rad(160), 0, side * math.rad(-25)), color = rgb(248, 246, 235), role = "fixed" })
+		local start = Vector3.new(side * 0.68, 2.5, -2.45)
+		local bend = Vector3.new(side * 1.02, 2.1, -3.15)
+		local tip = Vector3.new(side * 1.13, 2.3, -3.45)
+		local tusk = Kit.blob(model, Vector3.new(0.32, 0.32, (bend - start).Magnitude + 0.2), CFrame.lookAt((start + bend) / 2, bend), rgb(248, 246, 235), "fixed")
+		tusk.Name = "Tusk"
+		local endPiece = Kit.blob(model, Vector3.new(0.23, 0.23, (tip - bend).Magnitude + 0.16), CFrame.lookAt((bend + tip) / 2, tip), rgb(248, 246, 235), "fixed")
+		endPiece.Name = "TuskTip"
 	end
 
 	-- glacier crown: jagged ice blocks on a band
@@ -413,7 +422,8 @@ B.king_coldsnout = function(model: Model, _root: BasePart, palette, def)
 		end
 	end
 
-	Kit.eyes(model, CFrame.new(0, 3.5, -2.6), 0.72, 0.2, rgb(120, 190, 255))
+	ToyFace.eyes(model, CFrame.new(0, 3.5, -2.65), 0.99, 0.28)
+	Kit.part(model, { name = "CrownJewel", shape = "Ball", size = Vector3.new(0.38, 0.42, 0.12), cf = CFrame.new(0, 4.33, -2.72), color = rgb(118, 216, 246), material = Enum.Material.Glass, role = "fixed" })
 	Kit.particles(Kit.root(model), "sparkle", rgb(220, 245, 255))
 	Kit.setAnim(model, "bob", def.animSpeed, 0.8)
 end
