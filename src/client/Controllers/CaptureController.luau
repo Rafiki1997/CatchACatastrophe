@@ -116,7 +116,9 @@ local function labelFor(model: Model): BillboardGui
 	end
 	local billboard = Instance.new("BillboardGui")
 	billboard.Name = "EncounterLabel"
-	billboard.Size = UDim2.fromScale(12, 3)
+	-- Fixed pixel size: sized in studs this ballooned to fill the screen exactly
+	-- when you were close enough to read it, and ran off the edge.
+	billboard.Size = UDim2.fromOffset(230, 66)
 	billboard.StudsOffsetWorldSpace = Vector3.new(0, (model:GetAttribute("Height") :: number? or 3) + 2.2, 0)
 	billboard.MaxDistance = LABEL_RANGE
 	billboard.Parent = model

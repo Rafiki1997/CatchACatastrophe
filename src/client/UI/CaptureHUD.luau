@@ -52,19 +52,28 @@ function CaptureHUD.init()
 	local safe = W.safeArea(g)
 
 	-- ---------------------------------------------------------------- warning
+	-- Centred text on a dark pill: bare outlined text was left-aligned inside a
+	-- centred frame (so it sat off to one side) and was hard to read over the sky.
 	warningLabel = W.label({
 		parent = safe,
 		name = "HazardWarning",
 		text = "",
-		size = UDim2.new(0, 720, 0, 52),
+		size = UDim2.new(0, 720, 0, 58),
 		position = UDim2.new(0.5, 0, 0, 96),
 		anchor = Vector2.new(0.5, 0),
-		textSize = 30,
+		textSize = 28,
 		font = Theme.fonts.title,
 		color = Theme.colors.warn,
+		xalign = Enum.TextXAlignment.Center,
+		wrap = true,
+		bg = Theme.colors.bg,
+		radius = Theme.sizes.radius,
 		strokeText = true,
 		zindex = 6,
 	})
+	warningLabel.BackgroundTransparency = 0.25
+	warningLabel.Visible = false
+	W.padding(warningLabel, { left = 16, right = 16 })
 
 	-- ---------------------------------------------------------------- target card
 	local card = W.frame({
@@ -205,6 +214,8 @@ function CaptureHUD.setHazardWarning(text: string?, color: Color3?)
 	end
 	warningLabel.Text = text or ""
 	warningLabel.TextColor3 = color or Theme.colors.warn
+	-- the pill only exists while there is a warning to read
+	warningLabel.Visible = text ~= nil and text ~= ""
 end
 
 function CaptureHUD.setTarget(info: TargetInfo?)
