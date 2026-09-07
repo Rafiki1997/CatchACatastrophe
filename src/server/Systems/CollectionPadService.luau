@@ -71,7 +71,17 @@ function CollectionPad.update(profile: Profiles.Profile, now: number)
 	local since, pay = CollectionPad.advance(cycle and cycle.since, now, eligible == true, profile.data.bank >= 1 and not paidThisVisit[player])
 	cycles[player] = if since and pad and character then { since = since, pad = pad, character = character } else nil
 	player:SetAttribute("CollectionStartedAt", since)
-	player:SetAttribute("CollectionStatus", if not eligible then nil elseif since then "Collecting" else "Waiting")
+	local status: string? = nil
+	if eligible then
+		if paidThisVisit[player] then
+			status = "Done"
+		elseif since then
+			status = "Collecting"
+		else
+			status = "Waiting"
+		end
+	end
+	player:SetAttribute("CollectionStatus", status)
 	if pay and S.Economy then
 		local before = profile.data.coins
 		local ok = S.Economy.collect(profile, true)

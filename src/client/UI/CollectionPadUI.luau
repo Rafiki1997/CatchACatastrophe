@@ -82,6 +82,8 @@ function M.init()
 			status.Text = "Collected +" .. Format.abbreviate(amount) .. " Coins"
 		elseif phase == "Collecting" then
 			status.Text = "Stay on the pad"
+		elseif phase == "Done" then
+			status.Text = "Collected. Step off and back on to collect again"
 		elseif phase == "Waiting" then
 			status.Text = "Waiting for Coins"
 		else
