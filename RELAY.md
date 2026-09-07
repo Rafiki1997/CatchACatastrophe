@@ -21,6 +21,8 @@
 
 | Commit | What |
 |---|---|
+| `eb5b5d9` | **Collection pad pays the moment you step on** (`Config.Economy.collectHoldSeconds = 0`, shared by server and indicator). Codex's 1 s hold read as broken. |
+| `b74234b` | **Route markings sunk into the slab**: 388 of 388 were 0.005-0.015 studs above the asphalt and shimmered; now 0. Left: 15 junction slab overlaps and the plot Platform/Apron seam. |
 | `281b0a5` | **Creatures no longer teleport** (legs continue from the last leg's end), Gust/Ice Wave walls are 3 studs and jumpable, hitPenalty 2 -> 1, knockback 38 -> 16. A standing-still probe caught a Common in 10.7 s; it never finished before. SelfTest 451. |
 | `f5c1bb9` | Neon route chevrons with a marching light toward the destination (`Controllers/RouteLights`); always-on-top waypoint signs over gates, hub destinations and your own city (`Controllers/Waypoints`). LiveTest 22 → 27. |
 | `7e78ecf` | Codex's on-pad collection indicator, finished and verified: bank, status, progress bar, driven by the server's Collection* player attributes. Tutorial step 4 text updated. |
@@ -46,6 +48,8 @@ Earlier (09-06): gate unlock at the gate + nudge loop, walk speed x1.5, pad pick
 | Collection indicator | "Stand here" → "Stay on the pad / Collecting…" → "Collected +12 Coins", bank 8.77 → 0, cycle repeated (+8) |
 | Roaming legs | 2 boundaries in 11 s, both continuous; max single-tick move 1.08 studs (was 13-19) |
 | Beginner capture | stand 4 studs away, never dodge: Common **caught in 10.7 s** (never finished before) |
+| Road markings | 0 of 388 in z-fight range of a road top (was 388); tops proud 0.077 |
+| Collection pad | step on with 8.83 banked: paid +12 after 0.5 s, then +4 as it refilled |
 | Suites | SelfTest **451** / 0 · LiveTest **27** / 0 |
 | Client errors | none from game code (one stock `rbxasset://` sound, pre-existing) |
 
@@ -128,7 +132,8 @@ seconds. Re-test with the friends first.
 
 - **Live build stamp** — deferred by the user; small; now unblocked.
 - **Relaunch curve** — `100,000 × 3^R` vs additive `1 + 0.25R`; Crisis reward cap 150K. User's call.
-- **README** still says "step on the pad or press it"; only standing works (Codex's change).
+- **Z-fighting left over:** 15 road-slab overlaps at junctions (both tops at 0.525) and each plot's
+  Platform/Apron one-stud seam. Small patches; alternate slab heights or trim at the junction.
 - **Mobile pass** — nothing today was checked on touch.
 
 ## Suggested next task
