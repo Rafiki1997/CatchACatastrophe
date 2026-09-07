@@ -21,6 +21,7 @@
 
 | Commit | What |
 |---|---|
+| `44c3986` | **Zone labels scale harder**: user's feel test said every sign past 200 studs was one size and legible from the far edge. `Waypoints` now clamps depth 30..420 and raises the depth ratio to 1.25 (`REF` 60, `EXAGGERATE`); gold Unlock line hides under a 14 px title. Live: 11 px at 259 studs (was 21), 90 px at 49. Open question to the user: keep the 28-stud vanish, fade it, or drop it. |
 | `d6e5b11` | **Zone labels as outlined names that scale with distance** (`Controllers/Waypoints`): the 11 signs (6 gates, 4 hub, Your City) are the name alone in the destination's colour, FredokaOne, ink `UIStroke`, no card. Sized every frame from camera depth as a 44x7.6-stud sign would be, depth clamped 35..200 studs; locked gates keep a gold "Unlock X Coins" line; distance readout and element word removed. Live: title 36.2 px at depth 116 vs 36.8 modelled, 121 px at depth 7 (near clamp). User approved the plan; awaiting his feel check. |
 | `bd9ab36` | **Rarity shrinks the capture circle and grows the shove** (`rarityRangeMult` 1/.9/.8/.7, `rarityKnockbackMult` 1/1.1/1.2/1.35); circle stored on the capture and sent in CaptureState; ring on screen matches. Gusty Gardens pass; tune region by region next. **Unvalidated by the user.** |
 | `459e933` | **Difficulty by zone and rarity**: `Config.Capture.zoneTuning` (warning 100%..60%, +0..+2 patches, penalty 1..2.25 s, knockback 32..40) x rarity (+15% size, -10% warning per rank). Stored on the capture at start; boss arena untouched. SelfTest 467. **Unvalidated by the user.** |
@@ -73,7 +74,7 @@ Earlier (09-06): gate unlock at the gate + nudge loop, walk speed x1.5, pad pick
 | Client-vs-server creature position gap | **< 0.1** studs; was 8–17 |
 | Screen-space pick at 20 studs | body is a 106 px target; belly click inside, 1.5 bodies away outside |
 | Route chevrons | 338 of 338 Neon across 25 routes; lit block advanced toward higher Index over 0.45 s |
-| Waypoint signs | 11 (6 gates, 4 hub, 1 city); title height within 1 px of `5 studs * k / clamp(depth, 35, 200)` on every on-screen sign (36.2 vs 36.8, 37.5 vs 37.7, 30.9 vs 31.4); near clamp holds at depth 7 (121 px); only locked gates show the gold "Unlock X Coins" line |
+| Waypoint signs | 11 (6 gates, 4 hub, 1 city); title height within 1 px of `5 studs * (k / 60) * (60 / clamp(depth, 30, 420)) ^ 1.25` on every on-screen sign (82.2 vs 82.3 at 53, 31.6 vs 31.6 at 115, 11.2 vs 11.4 at 259); gold line hidden at 13 px (Frostbite, locked); only locked gates show the gold "Unlock X Coins" line |
 | Collection indicator | "Stand here" → "Stay on the pad / Collecting…" → "Collected +12 Coins", bank 8.77 → 0, cycle repeated (+8) |
 | Roaming legs | 2 boundaries in 11 s, both continuous; max single-tick move 1.08 studs (was 13-19) |
 | Beginner capture | stand 4 studs away, never dodge: Common **caught in 10.7 s** (never finished before) |
