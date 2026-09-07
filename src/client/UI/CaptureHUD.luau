@@ -24,6 +24,7 @@ type TargetInfo = {
 	element: string,
 	difficulty: number,
 	claimedBy: number?,
+	hint: string?, -- names a control that exists on this device (CaptureController decides)
 }
 
 local gui: ScreenGui? = nil
@@ -233,7 +234,7 @@ function CaptureHUD.setTarget(info: TargetInfo?)
 			targetHint.Text = "Someone is already catching this one"
 			targetHint.TextColor3 = Theme.colors.danger
 		else
-			targetHint.Text = "Press E or tap Capture"
+			targetHint.Text = info.hint or "Press E"
 			targetHint.TextColor3 = Theme.colors.accent
 		end
 	end

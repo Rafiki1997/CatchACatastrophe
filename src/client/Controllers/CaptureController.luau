@@ -26,6 +26,7 @@ local player = Players.LocalPlayer
 local camera = workspace.CurrentCamera
 
 local TARGET_RANGE = 34
+local TETHER_TOOL = "Containment Tether"
 local LABEL_RANGE = 90
 
 local fxFolder: Folder? = nil
@@ -235,6 +236,18 @@ local function nearestWild(): Model?
 	return best
 end
 
+-- What the target card tells the player to do. The touch Capture button is
+-- hidden on keyboards, so "tap Capture" is wrong there; and a mouse click only
+-- reaches capture through the handler in init(), so say so.
+local function captureHint(): string
+	if Input.isTouch() then
+		return "Tap Capture"
+	elseif Input.isGamepad() then
+		return "Press X"
+	end
+	return "Press E or click"
+end
+
 local function setTarget(model: Model?)
 	if currentTarget == model then
 		return
@@ -267,6 +280,7 @@ local function setTarget(model: Model?)
 				element = def.element,
 				difficulty = (model:GetAttribute("Difficulty") :: number?) or 1,
 				claimedBy = if typeof(claimedBy) == "number" and claimedBy ~= 0 and claimedBy ~= player.UserId then claimedBy else nil,
+				hint = captureHint(),
 			}
 		end
 	end
@@ -598,7 +612,7 @@ end
 -- so unequipping it never strands the player.
 local function watchTool()
 	local function hook(tool: Instance)
-		if tool:IsA("Tool") and tool.Name == "Containment Tether" then
+		if tool:IsA("Tool") and tool.Name == TETHER_TOOL then
 			tool.Activated:Connect(toggleCapture)
 		end
 	end
@@ -626,6 +640,32 @@ end
 function CaptureController.init()
 	Input.onAction("Capture", toggleCapture)
 	watchTool()
+
+	-- Mouse: clicking the creature you are pointing at starts the tether, the
+	-- same as E. It only ever starts, never cancels, so a stray click cannot drop
+	-- a capture in progress; Q and E still cancel. Skipped while the Containment
+	-- Tether is equipped, because the Tool's own Activated already fires
+	-- toggleCapture and the two would cancel each other out.
+	UserInputService.InputBegan:Connect(function(input, processed)
+		if processed or captureState then
+			return
+		end
+		if input.UserInputType ~= Enum.UserInputType.MouseButton1 then
+			return
+		end
+		if Input.isTouch() or Input.isGamepad() then
+			return
+		end
+		local character = player.Character
+		if character and character:FindFirstChild(TETHER_TOOL) then
+			return
+		end
+		local under = candidateUnderMouse()
+		if under then
+			setTarget(under)
+			toggleCapture()
+		end
+	end)
 	Input.onAction("Cancel", function()
 		if captureState then
 			Net.fire("CancelCapture")

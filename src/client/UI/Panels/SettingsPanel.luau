@@ -221,7 +221,7 @@ function M.init()
 	})
 	W.label({
 		parent = controls,
-		text = "Mouse and keyboard: point at a creature and press E to start or stop the tether. Q cancels. Click a work pad in your own city to open the circuit editor. Escape closes a panel.\n"
+		text = "Mouse and keyboard: point at a creature and press E or click it to start the tether. E again or Q stops it. Click a work pad in your own city to open the circuit editor. Escape closes a panel.\n"
 			.. "Touch: tap a creature to select it, then tap Capture. Tap the same button again to cancel. Tap a work pad to open the circuit editor.\n"
 			.. "Controller: X starts or stops the tether, B cancels, the D-pad steps through your work pads and A picks one.",
 		size = UDim2.new(1, -20, 0, 112),
