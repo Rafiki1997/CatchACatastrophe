@@ -39,6 +39,7 @@ type Toast = {
 	frame: Frame,
 	inner: Frame,
 	label: TextLabel,
+	close: TextButton?,
 	text: string,
 	gen: number,
 	shownAt: number,
@@ -86,6 +87,9 @@ local function fadeOut(toast: Toast)
 	W.tween(toast.frame, { BackgroundTransparency = 1 }, 0.3)
 	W.tween(toast.inner, { BackgroundTransparency = 1 }, 0.3)
 	W.tween(toast.label, { TextTransparency = 1, TextStrokeTransparency = 1 }, 0.3)
+	if toast.close then
+		W.tween(toast.close, { TextTransparency = 1 }, 0.3)
+	end
 	local stroke = toast.frame:FindFirstChildOfClass("UIStroke")
 	if stroke then
 		W.tween(stroke, { Transparency = 1 }, 0.3)
@@ -225,13 +229,13 @@ function Notifications.push(kind: string, text: string, duration: number?)
 		radius = Theme.sizes.radiusSmall + 2,
 	})
 	inner.AutomaticSize = Enum.AutomaticSize.Y
-	W.padding(inner, { top = 8, bottom = 8, left = 10, right = 10 })
+	W.padding(inner, { top = 8, bottom = 8, left = 10, right = 40 })
 
 	local label = W.label({
 		parent = inner,
 		name = "Text",
 		text = text,
-		size = UDim2.new(1, -22, 0, 0),
+		size = UDim2.new(1, 0, 0, 0),
 		textSize = 15,
 		font = Theme.fonts.bold,
 		color = Theme.colors.text,
@@ -246,6 +250,7 @@ function Notifications.push(kind: string, text: string, duration: number?)
 		inner = inner,
 		label = label,
 		text = text,
+		close = nil,
 		gen = 1,
 		shownAt = os.clock(),
 		dying = false,
@@ -253,23 +258,32 @@ function Notifications.push(kind: string, text: string, duration: number?)
 	table.insert(toasts, toast)
 
 	-- A toast that keeps re-arming itself is inescapable without this.
-	W.button({
-		parent = inner,
-		name = "Close",
-		text = "✕",
-		size = UDim2.new(0, 18, 0, 18),
-		position = UDim2.new(1, 0, 0, 0),
-		anchor = Vector2.new(1, 0),
-		color = Theme.colors.bgAlt,
-		textColor = Theme.colors.textDim,
-		textSize = 13,
-		radius = 4,
-		zindex = 3,
-		silent = true,
-		onClick = function()
-			fadeOut(toast)
-		end,
-	})
+	-- The hit area is 44x44 (every button in the game is at least 44 for touch);
+	-- only the glyph is visible, so a one-line toast does not grow to fit it.
+	local close = Instance.new("TextButton")
+	close.Name = "Close"
+	close.Text = "✕"
+	close.Size = UDim2.new(0, 44, 0, 44)
+	close.AnchorPoint = Vector2.new(1, 0.5)
+	close.Position = UDim2.new(1, 0, 0.5, 0)
+	close.BackgroundTransparency = 1
+	close.BorderSizePixel = 0
+	close.AutoButtonColor = false
+	close.TextColor3 = Theme.colors.textDim
+	close.TextSize = 16
+	close.Font = Theme.fonts.bold
+	close.ZIndex = 3
+	close.MouseEnter:Connect(function()
+		close.TextColor3 = Theme.colors.text
+	end)
+	close.MouseLeave:Connect(function()
+		close.TextColor3 = Theme.colors.textDim
+	end)
+	close.Activated:Connect(function()
+		fadeOut(toast)
+	end)
+	close.Parent = frame
+	toast.close = close
 
 	W.pop(frame, 1.12)
 	scheduleDismiss(toast, seconds)
