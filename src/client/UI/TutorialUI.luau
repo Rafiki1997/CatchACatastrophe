@@ -28,9 +28,199 @@ local gotItButton: TextButton? = nil
 local currentStep = 1
 local done = false
 local beamHolder: BasePart? = nil
-local beamA: Attachment? = nil
-local beamB: Attachment? = nil
-local beam: Beam? = nil
+-- The guide is a chain of beams along the roads, not one straight line through
+-- whatever stands between the player and the target.
+type Segment = { a: Attachment, b: Attachment, beam: Beam }
+local segments: { Segment } = {}
+local MAX_SEGMENTS = 20
+local GUIDE_HEIGHT = 1.6
+
+-- ---------------------------------------------------------------- road graph
+-- Roads are the navigation graph: their ends are nodes, each road an edge.
+type Road = { a: Vector3, b: Vector3, ia: number, ib: number }
+local graphNodes: { Vector3 } = {}
+local graphAdj: { [number]: { { to: number, w: number } } } = {}
+local graphRoads: { Road } = {}
+local graphCount = -1
+-- The hub plaza (radius 70) is open ground: every road end on it connects to
+-- every other, since the spokes stop at the kiosks and the region and plot
+-- roads only begin at its rim.
+local PLAZA_RADIUS = 78
+
+local function nodeFor(p: Vector3): number
+	for i, n in graphNodes do
+		if (n - p).Magnitude < 4 then
+			return i
+		end
+	end
+	table.insert(graphNodes, p)
+	graphAdj[#graphNodes] = {}
+	return #graphNodes
+end
+
+local function link(i: number, j: number, w: number)
+	table.insert(graphAdj[i], { to = j, w = w })
+	table.insert(graphAdj[j], { to = i, w = w })
+end
+
+local function buildGraph()
+	local parts: { BasePart } = {}
+	for _, d in workspace:GetDescendants() do
+		if d:IsA("BasePart") and d.Name == "Path" then
+			table.insert(parts, d)
+		end
+	end
+	if #parts == graphCount then
+		return
+	end
+	graphCount = #parts
+	graphNodes, graphAdj, graphRoads = {}, {}, {}
+	for _, p in parts do
+		local half = p.CFrame.LookVector * (p.Size.Z / 2)
+		local a, b = p.Position + half, p.Position - half
+		local ia, ib = nodeFor(a), nodeFor(b)
+		link(ia, ib, (a - b).Magnitude)
+		table.insert(graphRoads, { a = a, b = b, ia = ia, ib = ib })
+	end
+	local onPlaza: { number } = {}
+	for i, n in graphNodes do
+		if Vector3.new(n.X, 0, n.Z).Magnitude <= PLAZA_RADIUS then
+			table.insert(onPlaza, i)
+		end
+	end
+	for x = 1, #onPlaza do
+		for y = x + 1, #onPlaza do
+			link(onPlaza[x], onPlaza[y], (graphNodes[onPlaza[x]] - graphNodes[onPlaza[y]]).Magnitude)
+		end
+	end
+end
+
+local function flat(v: Vector3): Vector3
+	return Vector3.new(v.X, 0, v.Z)
+end
+
+local function nearestOnRoads(p: Vector3): (Vector3?, Road?, number)
+	local best: Vector3? = nil
+	local bestRoad: Road? = nil
+	local bestD = math.huge
+	for _, road in graphRoads do
+		local ab = road.b - road.a
+		local t = math.clamp((p - road.a):Dot(ab) / math.max(ab:Dot(ab), 0.001), 0, 1)
+		local q = road.a + ab * t
+		local d = (flat(q) - flat(p)).Magnitude
+		if d < bestD then
+			best, bestRoad, bestD = q, road, d
+		end
+	end
+	return best, bestRoad, bestD
+end
+
+-- Where a point joins the graph: on the plaza it reaches every plaza node
+-- directly (open ground); elsewhere it enters at the nearest point of the
+-- nearest road, within `limit` studs. Returns seed distances per node and the
+-- entry point on the road (nil on the plaza), or nil when nothing is near.
+local function seeds(p: Vector3, limit: number): ({ [number]: number }?, Vector3?)
+	local out: { [number]: number } = {}
+	if flat(p).Magnitude <= PLAZA_RADIUS then
+		for i, n in graphNodes do
+			if flat(n).Magnitude <= PLAZA_RADIUS then
+				out[i] = (n - p).Magnitude
+			end
+		end
+		return out, nil
+	end
+	local q, road, d = nearestOnRoads(p)
+	if not q or not road or d > limit then
+		return nil, nil
+	end
+	out[road.ia] = (q - road.a).Magnitude
+	out[road.ib] = (q - road.b).Magnitude
+	return out, q
+end
+
+-- Points from `from` to `to` along the roads; a straight line when an end is
+-- nowhere near a road (a creature deep in the wild), when both are on the open
+-- plaza, or when the roads would be a real detour.
+local function route(from: Vector3, to: Vector3): { Vector3 }
+	buildGraph()
+	local seedIn, pIn = seeds(from, 60)
+	local seedOut, pOut = seeds(to, 90)
+	if not seedIn or not seedOut or (pIn == nil and pOut == nil) then
+		return { from, to }
+	end
+	local n = #graphNodes
+	local dist: { number } = table.create(n, math.huge)
+	local prev: { number? } = {}
+	local visited: { boolean } = {}
+	for i, d in seedIn do
+		dist[i] = d
+	end
+	for _ = 1, n do
+		local u: number? = nil
+		local best = math.huge
+		for i = 1, n do
+			if not visited[i] and dist[i] < best then
+				u, best = i, dist[i]
+			end
+		end
+		if not u then
+			break
+		end
+		visited[u] = true
+		for _, e in graphAdj[u] do
+			local nd = best + e.w
+			if nd < dist[e.to] then
+				dist[e.to] = nd
+				prev[e.to] = u
+			end
+		end
+	end
+	local last: number? = nil
+	local bestTotal = math.huge
+	for i, d in seedOut do
+		if dist[i] + d < bestTotal then
+			last, bestTotal = i, dist[i] + d
+		end
+	end
+	if not last then
+		return { from, to }
+	end
+	local chain: { Vector3 } = {}
+	local cur: number? = last
+	while cur do
+		table.insert(chain, 1, graphNodes[cur])
+		cur = prev[cur]
+	end
+	local points = { from }
+	if pIn then
+		table.insert(points, pIn)
+	end
+	for _, p in chain do
+		table.insert(points, p)
+	end
+	if pOut then
+		table.insert(points, pOut)
+	end
+	table.insert(points, to)
+	-- Drop repeated points (entry and exit on the same road end) and give up on
+	-- the roads when they are a real detour: a target a few studs away across
+	-- open ground should not send the player down to the road and back.
+	local cleaned = { points[1] }
+	local length = 0
+	for i = 2, #points do
+		local lastPoint = cleaned[#cleaned]
+		if (flat(points[i]) - flat(lastPoint)).Magnitude > 1 then
+			length += (flat(points[i]) - flat(lastPoint)).Magnitude
+			table.insert(cleaned, points[i])
+		end
+	end
+	-- Ground distances only: a player mid-jump must not flip the choice.
+	local direct = (flat(to) - flat(from)).Magnitude
+	if direct <= 30 or length > direct * 1.5 + 12 then
+		return { from, to }
+	end
+	return cleaned
+end
 
 local function ensureBeam()
 	if beamHolder and beamHolder.Parent then
@@ -45,27 +235,49 @@ local function ensureBeam()
 	holder.CanQuery = false
 	holder.CanTouch = false
 	holder.Parent = workspace
-	local a = Instance.new("Attachment")
-	a.Parent = holder
-	local b = Instance.new("Attachment")
-	b.Parent = holder
-	local line = Instance.new("Beam")
-	line.Attachment0 = a
-	line.Attachment1 = b
-	line.Width0 = 0.6
-	line.Width1 = 0.6
-	line.FaceCamera = true
-	line.Color = ColorSequence.new(Theme.colors.accent)
-	line.LightEmission = 0.9
-	line.Texture = "rbxasset://textures/particles/sparkles_main.dds"
-	line.TextureSpeed = 3
-	line.TextureLength = 6
-	line.Transparency = NumberSequence.new(0.15)
-	line.Parent = holder
+	segments = {}
+	for _ = 1, MAX_SEGMENTS do
+		local a = Instance.new("Attachment")
+		a.Parent = holder
+		local b = Instance.new("Attachment")
+		b.Parent = holder
+		local line = Instance.new("Beam")
+		line.Attachment0 = a
+		line.Attachment1 = b
+		line.Width0 = 1.4
+		line.Width1 = 1.4
+		line.FaceCamera = true
+		line.Color = ColorSequence.new(Theme.colors.accent)
+		line.LightEmission = 0.9
+		line.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+		line.TextureSpeed = 3
+		line.TextureLength = 6
+		line.Transparency = NumberSequence.new(0.1)
+		line.Enabled = false
+		line.Parent = holder
+		table.insert(segments, { a = a, b = b, beam = line })
+	end
 	beamHolder = holder
-	beamA = a
-	beamB = b
-	beam = line
+end
+
+local function hideRoute()
+	for _, s in segments do
+		s.beam.Enabled = false
+	end
+end
+
+local function showRoute(points: { Vector3 })
+	local needed = #points - 1
+	for i, s in segments do
+		if i <= needed then
+			local p, q = points[i], points[i + 1]
+			s.a.WorldPosition = Vector3.new(p.X, p.Y + GUIDE_HEIGHT, p.Z)
+			s.b.WorldPosition = Vector3.new(q.X, q.Y + GUIDE_HEIGHT, q.Z)
+			s.beam.Enabled = true
+		else
+			s.beam.Enabled = false
+		end
+	end
 end
 
 local function ownPlot(): Model?
@@ -219,20 +431,16 @@ function TutorialUI.init()
 			return
 		end
 		accumulator = 0
-		if done or not beam then
-			if beam then
-				beam.Enabled = false
-			end
+		if done or #segments == 0 then
+			hideRoute()
 			return
 		end
 		local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
 		local target = targetPosition()
-		if hrp and hrp:IsA("BasePart") and target and beamA and beamB then
-			beamA.WorldPosition = hrp.Position + Vector3.new(0, 2, 0)
-			beamB.WorldPosition = target + Vector3.new(0, 3, 0)
-			beam.Enabled = true
+		if hrp and hrp:IsA("BasePart") and target then
+			showRoute(route(hrp.Position, target))
 		else
-			beam.Enabled = false
+			hideRoute()
 		end
 	end)
 end
@@ -248,9 +456,7 @@ function TutorialUI.setStep(step: number, isDone: boolean)
 	end
 	if done then
 		card.Visible = false
-		if beam then
-			beam.Enabled = false
-		end
+		hideRoute()
 		return
 	end
 
