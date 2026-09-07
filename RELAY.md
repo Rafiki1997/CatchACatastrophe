@@ -1,6 +1,6 @@
 # Catch A Catastrophe — Agent Relay State
 
-- **Updated:** 2026-09-06 (Claude Code, picking up from session "CaC Pickup #1")
+- **Updated:** 2026-09-06, late evening (Claude Code)
 - **Repo:** `C:\Users\rahul\orca\Catch-a-Catastrophe` — Rojo 7.7, branch `main`
 - **Working tree: CLEAN.** Everything below is committed.
 - **Studio:** "Catch a Catastrophe (placeId 88888194204730)", left **stopped in Edit**.
@@ -13,163 +13,161 @@
 
 ---
 
-## Landed this session
+## Landed today, newest first
 
-The working tree had been carrying 17 modified + 8 untracked files from several
-agents with no checkpoint between them. That is now four commits of prior work
-(art, hazards, build stamp + HUD fix, docs) plus the two below.
+### Manage creatures at the pad (playtest item 4)
 
-### Playtest blockers 7 and 8 — they were one chain
+Attention is on the pads, but the only way to change what was on one was the
+Creatures panel: pick a creature, then pick a pad from a grid. Now every pad has
+two verbs: **click** it to wire a circuit (unchanged), **E** at it to deploy, swap
+or store.
 
-The tutorial pointed the arrow at the blue gate, but the only region-unlock path
-in the codebase was the Workshop panel's Unlock button. The game sent players to
-a wall they could not open from where it sent them. And the "go to the Workshop"
-nudge had a **5s cooldown against a 5s toast**, so it re-armed exactly as it faded
-and never cleared while you stood there.
+- `PlotTemplate` adds a `ManagePrompt` (E, range 7) to every pad, **disabled**.
+  Pads sit 8 studs apart so only the one you stand at can show it.
+- `Controllers/PadPrompts` enables prompts **per player** on their own plot for
+  unlocked pads when not visiting, and labels them from the snapshot: "Deploy /
+  Pad n" empty, "Swap / <species>" occupied. Triggering one opens the picker.
+  The server never reads the prompt.
+- `UI/CreaturePicker` lists stored creatures by **estimated** income (region base x
+  rarity x variant x relaunch — stored creatures report 0 in the snapshot) with
+  a 44px "Put here" / "Swap in" button; an occupied pad also shows "On this pad"
+  with "Send to storage". Escape, B, the X and the backdrop close it.
+- **No new remotes, no new trust.** `DeployCreature`, `MoveCreature`, `StoreCreature`
+  already validate ownership, unlock and being at home; `MoveCreature` from storage
+  onto an occupied pad was already a swap (the occupant takes the mover's old
+  place, which for a stored creature is storage).
+- Self-test `plot`: every pad on a built plot carries the prompt, disabled, range
+  under the pad spacing. SelfTest is now 421.
 
-- `MapBuilder` puts an `UnlockPrompt` on every gate whose `unlockCost` is above zero.
-- `RegionGates` handles the prompt: a confirm showing region, price and balance,
-  then the existing `UnlockRegion` remote. **The server still authorises the spend**
-  (`WorkshopService.unlockRegion`), so nothing new is trusted from the client, and
-  the `unlock:<id>` tutorial event fires as it always did — the tutorial step needed
-  no change, which is why charging at the gate was the right call.
-- `applyGate` retires the prompt once a region is open, per player, the same way it
-  already clears `CanCollide`.
-- Nudge is now a 15s cooldown against a 4s toast, and it points at the prompt.
-- **Toasts have a close button**, so no future self-re-arming toast can trap anyone.
+### Toast close button is a real touch target
 
-### Playtest feedback 3 — movement speed
+The 18px close button from the gate-nudge fix broke the game's own 44px rule. It is
+now a 44x44 invisible hit area on the toast's right edge with only the glyph
+visible; the label makes room via the card's right padding (40).
 
-Base walk speed 16 to **24** (the user asked for 1.5x). Raising only the base would
-have killed the upgrade, because 24 was also the old cap, so the whole ladder is
-scaled by the same 1.5x: Running Shoes is **+1.5 per level to a cap of 36**, still
-reached exactly at `maxLevel` 8.
+### Earlier today (see git log)
 
-`WorkshopPanel.effectText` recomputes these numbers itself instead of reading the
-computed stat, so it holds a duplicate of the base and the cap. It was updated too.
-**If you change walk speed again, change it in three places:** `Stats.luau:57`,
-the `move_speed` entry in `Economy.luau`, and `WorkshopPanel.luau:42`.
+Gate unlock at the gate + nudge loop fix (`d8634e7`), walk speed x1.5 (`4e50529`),
+and four checkpoint commits of prior agents' art, hazard, build-stamp and docs work.
 
 ---
 
 ## Verified live, 2026-09-06
 
-Fresh Play session, Studio stopped afterwards:
+Two Play sessions for the pad picker, one for everything else; Studio stopped after.
 
 | Check | Result |
 |---|---|
-| Gates carrying `UnlockPrompt` | 5 of 6 — the sixth is the free starting region, correct |
-| Triggering a gate prompt | opens "Open Splashwater Bay?" with cost, balance, affordability warning |
-| 13s stood at a locked gate | **1** toast, peak 1 on screen (was an unbroken stream) |
-| Toast close button | present at `Toasts.Toast.Inner.Close`, label width leaves room for it |
-| `applyGate` on an unlocked region | probe gate had `CanCollide` and prompt `Enabled` both cleared |
-| Live `Humanoid.WalkSpeed` on spawn | **24** |
-| Test suites | SelfTest passed 418 failed 0 · LiveTest passed 22 failed 0 |
-| Client errors | none from game code (one unrelated stock-sound load failure) |
-| HUD build pill | still renders the build stamp — the earlier HUD fix holds |
+| Pads carrying `ManagePrompt` | 192 of 192, **0 enabled on the server** |
+| Own plot, fresh city | 6 enabled, 18 disabled; **0 enabled on other plots** |
+| Labels | "Deploy / Pad 1" empty; "Swap / Breeze Bean" after deploy; followed the creature to pad 2 |
+| Picker, empty storage | title, X, "Put on this pad from storage", empty-state line, hint, backdrop dismiss |
+| Picker, stored row | "Breeze Bean · ● Common · **4/s** · Put here" (the estimate; snapshot says 0) |
+| Picker, occupied pad | "On this pad / Breeze Bean · 4/s / Send to storage", then the stored row with "Swap in" |
+| Deploy / Store / Swap remotes | each landed; after swap the stored one held pad 2 and the old occupant was in storage |
+| Toast close | 44x44 (46.75 after UIScale), transparent, parented to the toast, padding right 40 |
+| Test suites | SelfTest **421** / 0 · LiveTest 22 / 0 |
+| Client errors | none from game code (one stock `rbxasset://` sound load failure, pre-existing) |
 
-**Not verified:** a *successful* paid unlock end to end. The test player had 1.76K
-coins against a 2.5K gate at 0 per second income, so reaching the price needs real
-play. The confirm dialog, the remote it calls and the server handler are each
-verified separately; only the three of them in one continuous motion is untested.
+**Not verified:** pressing the picker's buttons with a real pointer (probes cannot
+fire `Activated`; each button's remote was fired directly instead — identical
+one-liners), Escape closing the picker (probes cannot send key events; the handler
+mirrors Main.client's panel Escape), and gamepad. A human tap-through is worth one
+minute.
 
 ---
 
-## Trap: probe scripts do not share the game's module cache
+## Traps
 
-`execute_luau` runs with its **own require cache**, in both `Server` and `Client`.
-`Profiles.all()` came back empty and the `Services` registry had 2 keys instead of
-the real set. A fresh `require` gives you a fresh module, not the running one.
+### Probe scripts do not share the game's module cache
 
-**Only two things cross the boundary: the instance tree, and RemoteEvents.**
-Verify through `workspace`, `PlayerGui`, `CollectionService`, or by firing a real
-remote. Requiring a module to read live state will quietly lie to you.
+`execute_luau` gets its **own require cache** in both `Server` and `Client`.
+`Profiles.all()` comes back empty, `Services` has only what you required. **Only the
+instance tree and RemoteEvents cross the boundary.** Read state with
+`Net.invoke("GetState")` from a client probe; drive the game by firing the real
+remotes; verify through `workspace` / `PlayerGui` / attributes.
 
-Corollary: requiring `Notifications` from a probe rebuilt its stack inside the
-existing ScreenGui, giving it two `Toasts` frames. Harmless, gone when Play stops,
-but do not mistake it for a bug.
+### Capturing a creature from a probe (needed whenever a test wants a creature)
+
+The Studio test adapter is **in-memory**: every Play session starts with 0
+creatures, so any deploy/swap test has to catch one first. What works:
+
+1. **Teleport to the server's idea of the creature's position, not the model's
+   pivot.** The server lerps `PathFrom -> PathTo` by `(GetServerTimeNow() - PathStart)
+   / PathDuration`; the client model can be 10+ studs away from that. Claim range is
+   22, so teleporting to the pivot fails silently ("Get closer" toast, gone in 4 s).
+2. `Net.fire("StartCapture", EncounterUid)` ~0.6 s after the teleport.
+3. **Orbit** the server position at 8 studs, 15 degrees per 0.25 s tick. The gust
+   aims at where you stood when it telegraphed and sweeps at 20 studs/s; standing
+   still 2 studs away means every gust hits (2 s lost each) and an 8 s Common takes
+   20+ s, which then hits the 45 s encounter lifetime.
+4. Keep each probe under ~13 s (bridge limit). The claim survives the gap between
+   probes; the model vanishing means captured **or** expired — confirm with `GetState`.
+
+A Common Breeze Bean lands in one ~10 s orbit window. Uncommons (10 s) usually need two.
+
+### Others
+
+- Rojo only syncs into the **Edit** datamodel. Stop Play, confirm by reading
+  `.Source`, then Play. Studio has entered Play on its own; re-check state.
+- `load`/`loadstring` are not available in this Edit datamodel.
+- `VirtualInputManager` is not available to probes (no RobloxScript capability).
+- Requiring `Notifications` from a probe rebuilds its stack inside the live
+  ScreenGui (two `Toasts` frames). Harmless, gone on stop, not a bug.
+- If walk speed changes again it lives in three places: `Stats.luau:57`,
+  `Economy.luau` `move_speed`, `WorkshopPanel.luau:42`.
 
 ---
 
 ## Still open
 
-**Playtest feedback, from the user's friends. Their "pets" means the game's creatures.**
-
-| # | Item | State |
+| # | Playtest item | State |
 |---|---|---|
-| 1 | Travel to worlds via plane/portals | Parked by the user — "later" |
+| 1 | Travel via plane/portals | Parked by the user |
 | 2 | UI declutter / revamp | **Not investigated.** Needs its own pass |
-| 3 | More movement speed at the start | **Done** this session |
-| 4 | Change creatures at the pad, not just in UI | Open. Same insight as 5: attention is on the pads |
-| 5 | Plot rework so creatures stand out | Parked by the user — "maybe" |
-| 6 | "Catching is buggy af" | **Open, vague, do not guess** — see below |
-| 7 | Can't open a new area | **Done** this session |
-| 8 | Notification keeps popping up, can't close | **Done** this session |
+| 3 | More movement speed | Done (`4e50529`) |
+| 4 | Change creatures at the pad | **Done** (this session) |
+| 5 | Plot rework so creatures stand out | Parked by the user ("maybe") |
+| 6 | "Catching is buggy af" | **Open, vague, do not guess.** Three candidates below |
+| 7 | Can't open a new area | Done (`d8634e7`) |
+| 8 | Notification loop, can't close | Done (`d8634e7`) |
 
-### Item 6 — three candidates, none confirmed (`src/shared/Config/Capture.luau`)
+### Item 6 candidates (`src/shared/Config/Capture.luau`)
 
-1. `knockback` 38 against `tetherRange` 18 — a hit throws you outside your own
-   tether, so you eat a 2s penalty for the hit and 2s again for the break.
-   See `CaptureService.luau` lines 374-413. A prior read described the knockback as
-   *cosmetic and client-applied*, which would weaken this one — check before acting.
-2. `claimRange` 22 against `tetherRange` 18 — a 4-stud band where the claim succeeds
-   but the tether immediately reads out of range.
-3. `targetPlayerFirstPatch` true — Heat and Storm spawn a patch under your feet on a
-   1.4s and 1.1s telegraph. At walk speed 24 rather than 16 this is now *easier* than
-   when the complaint was made, so re-test before changing anything.
+1. `knockback` 38 vs `tetherRange` 18 — but the knockback is **client-side cosmetic**
+   (`Capture.luau:4`, `:33`), so the server's range check may not see it. Check first.
+2. `claimRange` 22 vs `tetherRange` 18 — a 4-stud band where the claim succeeds but
+   the tether reads out of range immediately.
+3. Heat/Storm first patch under your feet on a 1.4 s / 1.1 s telegraph.
 
-**Ask the user what they actually saw, or watch a capture attempt.** Guessing here
-changes game feel for everyone. `superpowers:systematic-debugging` is the right tool.
+One more observation from this session's probes, relevant to how it *feels*: standing
+next to a Wind creature without moving, every gust connects, and a Common that should
+take 8 s stretched past 20 s. A player who does not move sideways will read that as
+"buggy". Worth asking the testers whether they were moving.
 
-### Balance defects found by reading the numbers (no code changed)
+### Balance defects (numbers only, nothing changed)
 
-1. **The relaunch curve is broken.** Cost is 100,000 times 3^R, exponential, against
-   income of 1 plus 0.25R, which is **additive**. Relaunch 0 to 1 costs 100K; 8 to 9
-   costs 656M, so 6,561 times the cost for 3 times the power. Pads do not compensate:
-   `Stats.luau:52` caps at 24 and `habitat_capacity` maxLevel 18 means R=0 already
-   reaches the cap, so relaunch pads are a head start, not permanent power. It is also
-   inverted early: relaunch 1 costs 300K while unlocking all six regions costs 1.39M,
-   so the optimal early play is to relaunch immediately and skip the content.
-   *Suggested:* `costGrowth` 3 to about 1.7, income multiplier to a multiplicative
-   1.25^R, and pre-unlock regions at higher R.
-2. **The Crisis reward is capped at 150,000** in `Config/Events.luau` while quests use
-   the same coins-per-second times seconds formula capped at 2e9 to 5e9. Past roughly
-   1,250 coins per second the marquee co-op event pays less than a daily quest,
-   permanently. Raising the reward maximum fixes it.
-3. **Relaunch destroys the collection** — 1 to 3 anchors kept out of up to 120
-   creatures, ten times over. This fights the Atlas and Prismatic mastery fantasy.
-   A design call for the user, not a bug.
-
-Worth preserving, do not refactor away: variants are skill-earned with no hidden
-rolls; hazards are fully server-authoritative; the Crisis scales down to solo play.
+Relaunch cost is `100,000 x 3^R` against additive `1 + 0.25R` income (8->9 costs 6,561x
+for 3x power; relaunch 1 is cheaper than unlocking the regions). Crisis reward capped at
+150K while quests scale to 2e9+. Relaunch keeps 1–3 anchors of up to 120 creatures.
+Design calls for the user; suggestions are in the git log for `9df1870`.
 
 ### Deferred by the user
 
-The build pill is gated on Studio or the test adapter, so live players never see it,
-and there is no source-revision stamp — it cannot yet answer "are my latest changes
-published?". The user said to handle live visibility after the P0 fixes. That is now.
+Live build visibility: the HUD pill is Studio/test-adapter only and there is no
+source-revision stamp. Now unblocked.
 
 ---
 
 ## Suggested next task
 
-1. **Feedback item 6.** Ask the user what "buggy af" looked like before touching
-   capture feel. Three candidates are listed above and none is confirmed.
-2. **Live build visibility** — the deferred item above, now unblocked.
-3. **Feedback item 2, UI declutter** — needs its own investigation pass.
-4. **The relaunch curve** — the largest balance defect, and a design decision the
-   user owns rather than one to make for them.
+1. **Item 6** — get the testers' description (the checklist artifact asks for it).
+2. **Live build stamp** — deferred, now unblocked, small.
+3. **Item 2, UI declutter** — a progression-gated sidebar is the obvious first cut.
+4. **The relaunch curve** — the largest balance defect; the user's decision.
 
 ## House rules
 
-- Stop Play before editing. Rojo only syncs into the **Edit** datamodel, so a Play
-  session that started before your edits is running stale code. Stop, let Rojo push,
-  confirm by reading the script `Source`, then Play. This bit this session.
-- Studio has been observed entering Play on its own. Re-check `get_studio_state`
-  rather than trusting an earlier result.
-- `load` and `loadstring` are **not** available in this Edit datamodel. The Munch It!
-  `CLAUDE.md` claims they work; that note is about a different Studio setup.
-- Read `docs/CONTRACTS.md` and the specs under `docs/superpowers/` before changing
-  an interface.
-- Verify by running, not by reading. This repo's specific failure mode is marking
-  work done without a Play run — that is exactly how the HUD crash shipped.
+Stop Play before editing. Verify by running, not by reading — that is how the HUD
+crash shipped. Read `docs/CONTRACTS.md` before changing an interface; both new
+modules are documented there.
