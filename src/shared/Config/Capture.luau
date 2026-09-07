@@ -35,8 +35,9 @@ Capture.tick = 0.1 -- server capture tick
 Capture.captureSecondsCap = 16
 -- Client-side impulse on a hit. A shove, not an eject: at 38 it threw the player
 -- clean out of the 18-stud tether, so every hit also cost a break a second later;
--- at 16 the playtest said the wall "barely moves me". 28 is a hop of a few studs.
-Capture.knockback = 28
+-- at 16 the playtest said the wall "barely moves me"; 28 was a hop, and the user
+-- asked for a little more (not much: Gusty Gardens is the lowest tier). 32.
+Capture.knockback = 32
 Capture.hitStun = 0.6 -- seconds the tether cannot re-engage after a hit
 Capture.ringHeight = 0.8 -- feet above this height clear the low splash band
 Capture.wallHeight = 3 -- feet above this clear a sweeping wall (Gust, Ice Wave); the client draws the wall this tall

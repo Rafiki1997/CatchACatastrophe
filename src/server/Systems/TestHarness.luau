@@ -283,7 +283,7 @@ local function testCaptureBalance()
 		local interval = info.attackInterval / info.hazardSpeed
 		check(rarity .. " hit penalty is below its attack interval (net progress even when hit every time)", Config.Capture.hitPenalty < interval, tostring(Config.Capture.hitPenalty) .. " vs " .. tostring(interval))
 	end
-	check("knockback is a shove, not an eject (38 threw players out of tether range)", Config.Capture.knockback <= 30, tostring(Config.Capture.knockback))
+	check("knockback is a shove, not an eject (38 threw players out of tether range)", Config.Capture.knockback <= 34, tostring(Config.Capture.knockback))
 	check("a sweeping wall is lower than a jump", Config.Capture.wallHeight < 7, tostring(Config.Capture.wallHeight))
 	-- a roaming leg continues from where the previous one ended, never from the spawn pivot
 	local Encounters = require(script.Parent.EncounterService)
