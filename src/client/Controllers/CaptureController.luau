@@ -707,7 +707,13 @@ function CaptureController.init()
 		if character and character:FindFirstChild(TETHER_TOOL) then
 			return
 		end
-		local under = wildAtScreenPoint(input.Position.X, input.Position.Y)
+		-- InputObject.Position is screen space (GUI inset removed); the picker works
+		-- in viewport space (WorldToViewportPoint / ViewportPointToRay). Read the
+		-- mouse in viewport space so both agree. The gap is the topbar height,
+		-- which the click radius absorbed up close and not when zoomed out
+		-- (measured in Studio: 58 px with the current topbar).
+		local mouse = UserInputService:GetMouseLocation()
+		local under = wildAtScreenPoint(mouse.X, mouse.Y)
 		if under then
 			setTarget(under)
 			toggleCapture()
