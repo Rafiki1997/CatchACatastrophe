@@ -30,7 +30,7 @@ Quests.tutorial = {
 	{ step = 1, title = "Head to Gusty Gardens", body = "Follow the arrow to the green gate. Wild creatures roam past it.", target = "region:gusty_gardens", info = false },
 	{ step = 2, title = "Catch a Breeze Bean", body = "Get close, press Capture and stay within range while you dodge the gust. Fill the ring to catch it.", target = "species:breeze_bean", info = false },
 	{ step = 3, title = "Put it to work", body = "Back in your city, open Creatures and deploy the Breeze Bean on a work pad. Its windmill will start turning.", target = "plot:pad1", info = false },
-	{ step = 4, title = "Collect your Coins", body = "Step on the Collection Pad in your city to move your bank into your wallet.", target = "plot:collect", info = false },
+	{ step = 4, title = "Collect your Coins", body = "Stand on the Collection Pad in your city for one second to move your bank into your wallet.", target = "plot:collect", info = false },
 	{ step = 5, title = "Buy an upgrade", body = "Visit the Upgrade Workshop in the hub and buy any upgrade. Tether Speed is a good start.", target = "hub:workshop", info = false },
 	{ step = 6, title = "Unlock Splashwater Bay", body = "Save up 2,500 Coins and open the blue gate. New creatures mean new circuits later.", target = "region:splashwater_bay", info = false },
 	{ step = 7, title = "Learn about Disaster Circuits", body = "Open the Recipe Book. Two matching creatures on side-by-side pads make a circuit and earn extra. Water + Heat is the first one you can build.", target = "none", info = true },

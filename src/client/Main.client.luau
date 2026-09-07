@@ -47,6 +47,7 @@ local CaptureReveal = safeRequire(UI.CaptureReveal)
 local TutorialUI = safeRequire(UI.TutorialUI)
 local CircuitEditorUI = safeRequire(UI.CircuitEditorUI)
 local CreaturePicker = safeRequire(UI.CreaturePicker)
+local CollectionPadUI = safeRequire(UI.CollectionPadUI)
 
 local panelModules: { any } = {}
 local panelByName: { [string]: any } = {}
@@ -67,6 +68,8 @@ local RegionGates = safeRequire(Controllers.RegionGates)
 local CaptureController = safeRequire(Controllers.CaptureController)
 local CircuitEditor = safeRequire(Controllers.CircuitEditor)
 local PadPrompts = safeRequire(Controllers.PadPrompts)
+local RouteLights = safeRequire(Controllers.RouteLights)
+local Waypoints = safeRequire(Controllers.Waypoints)
 
 -- init order: notifications first so anything else can complain out loud
 safeCall("Notifications.init", Notifications and Notifications.init)
@@ -81,8 +84,11 @@ safeCall("CaptureReveal.init", CaptureReveal and CaptureReveal.init)
 safeCall("TutorialUI.init", TutorialUI and TutorialUI.init)
 safeCall("CircuitEditorUI.init", CircuitEditorUI and CircuitEditorUI.init)
 safeCall("CreaturePicker.init", CreaturePicker and CreaturePicker.init)
+safeCall("CollectionPadUI.init", CollectionPadUI and CollectionPadUI.init)
 safeCall("Effects.init", Effects and Effects.init)
 safeCall("WorldAnimator.init", WorldAnimator and WorldAnimator.init)
+safeCall("RouteLights.init", RouteLights and RouteLights.init)
+safeCall("Waypoints.init", Waypoints and Waypoints.init)
 safeCall("CaptureController.init", CaptureController and CaptureController.init)
 safeCall("CircuitEditor.init", CircuitEditor and CircuitEditor.init)
 if RegionGates and RegionGates.init then
