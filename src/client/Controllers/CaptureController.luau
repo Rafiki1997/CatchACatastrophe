@@ -33,6 +33,8 @@ local function camera(): Camera
 end
 
 local TARGET_RANGE = 34
+-- smallest click target for a creature on screen, in pixels
+local MIN_CLICK_RADIUS_PX = 24
 local TETHER_TOOL = "Containment Tether"
 local LABEL_RANGE = 90
 
@@ -207,7 +209,9 @@ local function wildAtScreenPoint(x: number, y: number): Model?
 	local params = RaycastParams.new()
 	params.FilterType = Enum.RaycastFilterType.Exclude
 	params.FilterDescendantsInstances = { player.Character :: any, fx() }
-	local result = workspace:Raycast(ray.Origin, ray.Direction * 300, params)
+	-- long enough for any camera distance the zoom cap allows (60) plus the
+	-- target range, with room to spare
+	local result = workspace:Raycast(ray.Origin, ray.Direction * 1000, params)
 	if result then
 		local inst: Instance? = result.Instance
 		while inst and inst ~= workspace do
@@ -240,7 +244,9 @@ local function wildAtScreenPoint(x: number, y: number): Model?
 		-- pixels per stud at this depth; the body is roughly a sphere of height/2,
 		-- plus a hand's width of slack so a child does not have to be pixel-perfect
 		local pxPerStud = (viewport.Y / 2) / (screen.Z * math.tan(halfFov))
-		local radiusPx = (height / 2 + 0.75) * pxPerStud
+		-- never smaller than a fingertip: zoomed out, a small creature is a few
+		-- pixels wide and the click missed (playtest: cannot click when zoomed out)
+		local radiusPx = math.max((height / 2 + 0.75) * pxPerStud, MIN_CLICK_RADIUS_PX)
 		local dx, dy = screen.X - x, screen.Y - y
 		if dx * dx + dy * dy <= radiusPx * radiusPx and screen.Z < bestDepth then
 			best = model
