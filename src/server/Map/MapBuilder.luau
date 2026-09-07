@@ -788,7 +788,34 @@ local function buildRegion(parent: Instance, def: any)
 
 	-- a route edged in the region's own colour, so the way to Frostbite Peaks
 	-- looks different from the way to Cinder Canyon long before you can read the sign
-	path(model, polar(74, angle), gatePos, 9, def.color)
+	-- Six region roads at 60-degree spacing cannot all pass between eight cities
+	-- at 45-degree spacing: the roads at 30/150/210/330 ran over a city corner
+	-- (18 studs off the city centre line at radius 140, inside the 30-stud half
+	-- width). Those four dog-leg (option A): out through the nearest gap between
+	-- two cities, a short connector behind the city ring, then straight into the
+	-- gate. The roads at 90 and 270 already run through a gap and stay straight.
+	local gap = math.round(angle / 45) * 45
+	if angle % 360 == 270 then
+		-- the crisis arena sits on the 270 line between the plaza and this gate,
+		-- so the road through the 270 gap ran straight across the arena floor
+		gap = 315
+	end
+	if math.abs(gap - angle) < 1 then
+		path(model, polar(74, angle), gatePos, 9, def.color)
+	else
+		-- behind the platforms: back edge 170, back corner 172.6. The connector is
+		-- chords of at most 15 degrees, whose midpoints dip 1.6 studs inside the
+		-- radius, so a long swing (Frostbite, 45 degrees) reads as a curve and
+		-- still clears the corners.
+		local behind = 186
+		path(model, polar(74, gap), polar(behind, gap), 9, def.color)
+		local swing = angle - gap
+		local steps = math.max(1, math.ceil(math.abs(swing) / 15))
+		for i = 1, steps do
+			path(model, polar(behind, gap + swing * (i - 1) / steps), polar(behind, gap + swing * i / steps), 9, def.color)
+		end
+		path(model, polar(behind, angle), gatePos, 9, def.color)
+	end
 	-- Past the gate the route is a stub, not a runway to the middle: the wild
 	-- ground stays open for creatures to roam and hazards to play out on. The
 	-- ground disc (radius 75 about the centre at 280) begins at 205.

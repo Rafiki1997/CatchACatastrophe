@@ -719,6 +719,55 @@ function Harness.runLive(profile: any)
 			end
 		end
 		check("no road ends inside a plot platform", insidePlot == 0, tostring(insidePlot))
+		-- and no road runs across one: sample the centre line every 3 studs
+		local crossing = 0
+		for _, plotModel in (if plots then plots:GetChildren() else {}) do
+			for _, partName in { "Platform", "Apron" } do
+				local slab = plotModel:FindFirstChild(partName)
+				if slab and slab:IsA("BasePart") then
+					for _, r in roads do
+						local half = r.CFrame.LookVector * (r.Size.Z / 2)
+						local a, b = r.Position - half, r.Position + half
+						local steps = math.max(1, math.floor(r.Size.Z / 3))
+						local hit = false
+						for i = 0, steps do
+							local l = slab.CFrame:PointToObjectSpace(a:Lerp(b, i / steps))
+							if math.abs(l.X) < slab.Size.X / 2 and math.abs(l.Z) < slab.Size.Z / 2 then
+								hit = true
+							end
+						end
+						if hit then
+							crossing += 1
+						end
+					end
+				end
+			end
+		end
+		check("no road crosses a plot platform or apron", crossing == 0, tostring(crossing))
+		-- nor the crisis arena floor (a disc: radial test, not its square bounds)
+		local arenaModel = workspace:FindFirstChild("Arena")
+		local floor = arenaModel and arenaModel:FindFirstChild("Floor")
+		local acrossArena = 0
+		if floor and floor:IsA("BasePart") then
+			local radius = floor.Size.X / 2
+			for _, r in roads do
+				local half = r.CFrame.LookVector * (r.Size.Z / 2)
+				local a, b = r.Position - half, r.Position + half
+				local steps = math.max(1, math.floor(r.Size.Z / 3))
+				local hit = false
+				for i = 0, steps do
+					local q = a:Lerp(b, i / steps)
+					local dx, dz = q.X - floor.Position.X, q.Z - floor.Position.Z
+					if math.sqrt(dx * dx + dz * dz) < radius - 0.5 then
+						hit = true
+					end
+				end
+				if hit then
+					acrossArena += 1
+				end
+			end
+		end
+		check("no road crosses the arena floor disc", acrossArena == 0, tostring(acrossArena) .. " (floor r=" .. tostring(floor and floor.Size.X / 2) .. ")")
 		local arena = workspace:FindFirstChild("Arena")
 		local arenaRoads = 0
 		if arena then
