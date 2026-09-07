@@ -10,6 +10,7 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local CollectionService = game:GetService("CollectionService")
+local GuiService = game:GetService("GuiService")
 local Debris = game:GetService("Debris")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -187,27 +188,68 @@ end
 
 -- ---------------------------------------------------------------- targeting
 
-local function candidateUnderMouse(): Model?
-	if Input.isTouch() or Input.isGamepad() then
-		return nil
-	end
-	local mouse = UserInputService:GetMouseLocation()
-	local ray = camera:ViewportPointToRay(mouse.X, mouse.Y)
+-- Creature bodies are built with CanQuery = false (ModelKit), so the camera
+-- and every other ray pass through them; only the invisible 1-stud Root can be
+-- hit. A ray therefore almost never lands on the creature a player is looking
+-- at. So "pointing at a creature" is judged on screen: the wild model whose
+-- projected body contains the point, nearest to the camera when they overlap.
+-- The Root raycast still wins when it does land.
+local function wildAtScreenPoint(x: number, y: number): Model?
+	local ray = camera:ViewportPointToRay(x, y)
 	local params = RaycastParams.new()
 	params.FilterType = Enum.RaycastFilterType.Exclude
 	params.FilterDescendantsInstances = { player.Character :: any, fx() }
 	local result = workspace:Raycast(ray.Origin, ray.Direction * 300, params)
-	if not result then
+	if result then
+		local inst: Instance? = result.Instance
+		while inst and inst ~= workspace do
+			if inst:IsA("Model") and CollectionService:HasTag(inst, "Wild") then
+				return inst
+			end
+			inst = inst.Parent
+		end
+	end
+
+	local hrp = rootPart()
+	local viewport = camera.ViewportSize
+	local halfFov = math.rad(camera.FieldOfView / 2)
+	local best: Model? = nil
+	local bestDepth = math.huge
+	for _, model in CollectionService:GetTagged("Wild") do
+		if not model:IsA("Model") then
+			continue
+		end
+		local pivot = model:GetPivot().Position
+		if hrp and (pivot - hrp.Position).Magnitude > TARGET_RANGE then
+			continue
+		end
+		local height = (model:GetAttribute("Height") :: number?) or 3
+		local centre = pivot + Vector3.new(0, height / 2, 0)
+		local screen, onScreen = camera:WorldToViewportPoint(centre)
+		if not onScreen or screen.Z <= 0 then
+			continue
+		end
+		-- pixels per stud at this depth; the body is roughly a sphere of height/2,
+		-- plus a hand's width of slack so a child does not have to be pixel-perfect
+		local pxPerStud = (viewport.Y / 2) / (screen.Z * math.tan(halfFov))
+		local radiusPx = (height / 2 + 0.75) * pxPerStud
+		local dx, dy = screen.X - x, screen.Y - y
+		if dx * dx + dy * dy <= radiusPx * radiusPx and screen.Z < bestDepth then
+			best = model
+			bestDepth = screen.Z
+		end
+	end
+	return best
+end
+
+local function candidateUnderMouse(): Model?
+	if Input.isTouch() or Input.isGamepad() then
 		return nil
 	end
-	local inst: Instance? = result.Instance
-	while inst and inst ~= workspace do
-		if inst:IsA("Model") and CollectionService:HasTag(inst, "Wild") then
-			return inst
-		end
-		inst = inst.Parent
-	end
-	return nil
+	-- GetMouseLocation includes the top-bar inset; viewport maths does not
+	local mouse = UserInputService:GetMouseLocation()
+	local inset = GuiService:GetGuiInset()
+	return wildAtScreenPoint(mouse.X - inset.X, mouse.Y - inset.Y)
 end
 
 local function nearestWild(): Model?
@@ -660,7 +702,7 @@ function CaptureController.init()
 		if character and character:FindFirstChild(TETHER_TOOL) then
 			return
 		end
-		local under = candidateUnderMouse()
+		local under = wildAtScreenPoint(input.Position.X, input.Position.Y)
 		if under then
 			setTarget(under)
 			toggleCapture()
