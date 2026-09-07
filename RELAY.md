@@ -21,6 +21,8 @@
 
 | Commit | What |
 |---|---|
+| `01d28de` | **Atlas** 880x600, cards 200x224: tabs and descriptions no longer truncate. |
+| `53a8e71` | CAUGHT card: **Store** instead of Nice, with a tooltip. |
 | `40e20b9` | **Variant tooltips**: `Variants.describe`; Creatures panel badge, pad picker badge and CAUGHT card explain Overcharged / Prismatic on hover. |
 | `c174b63` | **Forecast row wraps** (was a 300 px strip: only 3 of 6 regions showed); chips have hover text explaining SURGE and the Legendary countdown. |
 | `675f4d2` | Wheel fallback on `W.scroll`/`W.scrollGrid` (acts only when nothing consumed the wheel). User report: Workshop list scrolls by bar, not wheel; not reproduced with injected wheel (300 px native). Awaiting re-test. |
@@ -116,6 +118,7 @@ button it named is hidden when a keyboard exists; there was no mouse binding for
 
 ## Traps for probes (execute_luau)
 
+- **Never move the user's character.** A probe that stood him on the collection pad for a second (to fund a test) was reported as "randomly got teleported back to my city" mid-capture. Fund tests through remotes (UnlockRegion, BuyUpgrade) only when the wallet already allows it, or ask him.
 - **Which build is running?** Read the HUD pill (`BuildPill`) or the boot line `[Catch a Catastrophe!] Build <hash>`; a `*` means uncommitted changes were stamped in. Run `python tools/stamp.py` after editing and before syncing, or the pill lies.
 - **Coordinate spaces.** `InputObject.Position` and `user_mouse_input` are screen space (GUI inset removed). `UserInputService:GetMouseLocation()`, `WorldToViewportPoint` and `ViewportPointToRay` are viewport space. They differ by `GuiService:GetGuiInset()` = 58 px with the current topbar. Never compare across the two without converting.
 - **CameraGuard** resets a Scriptable or re-subjected camera within a second. Before a positioned `screen_capture` or a scripted frame, `workspace.CurrentCamera:SetAttribute("ScriptedCamera", true)`; clear it after. And do not do it in the user's session at all between sets.
