@@ -21,6 +21,7 @@
 
 | Commit | What |
 |---|---|
+| `8a5543f` | **Region roads dog-leg (option A)**: 30/150/210/330 through the 45-degree gaps, Frostbite (270) via the 315 gap around the arena, connectors at r=186 in 15-degree chords. Live checks: no road crosses a city platform/apron or the arena disc. 36 roads, LiveTest 31. |
 | `9d5b301` | Studio-only click diagnostics removed (user confirmed the click works). |
 | `bbd662e` | **Tutorial guide follows the roads**: chain of beams over the road graph (Path parts + plaza links), straight for short hops/detours. |
 | `9f70cfb` | **CameraGuard**: a camera left Scriptable/detached is handed back to the Humanoid within 1 s. Probes: set Camera attribute `ScriptedCamera=true` while framing, clear after. |
@@ -165,12 +166,11 @@ seconds. Re-test with the friends first.
 - **Remote Collector** Workshop upgrade: paid convenience that restores collecting from anywhere.
 - **Portals** (fast travel between hub, gates and your city, gated to unlocked regions). User: future idea.
 - Widen the animator's 220-stud camera cull if far creatures snapping into place still reads as teleporting.
-- **Region roads clip four plot corners** (angles 30/150/210/330 vs plots at 22.5+45k, radius 140). Needs a dog-leg through the gap between plots, or a different plot ring.
 
 ## Next set from the user (2026-09-07 evening, not started)
 
 1. Zoomed out past a point, clicking a creature does nothing (see the click paragraph above).
-2. Region roads still cross the plot corners (Orbital Outpost named). Decision pending: dog-leg through the 45-degree gaps vs. move the plot ring.
+2. Region roads: **option A built** (`8a5543f`), user likes it. Option B (move the city ring) does not exist geometrically with eight 60-stud cities at r=140: eight cities and six roads always leave a 7.5-degree offset somewhere and a straight road needs about 18 degrees of clearance there. Feasible B variants: six cities per server (one per road sector), or cities under 27 studs. Awaiting the user.
 3. Pad toast: **done** (`418a649`), awaiting validation.
 4. More knockback in Gusty Gardens: **done at 28** (`5e54b2b`), awaiting validation.
 5. Cap how far the player can zoom out (`Player.CameraMaxZoomDistance`).
