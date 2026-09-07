@@ -16,6 +16,10 @@ export type UpgradeDef = {
 local Economy = {}
 
 Economy.startingCoins = 150
+-- Seconds a player stands on their Collection Pad before the bank moves to the
+-- wallet. 0 = the moment you step on (it pays on the next server tick). Read by
+-- CollectionPadService and CollectionPadUI so the server and the indicator agree.
+Economy.collectHoldSeconds = 0
 Economy.maxCoins = 1e15
 
 Economy.income = {

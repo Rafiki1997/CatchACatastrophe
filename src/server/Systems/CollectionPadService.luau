@@ -1,12 +1,14 @@
 --!strict
 -- The server owns both occupancy and payout timing. Client attributes are display only.
 local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Config = require(ReplicatedStorage.Shared.Config)
 local Profiles = require(script.Parent.Profiles)
 local S = require(script.Parent.Services)
 local Sync = require(script.Parent.Sync)
 
 local CollectionPad = {}
-local DURATION = 1
+local DURATION = Config.Economy.collectHoldSeconds
 local cycles: { [Player]: { since: number, pad: BasePart, character: Model } } = {}
 
 -- Pure timer rule, also exercised by the self-test suite.

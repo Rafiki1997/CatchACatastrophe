@@ -32,7 +32,7 @@ Without it the game runs and says so, but never saves.
 1. Spawn in the hub with 150 Coins, a city plot on the ring, and six work pads.
 2. Follow the tutorial beam to **Gusty Gardens** and tether a **Breeze Bean**.
 3. Deploy it on a work pad. Its windmill starts turning and Coins start filling your bank.
-4. Stand on your **Collection Pad** for one second to bank them, then buy an upgrade at the **Upgrade Workshop**. The pad shows collection progress and the confirmed payout; stepping off cancels the timer.
+4. Step on your **Collection Pad** to bank them, then buy an upgrade at the **Upgrade Workshop**. The pad shows your bank and confirms each payout.
 5. Unlock more regions, catch rarer creatures, and connect adjacent compatible pairs into circuits.
 6. Chase perfect captures and Prismatic mastery, finish the Atlas, then **relaunch** the city.
 

@@ -3,6 +3,7 @@
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Config = require(ReplicatedStorage.Shared.Config)
 local Format = require(ReplicatedStorage.Shared.Util.Format)
 local State = require(script.Parent.Parent.State)
 local W = require(script.Parent.Widgets)
@@ -10,7 +11,7 @@ local Theme = require(script.Parent.Theme)
 
 local M = {}
 local built = false
-local DURATION = 1 -- CollectionPadService's confirmed collection cycle
+local DURATION = Config.Economy.collectHoldSeconds -- the same number CollectionPadService uses
 
 function M.init()
 	if built then return end
@@ -87,10 +88,11 @@ function M.init()
 			status.Text = "Stand here to collect"
 		end
 		if phase == "Collecting" and typeof(since) == "number" then
-			local fraction = math.clamp((now - since) / DURATION, 0, 1)
-			progress.set(fraction, if fraction >= 1 then "Finishing..." else "Collecting...")
+			local fraction = if DURATION > 0 then math.clamp((now - since) / DURATION, 0, 1) else 1
+			progress.set(fraction, if fraction >= 1 then "Collecting..." else "Stay on the pad")
 		else
-			progress.set(if paid then 1 else 0, if paid then "Collected!" else "Stand for 1 second")
+			local idle = if DURATION > 0 then "Stand for " .. tostring(DURATION) .. "s" else "Step on to collect"
+			progress.set(if paid then 1 else 0, if paid then "Collected!" else idle)
 		end
 	end)
 end
