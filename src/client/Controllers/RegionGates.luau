@@ -9,6 +9,7 @@ local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ProximityPromptService = game:GetService("ProximityPromptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
 
 local Config = require(ReplicatedStorage.Shared.Config)
 local Format = require(ReplicatedStorage.Shared.Util.Format)
@@ -27,6 +28,8 @@ local forecast: { [string]: { nextLegendaryAt: number, surgeUntil: number } } = 
 local lastNudge = 0
 local widgets: any = nil
 local confirmGui: ScreenGui? = nil
+local LOCKED_TRANSPARENCY = 0.45
+local wasOpen: { [BasePart]: boolean } = {}
 
 local function signOf(gate: BasePart): { title: TextLabel?, cost: TextLabel?, forecast: TextLabel? }?
 	local region = gate.Parent
@@ -45,9 +48,23 @@ local function signOf(gate: BasePart): { title: TextLabel?, cost: TextLabel?, fo
 	}
 end
 
+-- An open gate is gone, not dimmed: the pane fades out the moment the region
+-- unlocks and stays invisible, leaving the posts and lintel as an archway.
+-- Walking through a faint glowing wall read as "still blocked".
 local function applyGate(gate: BasePart, unlocked: boolean)
 	gate.CanCollide = not unlocked
-	gate.Transparency = if unlocked then 0.8 else 0.45
+	local before = wasOpen[gate]
+	wasOpen[gate] = unlocked
+	if unlocked then
+		if before == false then
+			-- this player just opened it: let them watch it dissolve
+			TweenService:Create(gate, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Transparency = 1 }):Play()
+		else
+			gate.Transparency = 1
+		end
+	else
+		gate.Transparency = LOCKED_TRANSPARENCY
+	end
 	local prompt = gate:FindFirstChild(PROMPT)
 	if prompt and prompt:IsA("ProximityPrompt") then
 		prompt.Enabled = not unlocked
