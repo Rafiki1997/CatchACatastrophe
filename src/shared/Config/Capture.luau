@@ -49,7 +49,7 @@ Capture.wallHeight = 3 -- feet above this clear a sweeping wall (Gust, Ice Wave)
 --   extraCount  more patches / bolts for circle hazards (Heat, Storm)
 --   penalty     seconds of progress lost per hit (row 1 equals Capture.hitPenalty)
 --   knockback   client shove per hit (row 1 equals Capture.knockback)
-export type Tuning = { warning: number, size: number, extraCount: number, penalty: number, knockback: number }
+export type Tuning = { warning: number, size: number, extraCount: number, penalty: number, knockback: number, range: number }
 
 Capture.zoneTuning = {
 	{ warning = 1.00, extraCount = 0, penalty = 1.00, knockback = 32 },
@@ -63,16 +63,24 @@ Capture.zoneTuning = {
 -- gust wall is 45% longer and wider) and warnings shorten a further 10%.
 Capture.raritySizePerRank = 0.15
 Capture.rarityWarningPerRank = 0.10
+-- Per rarity rank (Common .. Legendary), approved 2026-09-07 for Gusty Gardens and
+-- inherited by every zone: the capture circle shrinks and the shove grows, so a hit
+-- at the edge of a Legendary circle throws you out and you have the grace second to
+-- get back. Common is untouched. Upgraded range scales proportionally.
+Capture.rarityRangeMult = { 1.0, 0.9, 0.8, 0.7 }
+Capture.rarityKnockbackMult = { 1.0, 1.1, 1.2, 1.35 }
 
 function Capture.tuning(regionIndex: number, rarityRank: number): Tuning
 	local zone = Capture.zoneTuning[math.clamp(regionIndex, 1, #Capture.zoneTuning)]
 	local above = math.max(0, rarityRank - 1)
+	local rank = math.clamp(rarityRank, 1, #Capture.rarityRangeMult)
 	return {
 		warning = zone.warning * (1 - Capture.rarityWarningPerRank * above),
 		size = 1 + Capture.raritySizePerRank * above,
 		extraCount = zone.extraCount,
 		penalty = zone.penalty,
-		knockback = zone.knockback,
+		knockback = zone.knockback * Capture.rarityKnockbackMult[rank],
+		range = Capture.rarityRangeMult[rank],
 	}
 end
 

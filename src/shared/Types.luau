@@ -159,6 +159,7 @@ export type CaptureState = {
 	expiresAt: number, -- server time
 	hits: number,
 	surge: boolean, -- region surge active (Overcharged possible)
+	range: number?, -- capture circle radius for this encounter (upgraded range x rarity multiplier)
 }
 
 export type HazardEvent = {

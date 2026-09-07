@@ -79,7 +79,7 @@ end
 
 -- `tuning` (Config.Capture.tuning) shortens the warning, enlarges the hazard and
 -- adds patches by zone and rarity; the boss arena passes none and keeps its own scale.
-type Tuning = { warning: number, size: number, extraCount: number, penalty: number, knockback: number }
+type Tuning = { warning: number, size: number, extraCount: number, penalty: number, knockback: number, range: number }
 
 function CaptureService.buildHazard(def: any, origin: Vector3, targetPos: Vector3, now: number, speed: number, boss: boolean?, tuning: Tuning?): HazardEvent
 	hazardSeq += 1
@@ -205,6 +205,7 @@ local function sendState(profile: Profile, status: string)
 		expiresAt = cap.encounter.expiresAt,
 		hits = cap.hits,
 		surge = cap.surge,
+		range = cap.range,
 	}
 	Notify.captureState(profile.player, state)
 end
@@ -249,6 +250,8 @@ function CaptureService.start(profile: Profile, encounterUid: any): (boolean, st
 		surge = S.Encounters.isSurge(encounter.regionId),
 		tuning = C.tuning(regionIndexOf(encounter.regionId), Config.Rarities.rank(encounter.rarity)),
 	}
+	-- the capture circle for this encounter: upgraded range x rarity multiplier
+	profile.capture.range = computed.tetherRange * profile.capture.tuning.range
 	profile.dirty = true
 	sendState(profile, "Tethering")
 	Notify.effectFor(profile.player, "capture", S.Encounters.positionOf(encounter))
@@ -376,7 +379,7 @@ local function tickCapture(profile: Profile, dt: number, now: number)
 	local computed = Stats.compute(profile)
 	local status = "Tethering"
 	local wasInRange = cap.inRange
-	cap.inRange = distance <= computed.tetherRange
+	cap.inRange = distance <= (cap.range or computed.tetherRange)
 
 	if cap.inRange then
 		cap.outOfRange = 0

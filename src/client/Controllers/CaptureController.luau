@@ -755,7 +755,8 @@ function CaptureController.init()
 			if model and hrp then
 				setTarget(model)
 				local snap = State.get()
-				local range = if snap then snap.derived.tetherRange else Config.Capture.tetherRange
+				-- the server sends the circle for this encounter (rarer creatures: smaller)
+				local range = captureState.range or (if snap then snap.derived.tetherRange else Config.Capture.tetherRange)
 				local ring = ensureRangeRing()
 				local pivot = model:GetPivot().Position
 				ring.Size = Vector3.new(0.2, range * 2, range * 2)
