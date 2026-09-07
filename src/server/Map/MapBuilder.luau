@@ -169,12 +169,15 @@ local function path(parent: Instance, from: Vector3, to: Vector3, width: number,
 		parent = parent,
 	})
 
-	-- edge lines in the destination's colour
+	-- edge lines in the destination's colour. Markings are sunk half into the
+	-- slab (centre on its top plane): a marking floated a few thousandths above
+	-- it shares a plane with the asphalt and shimmers from any distance.
+	local slabTop = 0.125 -- half the slab's 0.25 thickness, above `base`
 	for _, side in { -1, 1 } do
 		part({
 			name = "PathEdge",
 			size = Vector3.new(0.75, 0.12, length),
-			cf = base * CFrame.new(side * (width / 2 - 0.5), 0.2, 0),
+			cf = base * CFrame.new(side * (width / 2 - 0.5), slabTop, 0),
 			color = trim,
 			material = Enum.Material.SmoothPlastic,
 			parent = parent,
@@ -196,7 +199,7 @@ local function path(parent: Instance, from: Vector3, to: Vector3, width: number,
 				name = "PathChevron",
 				size = Vector3.new(2.1, 0.16, arm),
 				-- each half of the ">" is rotated in from the centre line
-				cf = base * CFrame.new(side * arm * 0.32, 0.21, along) * CFrame.Angles(0, side * math.rad(38), 0),
+				cf = base * CFrame.new(side * arm * 0.32, slabTop, along) * CFrame.Angles(0, side * math.rad(38), 0),
 				color = rgb(210, 125, 12),
 				material = Enum.Material.Neon,
 				parent = parent,
