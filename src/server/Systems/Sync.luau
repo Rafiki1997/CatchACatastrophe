@@ -15,6 +15,7 @@ local Types = require(ReplicatedStorage.Shared.Types)
 
 local Profiles = require(script.Parent.Profiles)
 local Stats = require(script.Parent.Stats)
+local BuildInfo = require(ReplicatedStorage.Shared.Util.BuildInfo)
 local S = require(script.Parent.Services)
 
 type Profile = Profiles.Profile
@@ -68,6 +69,7 @@ function Sync.build(profile: Profile): Snapshot
 	local computed = Stats.compute(profile)
 	local income = Stats.income(profile, now, computed)
 	local placeVersion = game.PlaceVersion
+	local build = BuildInfo.get()
 
 	-- creatures
 	local creatures: { [string]: Types.CreatureEntry } = {}
@@ -160,6 +162,10 @@ function Sync.build(profile: Profile): Snapshot
 		build = {
 			placeVersion = placeVersion,
 			environment = if RunService:IsStudio() then "Studio" else "Live",
+			hash = build.hash,
+			dirty = build.dirty,
+			commitTime = build.commitTime,
+			stampedAt = build.stampedAt,
 		},
 		stats = {
 			captures = d.stats.captures,

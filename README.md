@@ -199,6 +199,7 @@ Static checks also run without Studio:
 ```bash
 python tools/luau_lint.py src     # block, bracket and string balance
 python tools/quote_scan.py src    # unbalanced quotes
+python tools/stamp.py             # writes src/shared/Build.luau (gitignored): git hash + stamp time for the HUD build pill
 ```
 
 See `HANDOFF.md` for where to pick up.

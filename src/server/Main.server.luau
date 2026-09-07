@@ -87,6 +87,7 @@ require(Systems.CollectionPadService).init()
 PlayerService.init()
 
 print(("[%s] server ready in %d ms"):format(Config.GameName, math.floor((os.clock() - startedAt) * 1000)))
+print("[" .. Config.GameName .. "] " .. require(ReplicatedStorage.Shared.Util.BuildInfo).long())
 
 -- ---------------------------------------------------------------- live tests
 

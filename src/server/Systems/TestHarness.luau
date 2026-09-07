@@ -771,6 +771,9 @@ function Harness.runLive(profile: any)
 		check("no road crosses the arena floor disc", acrossArena == 0, tostring(acrossArena) .. " (floor r=" .. tostring(floor and floor.Size.X / 2) .. ")")
 		-- the zoom cap is what keeps creatures clickable; PlayerService sets it at join
 		check("camera zoom capped (Config.CameraMaxZoomDistance)", profile.player.CameraMaxZoomDistance <= Config.CameraMaxZoomDistance, tostring(profile.player.CameraMaxZoomDistance))
+		-- tools/stamp.py must have run (the post-commit hook does it); "unstamped" means nobody knows which code this is
+		local build = require(ReplicatedStorage.Shared.Util.BuildInfo).get()
+		check("build stamp present (run tools/stamp.py)", build.hash ~= "unstamped" and build.hash:match("^%x%x%x%x%x%x%x+$") ~= nil, build.hash)
 		local arena = workspace:FindFirstChild("Arena")
 		local arenaRoads = 0
 		if arena then

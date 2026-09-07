@@ -16,6 +16,7 @@ local W = require(script.Parent.Widgets)
 local Theme = require(script.Parent.Theme)
 local Net = require(script.Parent.Parent.Net)
 local State = require(script.Parent.Parent.State)
+local BuildInfo = require(ReplicatedStorage.Shared.Util.BuildInfo)
 
 local HUD = {}
 
@@ -429,7 +430,8 @@ function HUD.update(snap: Types.Snapshot)
 	if buildPill then
 		if RunService:IsStudio() or snap.testAdapter then
 			buildPill.Visible = true
-			buildPill.Text = ("Build %d | %s"):format(snap.build.placeVersion, snap.build.environment)
+			-- "a1b2c3d* 21:20 Studio": the code that is running, not the place version
+			buildPill.Text = ("%s  %s"):format(BuildInfo.short(snap.build), snap.build.environment)
 			buildPill.TextColor3 = if snap.build.environment == "Live" then Theme.colors.success else Theme.colors.warn
 		else
 			buildPill.Visible = false

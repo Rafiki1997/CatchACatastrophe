@@ -121,6 +121,10 @@ export type Snapshot = {
 	build: {
 		placeVersion: number,
 		environment: string, -- "Studio" | "Live"
+		hash: string, -- git short hash from tools/stamp.py, or "unstamped"
+		dirty: boolean, -- uncommitted changes were included when stamped
+		commitTime: string,
+		stampedAt: string,
 	},
 
 	stats: {

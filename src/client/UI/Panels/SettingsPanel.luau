@@ -11,6 +11,7 @@ local W = require(script.Parent.Parent.Widgets)
 local Theme = require(script.Parent.Parent.Theme)
 local Net = require(script.Parent.Parent.Parent.Net)
 local State = require(script.Parent.Parent.Parent.State)
+local BuildInfo = require(ReplicatedStorage.Shared.Util.BuildInfo)
 
 type Snapshot = Types.Snapshot
 
@@ -22,6 +23,7 @@ local panel: any
 local sliders: { [string]: any } = {}
 local toggles: { [string]: TextButton } = {}
 local dataLabel: TextLabel
+local buildLabel: TextLabel? = nil
 
 -- A slider Widgets does not provide: a track, a fill and a draggable knob.
 local function makeSlider(parent: Instance, key: string, title: string, order: number): any
@@ -169,6 +171,9 @@ function M.update(snap: Snapshot?)
 		W.setButtonColor(button, if on then Theme.colors.success else Theme.colors.bgAlt, if on then Theme.colors.ink else Theme.colors.text)
 	end
 
+	if buildLabel then
+		buildLabel.Text = BuildInfo.long(snap.build) .. "  |  " .. snap.build.environment .. " place v" .. tostring(snap.build.placeVersion)
+	end
 	if not snap.dataSafe then
 		dataLabel.Text = "Data: could not be loaded. Nothing is being saved this session, and your real city is untouched."
 		dataLabel.TextColor3 = Theme.colors.danger
@@ -236,13 +241,24 @@ function M.init()
 	dataLabel = W.label({
 		parent = body,
 		text = "",
-		size = UDim2.new(1, 0, 0, 40),
-		position = UDim2.new(0, 0, 1, -46),
+		size = UDim2.new(1, 0, 0, 30),
+		position = UDim2.new(0, 0, 1, -50),
 		textSize = 12,
 		color = Theme.colors.textDim,
 		xalign = Enum.TextXAlignment.Left,
 		yalign = Enum.TextYAlignment.Top,
 		wrap = true,
+	})
+
+	-- which code is running, for bug reports (see tools/stamp.py)
+	buildLabel = W.label({
+		parent = body,
+		text = "",
+		size = UDim2.new(1, 0, 0, 16),
+		position = UDim2.new(0, 0, 1, -18),
+		textSize = 11,
+		color = Theme.colors.textDim,
+		xalign = Enum.TextXAlignment.Left,
 	})
 
 	built = true
