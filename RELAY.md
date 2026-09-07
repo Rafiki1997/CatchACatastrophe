@@ -21,6 +21,8 @@
 
 | Commit | What |
 |---|---|
+| `2313f29` | Creatures panel: stored creatures read "N/s when deployed" (`potentialCps`); they showed 0/s. |
+| `fabcba0` | **Remote Collector** upgrade (20,000 Coins, 60 s cooldown): `CollectBank` now runs `Economy.collectRemote` (gated + cooldown; the open remote is closed); HUD Collect button for owners with countdown. SelfTest 457. |
 | `dc00d2c` | **Live build stamp**: `tools/stamp.py` writes gitignored `Shared/Build.luau` (hash, dirty, times); HUD pill, Settings footer and boot log show it; post-commit hook refreshes it. Run `python tools/stamp.py` before every sync. LiveTest 33. |
 | `d847050` | CircuitEditor pad picker adds the GUI inset before its ray (same 58 px mismatch). |
 | `ce8858e` | **Click picker in viewport space** (`GetMouseLocation`): clicks were 58 px (topbar inset) above the projection; hidden up close, fatal at the 60-stud zoom cap. Measured with an injected click. |
@@ -173,11 +175,12 @@ seconds. Re-test with the friends first.
 
 ## Approved but not built
 
-- **Remote Collector** Workshop upgrade: paid convenience that restores collecting from anywhere.
 - **Portals** (fast travel between hub, gates and your city, gated to unlocked regions). User: future idea.
 - Widen the animator's 220-stud camera cull if far creatures snapping into place still reads as teleporting.
 
-## Next set from the user (2026-09-07 evening, not started)
+## Next set from the user (2026-09-07 evening)
+
+All eight items built. Then: live build stamp (done), Remote Collector (done). **Next: difficulty tuning per zone and per rarity** (user: Cinder Canyon is easier than Gusty Gardens; a Legendary there feels like a Common). Hazards do not scale by zone; rarity scales only attackInterval/hazardSpeed/captureSeconds. Bring numbers for approval first.
 
 1. Zoomed-out clicks: **done** (`489ac60` click floor, `dcf1f81` zoom cap, `ce8858e` coordinate fix: the real cause), awaiting validation.
 2. Region roads: **done, layout B chosen** (`e9489ec`) after comparing with A (`8a5543f`). Six cities per server now. Open: set the place Players.MaxPlayers to 6; hub rim lamps follow the six cities; CitiesPanel Visit list follows MaxPlayers.
