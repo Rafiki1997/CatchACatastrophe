@@ -21,6 +21,7 @@
 
 | Commit | What |
 |---|---|
+| `d6e5b11` | **Zone labels as outlined names that scale with distance** (`Controllers/Waypoints`): the 11 signs (6 gates, 4 hub, Your City) are the name alone in the destination's colour, FredokaOne, ink `UIStroke`, no card. Sized every frame from camera depth as a 44x7.6-stud sign would be, depth clamped 35..200 studs; locked gates keep a gold "Unlock X Coins" line; distance readout and element word removed. Live: title 36.2 px at depth 116 vs 36.8 modelled, 121 px at depth 7 (near clamp). User approved the plan; awaiting his feel check. |
 | `bd9ab36` | **Rarity shrinks the capture circle and grows the shove** (`rarityRangeMult` 1/.9/.8/.7, `rarityKnockbackMult` 1/1.1/1.2/1.35); circle stored on the capture and sent in CaptureState; ring on screen matches. Gusty Gardens pass; tune region by region next. **Unvalidated by the user.** |
 | `459e933` | **Difficulty by zone and rarity**: `Config.Capture.zoneTuning` (warning 100%..60%, +0..+2 patches, penalty 1..2.25 s, knockback 32..40) x rarity (+15% size, -10% warning per rank). Stored on the capture at start; boss arena untouched. SelfTest 467. **Unvalidated by the user.** |
 | `01d28de` | **Atlas** 880x600, cards 200x224: tabs and descriptions no longer truncate. |
@@ -72,7 +73,7 @@ Earlier (09-06): gate unlock at the gate + nudge loop, walk speed x1.5, pad pick
 | Client-vs-server creature position gap | **< 0.1** studs; was 8–17 |
 | Screen-space pick at 20 studs | body is a 106 px target; belly click inside, 1.5 bodies away outside |
 | Route chevrons | 338 of 338 Neon across 25 routes; lit block advanced toward higher Index over 0.45 s |
-| Waypoint signs | 11 (6 gates, 4 hub, 1 city); locked gates show "Unlock X Coins · N away"; "Your City" hidden at spawn |
+| Waypoint signs | 11 (6 gates, 4 hub, 1 city); title height within 1 px of `5 studs * k / clamp(depth, 35, 200)` on every on-screen sign (36.2 vs 36.8, 37.5 vs 37.7, 30.9 vs 31.4); near clamp holds at depth 7 (121 px); only locked gates show the gold "Unlock X Coins" line |
 | Collection indicator | "Stand here" → "Stay on the pad / Collecting…" → "Collected +12 Coins", bank 8.77 → 0, cycle repeated (+8) |
 | Roaming legs | 2 boundaries in 11 s, both continuous; max single-tick move 1.08 studs (was 13-19) |
 | Beginner capture | stand 4 studs away, never dodge: Common **caught in 10.7 s** (never finished before) |
@@ -126,6 +127,7 @@ button it named is hidden when a keyboard exists; there was no mouse binding for
 - **CameraGuard** resets a Scriptable or re-subjected camera within a second. Before a positioned `screen_capture` or a scripted frame, `workspace.CurrentCamera:SetAttribute("ScriptedCamera", true)`; clear it after. And do not do it in the user's session at all between sets.
 - **StudioTester** gives every Studio profile 5,120 Coins/s a few seconds after the live suite. Bank and wallet numbers in Studio include it; a teleport onto the collection pad pays hundreds of thousands.
 - A probe that teleports the character mid-capture makes the game toast "You left the creature behind." It happened to the user once today. Ask, or wait for a fresh session.
+- **`BillboardGui.DistanceLowerLimit` / `DistanceUpperLimit` / `DistanceStep` do nothing here.** Measured 2026-09-07: an invisible probe billboard straight ahead of the camera at 20..500 studs gave identical `AbsoluteSize` with limits 35/200 and with none, for Scale sizing, Offset sizing, `AlwaysOnTop` on and off. A stud-sized billboard measures exactly `studs * k / depth` with `k = (ViewportSize.Y / 2) / tan(FieldOfView / 2)`; clamp that yourself (`Waypoints.resize`).
 - **Bash heredocs with apostrophes fail** in this harness ("unexpected EOF while looking for matching"). Write Python scripts to the scratchpad with the Write tool and run them.
 
 - **Own module cache, both datamodels, and stale across probes in Edit.** A `require` in a
