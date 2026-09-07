@@ -24,6 +24,9 @@ export type SpeciesDef = {
 	height: number,
 	job: string, -- work animation on a pad: windmill | waterwheel | furnace | freezer | coil | dish
 	difficulty: number, -- 1..5 stars shown on the encounter card
+	eggOnly: boolean, -- hatches from a Cosmic Egg only: no wild spawn, not in Atlas completion
+	builder: string?, -- reuse another species' model builder (ascended recolours)
+	scale: number?, -- uniform model scale on top of the builder
 }
 
 local Species = {}
@@ -32,7 +35,9 @@ local function rgb(r: number, g: number, b: number): Color3
 	return Color3.fromRGB(r, g, b)
 end
 
-local function def(id: string, name: string, region: string, rarity: string, desc: string, silhouette: string, primary: Color3, secondary: Color3, accent: Color3, anim: string, animSpeed: number, height: number): SpeciesDef
+type DefOpts = { eggOnly: boolean?, builder: string?, scale: number? }
+
+local function def(id: string, name: string, region: string, rarity: string, desc: string, silhouette: string, primary: Color3, secondary: Color3, accent: Color3, anim: string, animSpeed: number, height: number, opts: DefOpts?): SpeciesDef
 	local r = Regions.byId[region]
 	assert(r, "unknown region " .. region)
 	local jobs = { Wind = "windmill", Water = "waterwheel", Heat = "furnace", Frost = "freezer", Storm = "coil", Cosmic = "dish" }
@@ -51,6 +56,9 @@ local function def(id: string, name: string, region: string, rarity: string, des
 		height = height,
 		job = jobs[r.element],
 		difficulty = difficulty,
+		eggOnly = if opts then opts.eggOnly == true else false,
+		builder = if opts then opts.builder else nil,
+		scale = if opts then opts.scale else nil,
 	}
 end
 
@@ -93,6 +101,31 @@ Species.list = {
 } :: { SpeciesDef }
 
 Species.byId = {} :: { [string]: SpeciesDef }
+-- ---------------------------------------------------------------- egg-only roster
+-- Ascended creatures, hatched from the Cosmic Egg and nowhere else. They reuse an
+-- existing builder with a new palette and a larger scale, so a new tier costs a
+-- config entry rather than a new model. They are NOT in `Species.list`: that list
+-- is the wild roster the Atlas counts, the spawner draws from and Relaunch
+-- measures. `Species.byId` and `Species.all` include them.
+Species.eggList = {
+	def("comet_king", "Comet King", "orbit_outpost", "Mythic", "A comet cat crowned in its own tail. It naps in low orbit and wakes up somewhere else.", "a long cat trailing a bright tail", rgb(255, 150, 220), rgb(120, 60, 160), rgb(255, 245, 190), "orbit", 1.1, 3.2, { eggOnly = true, builder = "comet_cat", scale = 1.35 }),
+	def("pulsar_pup", "Pulsar Pup", "orbit_outpost", "Mythic", "A pup that beats like a tiny lighthouse. Every wag sends out a ring of light.", "a round pup ringed with light", rgb(255, 130, 200), rgb(80, 40, 120), rgb(255, 255, 220), "pulse", 1.3, 2.6, { eggOnly = true, builder = "puddle_pug", scale = 1.35 }),
+	def("galaxy_gobbler", "Galaxy Gobbler", "orbit_outpost", "Celestial", "It ate a small galaxy once and has been humming ever since. Do not let it near the buffet.", "a wide mouth full of stars", rgb(120, 235, 255), rgb(40, 60, 130), rgb(255, 255, 255), "hover", 0.8, 4.2, { eggOnly = true, builder = "gravity_gobbler", scale = 1.5 }),
+	def("solar_sovereign", "Solar Sovereign", "orbit_outpost", "Celestial", "A spinner that carries its own sunrise. Standing near it feels like a warm afternoon.", "a spinning shape haloed in light", rgb(140, 240, 255), rgb(255, 220, 120), rgb(255, 255, 255), "spin", 1.0, 4.4, { eggOnly = true, builder = "sir_spins_a_lot", scale = 1.5 }),
+	def("void_whoops", "The Void Whoops", "orbit_outpost", "Astral", "The Big Whoops, but the part of it you can see is only the beginning.", "an enormous shape rimmed in starlight", rgb(255, 245, 190), rgb(30, 25, 55), rgb(200, 150, 255), "drift", 0.6, 6.4, { eggOnly = true, builder = "the_big_whoops", scale = 1.6 }),
+	def("astral_arbiter", "Astral Arbiter", "orbit_outpost", "Astral", "It settles arguments between constellations. Nobody has ever won one.", "a crowned giant wreathed in cold light", rgb(255, 250, 210), rgb(90, 130, 200), rgb(255, 255, 255), "bob", 0.5, 6.0, { eggOnly = true, builder = "king_coldsnout", scale = 1.6 }),
+} :: { SpeciesDef }
+
+-- Wild roster plus egg roster. Use this to build models or look up any creature;
+-- use `Species.list` when you mean "the creatures a player can find in the world".
+Species.all = {} :: { SpeciesDef }
+for _, s in Species.list do
+	table.insert(Species.all, s)
+end
+for _, s in Species.eggList do
+	table.insert(Species.all, s)
+end
+
 Species.byRegion = {} :: { [string]: { SpeciesDef } }
 Species.byElement = {} :: { [string]: { SpeciesDef } }
 for _, s in Species.list do
@@ -102,9 +135,33 @@ for _, s in Species.list do
 	Species.byElement[s.element] = Species.byElement[s.element] or {}
 	table.insert(Species.byElement[s.element], s)
 end
+-- Egg species are addressable by id (models, income, Atlas entries) but stay out
+-- of byRegion / byElement so nothing that spawns or searches a region finds them.
+Species.byRarity = {} :: { [string]: { SpeciesDef } }
+for _, s in Species.eggList do
+	Species.byId[s.id] = s
+end
+for _, s in Species.all do
+	Species.byRarity[s.rarity] = Species.byRarity[s.rarity] or {}
+	table.insert(Species.byRarity[s.rarity], s)
+end
 
+-- The Atlas denominator and the Relaunch requirement: wild species only.
 Species.count = #Species.list
+Species.eggCount = #Species.eggList
 Species.tutorialSpecies = "breeze_bean"
+
+-- Every egg-only species of a rarity, e.g. the two Mythics. Empty for the wild
+-- tiers, which the egg draws from the player's unlocked regions instead.
+function Species.eggSpecies(rarity: string): { SpeciesDef }
+	local out = {}
+	for _, s in Species.eggList do
+		if s.rarity == rarity then
+			table.insert(out, s)
+		end
+	end
+	return out
+end
 
 -- The species of a region with the given rarity (exactly one per pair).
 function Species.find(regionId: string, rarity: string): SpeciesDef?

@@ -60,7 +60,8 @@ function CreatureModels.build(id: string, variant: string?, silhouette: boolean?
 	model:SetAttribute("Rarity", def.rarity)
 	model:SetAttribute("Element", def.element)
 	model:SetAttribute("Variant", variant or "Normal")
-	local builder = builders[id] or fallback
+	-- Egg-only species borrow another species' builder and repaint it.
+	local builder = builders[def.builder or id] or builders[id] or fallback
 	local ok, err = pcall(builder, model, root, def.palette, def)
 	if not ok then
 		warn("[CreatureModels] builder error for", id, err)
@@ -88,8 +89,9 @@ function CreatureModels.build(id: string, variant: string?, silhouette: boolean?
 		end
 		Kit.applyRarityGlow(model, def.rarity)
 	end
-	if scale and scale ~= 1 then
-		model:ScaleTo(scale)
+	local finalScale = scale or def.scale
+	if finalScale and finalScale ~= 1 then
+		model:ScaleTo(finalScale)
 	end
 	Kit.finalize(model)
 	return model
