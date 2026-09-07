@@ -71,9 +71,20 @@ function CaptureService.feetY(hrp: BasePart): number
 end
 
 -- Build one hazard. `origin` is the creature, `targetPos` the catcher.
-function CaptureService.buildHazard(def: any, origin: Vector3, targetPos: Vector3, now: number, speed: number, boss: boolean?): HazardEvent
+-- Region index (1 Gusty .. 6 Orbit) for a region id; 1 when unknown.
+local function regionIndexOf(regionId: string): number
+	local def = Config.Regions.byId[regionId]
+	return if def then def.index else 1
+end
+
+-- `tuning` (Config.Capture.tuning) shortens the warning, enlarges the hazard and
+-- adds patches by zone and rarity; the boss arena passes none and keeps its own scale.
+type Tuning = { warning: number, size: number, extraCount: number, penalty: number, knockback: number }
+
+function CaptureService.buildHazard(def: any, origin: Vector3, targetPos: Vector3, now: number, speed: number, boss: boolean?, tuning: Tuning?): HazardEvent
 	hazardSeq += 1
-	local telegraph = def.telegraph / speed
+	local warning = if tuning then tuning.warning else 1
+	local telegraph = def.telegraph / speed * warning
 	local active = def.active / speed
 	local telegraphEndsAt = now + telegraph
 	local activeEndsAt = telegraphEndsAt + active
@@ -96,7 +107,8 @@ function CaptureService.buildHazard(def: any, origin: Vector3, targetPos: Vector
 		if C.targetPlayerFirstPatch then
 			table.insert(positions, Vector3.new(targetPos.X, origin.Y, targetPos.Z))
 		end
-		while #positions < def.count do
+		local count = def.count + (if tuning then tuning.extraCount else 0)
+		while #positions < count do
 			local a = rng:NextNumber(0, math.pi * 2)
 			local d = rng:NextNumber(2, def.spawnRadius)
 			table.insert(positions, origin + Vector3.new(math.cos(a) * d, 0, math.sin(a) * d))
@@ -107,7 +119,7 @@ function CaptureService.buildHazard(def: any, origin: Vector3, targetPos: Vector
 		table.insert(positions, Vector3.new(zone.X, origin.Y, zone.Z))
 	end
 
-	local scale = if boss then 1.6 else 1
+	local scale = (if boss then 1.6 else 1) * (if tuning then tuning.size else 1)
 	return {
 		id = "h" .. tostring(hazardSeq),
 		element = def.element,
@@ -117,8 +129,9 @@ function CaptureService.buildHazard(def: any, origin: Vector3, targetPos: Vector
 		positions = positions,
 		radius = def.radius * scale,
 		length = def.length * scale,
-		width = def.width,
+		width = def.width * scale,
 		travel = def.travel,
+		telegraph = telegraph,
 		telegraphEndsAt = telegraphEndsAt,
 		activeEndsAt = activeEndsAt,
 		pullStrength = def.pullStrength,
@@ -234,6 +247,7 @@ function CaptureService.start(profile: Profile, encounterUid: any): (boolean, st
 		hazards = {} :: { HazardEvent },
 		stunUntil = 0,
 		surge = S.Encounters.isSurge(encounter.regionId),
+		tuning = C.tuning(regionIndexOf(encounter.regionId), Config.Rarities.rank(encounter.rarity)),
 	}
 	profile.dirty = true
 	sendState(profile, "Tethering")
@@ -393,7 +407,7 @@ local function tickCapture(profile: Profile, dt: number, now: number)
 	if now >= cap.nextAttackAt then
 		local def = C.hazards[encounter.element]
 		if def then
-			local ev = CaptureService.buildHazard(def, creaturePos, hrp.Position, now, rarity.hazardSpeed, false)
+			local ev = CaptureService.buildHazard(def, creaturePos, hrp.Position, now, rarity.hazardSpeed, false, cap.tuning)
 			table.insert(cap.hazards, { event = ev, resolved = false })
 			Notify.hazard({ profile.player }, ev)
 		end
@@ -409,13 +423,14 @@ local function tickCapture(profile: Profile, dt: number, now: number)
 			entry.resolved = true
 			cap.hits += 1
 			cap.perfect = false
-			cap.progress = math.max(0, cap.progress - C.hitPenalty)
+			local penalty = if cap.tuning then cap.tuning.penalty else C.hitPenalty
+			cap.progress = math.max(0, cap.progress - penalty)
 			cap.stunUntil = now + C.hitStun
-			status = C.hazards[encounter.element].name .. " hit you! -" .. tostring(C.hitPenalty) .. "s"
+			status = C.hazards[encounter.element].name .. " hit you! -" .. tostring(penalty) .. "s"
 			-- knockback is cosmetic and applied by the owning client
 			local away = horizontal(hrp.Position - ev.origin)
 			local dir = if away.Magnitude > 0.1 then away.Unit else Vector3.new(0, 0, 1)
-			Notify.knockback(profile.player, dir, C.knockback)
+			Notify.knockback(profile.player, dir, if cap.tuning then cap.tuning.knockback else C.knockback)
 			Notify.effectFor(profile.player, "hit", hrp.Position)
 		end
 	end

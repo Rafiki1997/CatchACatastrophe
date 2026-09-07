@@ -542,7 +542,8 @@ local function stepHazards(now: number)
 					disc.Transparency = 0.2
 				else
 					-- fill up as the warning runs out
-					local warn = math.clamp((now - (ev.telegraphEndsAt - Config.Capture.hazards[ev.element].telegraph)) / math.max(0.1, Config.Capture.hazards[ev.element].telegraph), 0, 1)
+					local telegraph = ev.telegraph or Config.Capture.hazards[ev.element].telegraph
+					local warn = math.clamp((now - (ev.telegraphEndsAt - telegraph)) / math.max(0.1, telegraph), 0, 1)
 					disc.Transparency = 0.75 - warn * 0.3
 				end
 			end

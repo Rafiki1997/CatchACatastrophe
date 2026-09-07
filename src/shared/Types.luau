@@ -172,6 +172,7 @@ export type HazardEvent = {
 	length: number,
 	width: number,
 	travel: number,
+	telegraph: number, -- seconds of warning this hazard actually gives (zone/rarity tuned)
 	telegraphEndsAt: number, -- server time
 	activeEndsAt: number, -- server time
 	pullStrength: number,

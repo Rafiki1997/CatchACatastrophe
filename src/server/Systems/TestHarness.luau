@@ -279,11 +279,40 @@ end
 
 -- Capture balance rules that must hold whatever the numbers are tuned to.
 local function testCaptureBalance()
+	-- zone 1 keeps the new-player guarantee: hit every time, you still progress
 	for rarity, info in Config.Rarities.info do
 		local interval = info.attackInterval / info.hazardSpeed
-		check(rarity .. " hit penalty is below its attack interval (net progress even when hit every time)", Config.Capture.hitPenalty < interval, tostring(Config.Capture.hitPenalty) .. " vs " .. tostring(interval))
+		check(rarity .. " zone-1 hit penalty is below its attack interval", Config.Capture.zoneTuning[1].penalty < interval, tostring(Config.Capture.zoneTuning[1].penalty) .. " vs " .. tostring(interval))
 	end
-	check("knockback is a shove, not an eject (38 threw players out of tether range)", Config.Capture.knockback <= 34, tostring(Config.Capture.knockback))
+	-- the approved difficulty table (2026-09-07)
+	local zones = Config.Capture.zoneTuning
+	check("one tuning row per region", #zones == #Config.Regions.list, tostring(#zones))
+	check("zone 1 tuning matches the base penalty and knockback", zones[1].penalty == Config.Capture.hitPenalty and zones[1].knockback == Config.Capture.knockback)
+	local monotonic = true
+	for i = 2, #zones do
+		if zones[i].warning > zones[i - 1].warning or zones[i].penalty < zones[i - 1].penalty or zones[i].knockback < zones[i - 1].knockback or zones[i].extraCount < zones[i - 1].extraCount then
+			monotonic = false
+		end
+	end
+	check("each zone is at least as hard as the one before", monotonic)
+	check("hardest zone warning is 60%", approx(zones[#zones].warning, 0.6), tostring(zones[#zones].warning))
+	check("hardest zone penalty is 2.25 s", approx(zones[#zones].penalty, 2.25), tostring(zones[#zones].penalty))
+	check("knockback never exceeds 40", zones[#zones].knockback <= 40, tostring(zones[#zones].knockback))
+	local legendaryOrbit = Config.Capture.tuning(6, Config.Rarities.rank("Legendary"))
+	check("Legendary in Orbit warns for 42% of base and hazards are 45% larger", approx(legendaryOrbit.warning, 0.42) and approx(legendaryOrbit.size, 1.45), tostring(legendaryOrbit.warning) .. " / " .. tostring(legendaryOrbit.size))
+	local commonGusty = Config.Capture.tuning(1, 1)
+	check("Common in Gusty is untouched", approx(commonGusty.warning, 1) and approx(commonGusty.size, 1) and commonGusty.extraCount == 0)
+	-- the tuning reaches the hazard: Cinder eruption gets a fourth patch and a shorter warning
+	do
+		local Cap = require(script.Parent.CaptureService)
+		local heat = Config.Capture.hazards.Heat
+		local base = Cap.buildHazard(heat, Vector3.new(0, 0, 0), Vector3.new(6, 0, 0), 1000, 1, false, Config.Capture.tuning(1, 1))
+		local cinder = Cap.buildHazard(heat, Vector3.new(0, 0, 0), Vector3.new(6, 0, 0), 1000, 1, false, Config.Capture.tuning(3, 1))
+		check("Gusty-tier eruption has 3 patches and the base warning", #base.positions == heat.count and approx(base.telegraph, heat.telegraph), tostring(#base.positions) .. " / " .. tostring(base.telegraph))
+		check("Cinder eruption has 4 patches and 84% warning", #cinder.positions == heat.count + 1 and approx(cinder.telegraph, heat.telegraph * 0.84), tostring(#cinder.positions) .. " / " .. tostring(cinder.telegraph))
+		local legendaryGust = Cap.buildHazard(Config.Capture.hazards.Wind, Vector3.new(0, 0, 0), Vector3.new(6, 0, 0), 1000, 1.5, false, Config.Capture.tuning(1, 4))
+		check("Legendary gust wall is 45% longer and wider", approx(legendaryGust.length, Config.Capture.hazards.Wind.length * 1.45) and approx(legendaryGust.width, Config.Capture.hazards.Wind.width * 1.45), tostring(legendaryGust.length))
+	end
 	check("a sweeping wall is lower than a jump", Config.Capture.wallHeight < 7, tostring(Config.Capture.wallHeight))
 	-- a roaming leg continues from where the previous one ended, never from the spawn pivot
 	local Encounters = require(script.Parent.EncounterService)

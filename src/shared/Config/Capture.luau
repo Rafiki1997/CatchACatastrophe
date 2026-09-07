@@ -41,6 +41,41 @@ Capture.knockback = 32
 Capture.hitStun = 0.6 -- seconds the tether cannot re-engage after a hit
 Capture.ringHeight = 0.8 -- feet above this height clear the low splash band
 Capture.wallHeight = 3 -- feet above this clear a sweeping wall (Gust, Ice Wave); the client draws the wall this tall
+-- ---------------------------------------------------------------- difficulty
+-- Approved 2026-09-07. Nothing scaled with the zone before this, and rarity only
+-- shortened the attack interval, so a maxed player found Orbit Outpost as easy
+-- as Gusty Gardens. Row = region index (1 Gusty .. 6 Orbit).
+--   warning     multiplier on the hazard telegraph time (how long you get to react)
+--   extraCount  more patches / bolts for circle hazards (Heat, Storm)
+--   penalty     seconds of progress lost per hit (row 1 equals Capture.hitPenalty)
+--   knockback   client shove per hit (row 1 equals Capture.knockback)
+export type Tuning = { warning: number, size: number, extraCount: number, penalty: number, knockback: number }
+
+Capture.zoneTuning = {
+	{ warning = 1.00, extraCount = 0, penalty = 1.00, knockback = 32 },
+	{ warning = 0.92, extraCount = 0, penalty = 1.25, knockback = 34 },
+	{ warning = 0.84, extraCount = 1, penalty = 1.50, knockback = 36 },
+	{ warning = 0.76, extraCount = 1, penalty = 1.75, knockback = 38 },
+	{ warning = 0.68, extraCount = 2, penalty = 2.00, knockback = 40 },
+	{ warning = 0.60, extraCount = 2, penalty = 2.25, knockback = 40 },
+}
+-- On top of the zone, per rarity rank above Common: hazards grow 15% (a Legendary
+-- gust wall is 45% longer and wider) and warnings shorten a further 10%.
+Capture.raritySizePerRank = 0.15
+Capture.rarityWarningPerRank = 0.10
+
+function Capture.tuning(regionIndex: number, rarityRank: number): Tuning
+	local zone = Capture.zoneTuning[math.clamp(regionIndex, 1, #Capture.zoneTuning)]
+	local above = math.max(0, rarityRank - 1)
+	return {
+		warning = zone.warning * (1 - Capture.rarityWarningPerRank * above),
+		size = 1 + Capture.raritySizePerRank * above,
+		extraCount = zone.extraCount,
+		penalty = zone.penalty,
+		knockback = zone.knockback,
+	}
+end
+
 Capture.roamRadius = 22 -- wild creatures wander within this distance of their spawn
 Capture.roamSpeed = 4 -- studs/s (client interpolates from path attributes)
 Capture.arenaRadius = 20 -- hazards are placed inside this radius around the creature
