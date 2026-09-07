@@ -275,6 +275,31 @@ local function testModels()
 	end
 end
 
+-- A built plot carries the pad-management prompt on every pad, disabled, and
+-- short enough in range that only the pad you stand at can show one.
+local function testPlot()
+	local PlotTemplate = require(script.Parent.Parent.Map.PlotTemplate)
+	local plot = PlotTemplate.build(CFrame.new(0, -1000, 0), 99)
+	local prompts, disabled, ranged = 0, 0, 0
+	for pad = 1, Config.Circuits.maxPads do
+		local p = plot.pads[pad]
+		local prompt = p and p:FindFirstChild("ManagePrompt")
+		if prompt and prompt:IsA("ProximityPrompt") then
+			prompts += 1
+			if not prompt.Enabled then
+				disabled += 1
+			end
+			if prompt.MaxActivationDistance < 8 then
+				ranged += 1
+			end
+		end
+	end
+	check("every pad carries a ManagePrompt", prompts == Config.Circuits.maxPads, tostring(prompts) .. "/" .. tostring(Config.Circuits.maxPads))
+	check("pad prompts start disabled (the owner's client enables them)", disabled == prompts, tostring(disabled))
+	check("pad prompt range is under the 8-stud pad spacing", ranged == prompts, tostring(ranged))
+	plot.model:Destroy()
+end
+
 -- The heart of it: every income factor applied exactly once.
 local function testIncome()
 	local profile = mockProfile(0)
@@ -665,6 +690,7 @@ function Harness.run()
 		{ name = "format", fn = testFormat },
 		{ name = "hazards", fn = testHazards },
 		{ name = "models", fn = testModels },
+		{ name = "plot", fn = testPlot },
 		{ name = "income", fn = testIncome },
 		{ name = "upgrades", fn = testUpgrades },
 		{ name = "data", fn = testData },

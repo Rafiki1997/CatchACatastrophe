@@ -186,6 +186,19 @@ function PlotTemplate.build(cframe: CFrame, index: number): Plot
 		})
 		p:SetAttribute("PadIndex", pad)
 		p:SetAttribute("Unlocked", false)
+		-- Manage the creature from the pad. Disabled here; the owner's client
+		-- enables and labels it (Controllers.PadPrompts). The server never reads
+		-- it: the picker fires the ordinary Deploy / Move / Store remotes.
+		local manage = Instance.new("ProximityPrompt")
+		manage.Name = "ManagePrompt"
+		manage.ActionText = "Deploy"
+		manage.ObjectText = "Pad " .. tostring(pad)
+		manage.KeyboardKeyCode = Enum.KeyCode.E
+		manage.HoldDuration = 0
+		manage.RequiresLineOfSight = false
+		manage.MaxActivationDistance = 7 -- pads sit 8 apart, so only the one you stand at shows
+		manage.Enabled = false
+		manage.Parent = p
 		-- a rim so an empty pad still reads as a socket
 		part({ name = "Rim", size = Vector3.new(PAD_SIZE + 0.5, 0.22, PAD_SIZE + 0.5), cf = at(o.X, o.Y - 0.62, o.Z), color = INK, parent = padFolder })
 		-- pad number on the deck
