@@ -20,7 +20,11 @@ local CircuitEditorUI = require(script.Parent.Parent.UI.CircuitEditorUI)
 local CircuitEditor = {}
 
 local player = Players.LocalPlayer
-local camera = workspace.CurrentCamera
+-- Never cache the camera (see CaptureController): a reference taken at load
+-- goes stale when Roblox replaces the camera, and pad clicks stop landing.
+local function camera(): Camera
+	return workspace.CurrentCamera
+end
 
 local selectedPad: number? = nil
 local highlights: { [number]: SelectionBox } = {}
@@ -193,7 +197,7 @@ local function selectPad(pad: number?)
 end
 
 local function padUnderPoint(x: number, y: number): number?
-	local ray = camera:ViewportPointToRay(x, y)
+	local ray = camera():ViewportPointToRay(x, y)
 	local params = RaycastParams.new()
 	params.FilterType = Enum.RaycastFilterType.Exclude
 	params.FilterDescendantsInstances = { player.Character :: any, workspace:FindFirstChild("ClientFX") :: any }

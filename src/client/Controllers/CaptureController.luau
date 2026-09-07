@@ -24,7 +24,13 @@ local Input = require(script.Parent.Input)
 local CaptureController = {}
 
 local player = Players.LocalPlayer
-local camera = workspace.CurrentCamera
+-- Never cache the camera. Roblox replaces workspace.CurrentCamera shortly after
+-- the client starts, and a reference taken at load then projects everything
+-- off-screen: that is why clicking on, and pointing at, a creature silently
+-- found nothing while the same maths against the live camera worked.
+local function camera(): Camera
+	return workspace.CurrentCamera
+end
 
 local TARGET_RANGE = 34
 local TETHER_TOOL = "Containment Tether"
@@ -197,7 +203,8 @@ end
 -- projected body contains the point, nearest to the camera when they overlap.
 -- The Root raycast still wins when it does land.
 local function wildAtScreenPoint(x: number, y: number): Model?
-	local ray = camera:ViewportPointToRay(x, y)
+	local cam = camera()
+	local ray = cam:ViewportPointToRay(x, y)
 	local params = RaycastParams.new()
 	params.FilterType = Enum.RaycastFilterType.Exclude
 	params.FilterDescendantsInstances = { player.Character :: any, fx() }
@@ -213,8 +220,8 @@ local function wildAtScreenPoint(x: number, y: number): Model?
 	end
 
 	local hrp = rootPart()
-	local viewport = camera.ViewportSize
-	local halfFov = math.rad(camera.FieldOfView / 2)
+	local viewport = cam.ViewportSize
+	local halfFov = math.rad(cam.FieldOfView / 2)
 	local best: Model? = nil
 	local bestDepth = math.huge
 	for _, model in CollectionService:GetTagged("Wild") do
@@ -227,7 +234,7 @@ local function wildAtScreenPoint(x: number, y: number): Model?
 		end
 		local height = (model:GetAttribute("Height") :: number?) or 3
 		local centre = pivot + Vector3.new(0, height / 2, 0)
-		local screen, onScreen = camera:WorldToViewportPoint(centre)
+		local screen, onScreen = cam:WorldToViewportPoint(centre)
 		if not onScreen or screen.Z <= 0 then
 			continue
 		end
@@ -261,7 +268,7 @@ local function nearestWild(): Model?
 	end
 	local best: Model? = nil
 	local bestScore = math.huge
-	local look = camera.CFrame.LookVector
+	local look = camera().CFrame.LookVector
 	for _, model in CollectionService:GetTagged("Wild") do
 		if model:IsA("Model") then
 			local delta = model:GetPivot().Position - hrp.Position
@@ -693,10 +700,48 @@ function CaptureController.init()
 	-- Tether is equipped, because the Tool's own Activated already fires
 	-- toggleCapture and the two would cancel each other out.
 	UserInputService.InputBegan:Connect(function(input, processed)
-		if processed or captureState then
+		if input.UserInputType ~= Enum.UserInputType.MouseButton1 then
 			return
 		end
-		if input.UserInputType ~= Enum.UserInputType.MouseButton1 then
+		if RunService:IsStudio() then
+			-- Studio-only diagnostics for the "clicking a creature does nothing" report:
+			-- record exactly what this handler saw, readable from PlayerGui attributes.
+			local pg = player:FindFirstChildOfClass("PlayerGui")
+			if pg then
+				local seen = wildAtScreenPoint(input.Position.X, input.Position.Y)
+				local tool = player.Character and player.Character:FindFirstChild(TETHER_TOOL)
+				pg:SetAttribute("ClickDiagCount", ((pg:GetAttribute("ClickDiagCount") :: number?) or 0) + 1)
+				pg:SetAttribute("ClickDiagLast", "processed=" .. tostring(processed)
+					.. " capturing=" .. tostring(captureState ~= nil)
+					.. " touch=" .. tostring(Input.isTouch()) .. " gamepad=" .. tostring(Input.isGamepad())
+					.. " tool=" .. tostring(tool ~= nil)
+					.. " pos=" .. tostring(math.floor(input.Position.X)) .. "," .. tostring(math.floor(input.Position.Y))
+					.. " creatureUnderPoint=" .. tostring(seen and seen:GetAttribute("SpeciesId") or "none"))
+				-- and the maths for the nearest wild creature, so a miss explains itself
+				local hrpD = rootPart()
+				local nearest, nearestD = nil, math.huge
+				for _, m in CollectionService:GetTagged("Wild") do
+					if m:IsA("Model") and hrpD then
+						local d = (m:GetPivot().Position - hrpD.Position).Magnitude
+						if d < nearestD then nearest, nearestD = m, d end
+					end
+				end
+				if nearest then
+					local cam = camera()
+					local height = (nearest:GetAttribute("Height") :: number?) or 3
+					local screen, onScreen = cam:WorldToViewportPoint(nearest:GetPivot().Position + Vector3.new(0, height / 2, 0))
+					local pxPerStud = (cam.ViewportSize.Y / 2) / (math.max(screen.Z, 0.01) * math.tan(math.rad(cam.FieldOfView / 2)))
+					pg:SetAttribute("ClickDiagNearest", tostring(nearest:GetAttribute("SpeciesId"))
+						.. " dist=" .. tostring(math.floor(nearestD * 10) / 10) .. " range=" .. tostring(TARGET_RANGE)
+						.. " height=" .. tostring(height)
+						.. " screen=" .. tostring(math.floor(screen.X)) .. "," .. tostring(math.floor(screen.Y)) .. "," .. tostring(math.floor(screen.Z * 10) / 10)
+						.. " onScreen=" .. tostring(onScreen)
+						.. " radiusPx=" .. tostring(math.floor((height / 2 + 0.75) * pxPerStud))
+						.. " viewport=" .. tostring(cam.ViewportSize) .. " camType=" .. tostring(cam.CameraType))
+				end
+			end
+		end
+		if processed or captureState then
 			return
 		end
 		if Input.isTouch() or Input.isGamepad() then
