@@ -21,6 +21,7 @@
 
 | Commit | What |
 |---|---|
+| `459e933` | **Difficulty by zone and rarity**: `Config.Capture.zoneTuning` (warning 100%..60%, +0..+2 patches, penalty 1..2.25 s, knockback 32..40) x rarity (+15% size, -10% warning per rank). Stored on the capture at start; boss arena untouched. SelfTest 467. **Unvalidated by the user.** |
 | `01d28de` | **Atlas** 880x600, cards 200x224: tabs and descriptions no longer truncate. |
 | `53a8e71` | CAUGHT card: **Store** instead of Nice, with a tooltip. |
 | `40e20b9` | **Variant tooltips**: `Variants.describe`; Creatures panel badge, pad picker badge and CAUGHT card explain Overcharged / Prismatic on hover. |
@@ -163,9 +164,9 @@ button it named is hidden when a keyboard exists; there was no mouse binding for
 | 7 | Can't open a new area | Done (`d8634e7`) |
 | 8 | Notification loop | Done (`d8634e7`) |
 
-### Capture balance (applied, `281b0a5`, knockback `5e54b2b`)
+### Capture balance (applied, `281b0a5`; zone/rarity tuning `459e933`)
 
-Base times 8/10/13/16 s unchanged. `hitPenalty` 1, `knockback` 28, `wallHeight` 3. The
+Base times 8/10/13/16 s unchanged. Zone 1: `hitPenalty` 1, `knockback` 32, `wallHeight` 3. Higher zones per `Config.Capture.zoneTuning` (warning down to 60%, up to +2 patches, penalty up to 2.25 s, knockback up to 40); rarity adds 15% hazard size and cuts 10% warning per rank.
 `capture balance` self-test suite pins the rules (penalty below every attack interval, knockback
 below tether range, wall lower than a jump, legs continuous). Legendary still needs ~14% dodging
 within the 45 s claim. **Next lever if it still feels off:** per-rarity `attackInterval`, not base
