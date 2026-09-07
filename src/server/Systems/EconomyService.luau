@@ -218,6 +218,8 @@ local function tickProfile(profile: Profile, dt: number, now: number)
 		if earned > 0 then
 			d.stats.earned += earned
 			safeCall("Quests", "bump", profile, "earned", earned)
+			-- retire finished boosts here so the player is told once, on the tick
+			safeCall("Purchase", "pruneBoosts", profile)
 		end
 	end
 

@@ -53,7 +53,14 @@ function Stats.compute(profile: Profile): Computed
 	return {
 		relaunchMult = Config.Relaunch.incomeMultiplier(d.relaunch),
 		tetherRange = math.min(Config.Capture.tetherRange + level(profile, "tether_range") * U.tether_range.perLevel, U.tether_range.cap or Config.Capture.tetherRangeCap),
-		tetherSpeedMult = 1 + level(profile, "tether_speed") * U.tether_speed.perLevel,
+		-- Quick Tether is the one paid item that touches a capture. It is capped
+		-- with the upgrade, not on top of it, so buying it can never take capture
+		-- speed past Config.Store.tetherSpeedCap, and it leaves hazard telegraphs
+		-- alone: the dodging still has to be done.
+		tetherSpeedMult = math.min(
+			Config.Store.tetherSpeedCap,
+			(1 + level(profile, "tether_speed") * U.tether_speed.perLevel) * Stats.boostMult(profile, "tetherSpeed")
+		),
 		walkSpeed = math.min(24 + level(profile, "move_speed") * U.move_speed.perLevel, U.move_speed.cap or 36),
 		circuitBonusExtra = level(profile, "circuit_efficiency") * U.circuit_efficiency.perLevel,
 		bankCapSeconds = Config.Economy.income.bankCapSeconds + level(profile, "bank_capacity") * U.bank_capacity.perLevel,
@@ -220,12 +227,30 @@ export type Income = {
 }
 
 -- Full income breakdown at `now` (server time).
+-- Multiplier from a running Store boost. Boosts never stack: when two touch the
+-- same stat the stronger one wins rather than the two multiplying.
+function Stats.boostMult(profile: Profile, stat: string, now: number?): number
+	local at = now or os.time()
+	local mult = 1
+	for id, expiresAt in profile.data.boosts do
+		local boost = Config.Store.boosts[id]
+		if boost and boost.stat == stat and expiresAt > at then
+			mult = math.max(mult, boost.mult)
+		end
+	end
+	return mult
+end
+
 function Stats.income(profile: Profile, now: number, computed: Computed?): Income
 	local c = computed or Stats.compute(profile)
 	local pairs, padToKey = Stats.activePairs(profile, c)
 	local per: { [string]: number } = {}
 	local perNormal: { [string]: number } = {}
 	local total, totalNormal = 0, 0
+	-- A paid income boost lifts what the city pays out, never `totalNormal`,
+	-- which is what the bank cap and the offline award are measured in. Same
+	-- rule Overdrive follows.
+	local incomeBoost = Stats.boostMult(profile, "income")
 	for uid, entry in profile.data.creatures do
 		if entry.pad then
 			local base = Stats.normalCps(profile, entry, c)
@@ -236,7 +261,7 @@ function Stats.income(profile: Profile, now: number, computed: Computed?): Incom
 				withCircuit = base * (1 + pairs[key].bonus)
 				factor = Stats.overdriveFactor(profile, key, now)
 			end
-			per[uid] = withCircuit * factor
+			per[uid] = withCircuit * factor * incomeBoost
 			perNormal[uid] = withCircuit
 			total += per[uid]
 			totalNormal += withCircuit

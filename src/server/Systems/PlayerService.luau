@@ -111,6 +111,13 @@ function PlayerService.onJoin(player: Player)
 	try("City", "refreshAll", profile)
 	try("Circuits", "recalculate", profile)
 	try("Tools", "give", profile)
+	-- Game pass ownership and the paid-random-items policy both yield on web
+	-- calls, so they run beside the join rather than holding it up.
+	task.spawn(function()
+		if profile.loaded and not profile.leaving then
+			try("Purchase", "onJoin", profile)
+		end
+	end)
 	PlayerService.applyCharacter(profile)
 
 	Sync.push(profile)
@@ -173,6 +180,7 @@ function PlayerService.onLeave(player: Player)
 	end
 
 	try("City", "release", profile)
+	try("Purchase", "onLeave", profile)
 	RateLimiter.clear(player)
 	Profiles.remove(player)
 end
