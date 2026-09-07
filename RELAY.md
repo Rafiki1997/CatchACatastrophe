@@ -21,6 +21,7 @@
 
 | Commit | What |
 |---|---|
+| `281b0a5` | **Creatures no longer teleport** (legs continue from the last leg's end), Gust/Ice Wave walls are 3 studs and jumpable, hitPenalty 2 -> 1, knockback 38 -> 16. A standing-still probe caught a Common in 10.7 s; it never finished before. SelfTest 451. |
 | `f5c1bb9` | Neon route chevrons with a marching light toward the destination (`Controllers/RouteLights`); always-on-top waypoint signs over gates, hub destinations and your own city (`Controllers/Waypoints`). LiveTest 22 → 27. |
 | `7e78ecf` | Codex's on-pad collection indicator, finished and verified: bank, status, progress bar, driven by the server's Collection* player attributes. Tutorial step 4 text updated. |
 | `44880b1` | Pointing at a creature is judged **on screen** (projected body radius), not by raycast. See trap below. |
@@ -43,7 +44,9 @@ Earlier (09-06): gate unlock at the gate + nudge loop, walk speed x1.5, pad pick
 | Route chevrons | 338 of 338 Neon across 25 routes; lit block advanced toward higher Index over 0.45 s |
 | Waypoint signs | 11 (6 gates, 4 hub, 1 city); locked gates show "Unlock X Coins · N away"; "Your City" hidden at spawn |
 | Collection indicator | "Stand here" → "Stay on the pad / Collecting…" → "Collected +12 Coins", bank 8.77 → 0, cycle repeated (+8) |
-| Suites | SelfTest **439** / 0 · LiveTest **27** / 0 |
+| Roaming legs | 2 boundaries in 11 s, both continuous; max single-tick move 1.08 studs (was 13-19) |
+| Beginner capture | stand 4 studs away, never dodge: Common **caught in 10.7 s** (never finished before) |
+| Suites | SelfTest **451** / 0 · LiveTest **27** / 0 |
 | Client errors | none from game code (one stock `rbxasset://` sound, pre-existing) |
 
 **Not verified by a probe (a probe cannot click):** a real left-click on a creature. The user
@@ -109,17 +112,17 @@ button it named is hidden when a keyboard exists; there was no mouse binding for
 | 3 | Movement speed | Done (`4e50529`) |
 | 4 | Change creatures at the pad | Done (`2c152fe`) |
 | 5 | Plot rework so creatures stand out | Parked ("maybe") |
-| 6 | "Catching is buggy af" | **Very likely `5af5dbb`.** Re-test with the friends before touching capture numbers |
+| 6 | "Catching is buggy af" | Frozen creatures (`5af5dbb`), teleporting legs, unjumpable wall, 2 s penalty + eject knockback: all fixed today. **Re-test with the friends** |
 | 7 | Can't open a new area | Done (`d8634e7`) |
 | 8 | Notification loop | Done (`d8634e7`) |
 
-### Capture balance (recommendation, not applied)
+### Capture balance (applied, `281b0a5`)
 
-Base times 8/10/13/16 s are fine. The hit penalty (2 s) against attack intervals of 3.2 / 2.4 /
-1.85 / 1.33 s means a player who does not sidestep needs 21 s for a Common and can never
-finish anything above it within the 45 s claim; Legendary goes net-negative. **Cut `hitPenalty`
-2 → 1**: Common 12 s, Uncommon 17, Rare 28 even when hit every time; Legendary still needs ~14%
-dodging. Measure against moving creatures now that they move. `Capture.luau` one constant.
+Base times 8/10/13/16 s unchanged. `hitPenalty` 1, `knockback` 16, `wallHeight` 3. The
+`capture balance` self-test suite pins the rules (penalty below every attack interval, knockback
+below tether range, wall lower than a jump, legs continuous). Legendary still needs ~14% dodging
+within the 45 s claim. **Next lever if it still feels off:** per-rarity `attackInterval`, not base
+seconds. Re-test with the friends first.
 
 ### Other
 
