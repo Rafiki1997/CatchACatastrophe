@@ -21,6 +21,12 @@
 
 | Commit | What |
 |---|---|
+| `9d5b301` | Studio-only click diagnostics removed (user confirmed the click works). |
+| `bbd662e` | **Tutorial guide follows the roads**: chain of beams over the road graph (Path parts + plaza links), straight for short hops/detours. |
+| `9f70cfb` | **CameraGuard**: a camera left Scriptable/detached is handed back to the Humanoid within 1 s. Probes: set Camera attribute `ScriptedCamera=true` while framing, clear after. |
+| `5e54b2b` | **Knockback 16 -> 28** ("the wall barely moves me"). Self-test pins <= 30. |
+| `418a649` | **Pad toast** "N Coins collected!" and **one payout per visit** (was every 0.2 s while standing). |
+| `d3d8217` | **StudioTester**: every Studio profile gets a Prismatic Big Whoops (5,120 Coins/s) after the live suite (`LiveTestDone` attribute). Studio bank numbers are inflated by it on purpose. |
 | `992aeb8` | **Camera never cached** in CaptureController / CircuitEditor; **Studio-only click diagnostics** on PlayerGui (`ClickDiagCount/Last/Nearest`). Click-to-capture PROVEN with an injected click: picker found the creature, claim accepted, card shown. |
 | `1449a52` | **HUD Collect button removed** (it collected from anywhere); readout pops when the bank fills. "Remote Collector" Workshop upgrade approved for later. |
 | `c7ed59f` | **Roads stop at destinations**: plot driveways end at the apron (were 30 studs inside the lot, over the pads), kiosk spokes stop at base discs, region route = hub-gate + 30-stud stub, arena floor road removed. Neon edge lines, bigger chevrons. LiveTest 29. |
@@ -57,12 +63,13 @@ Earlier (09-06): gate unlock at the gate + nudge loop, walk speed x1.5, pad pick
 | Suites | SelfTest **451** / 0 · LiveTest **27** / 0 |
 | Client errors | none from game code (one stock `rbxasset://` sound, pre-existing) |
 
-**Click-to-capture is verified** with real injected mouse input (`user_mouse_input`): with a
-camera tracking a creature so it sits at the screen centre, one left click made the game's own
-handler log `creatureUnderPoint=breeze_bean`, the server accepted the claim, the capture card
-showed. The user still reports clicks doing nothing; the Studio-only diagnostics in
-CaptureController record their clicks. Read PlayerGui attributes `ClickDiagLast` and
-`ClickDiagNearest` after they click. Remove the diagnostics once explained.
+**Click-to-capture is verified** with real injected mouse input and **confirmed by the user**
+("The click works now"; their earlier miss was 216 studs from the nearest creature). Diagnostics
+removed. New report 2026-09-07 evening: clicks stop working once the camera is zoomed out past a
+point. The 34-stud range is measured from the character, not the camera, so the suspects are the
+300-stud raycast limit and the pixel radius shrinking with depth (default max zoom is 400 studs).
+Fix direction: cap `CameraMaxZoomDistance` (the user asked for a zoom cap) and floor the click
+radius at ~24 px.
 
 **Probe lessons from that hunt:** the assistant's probes do NOT receive UserInputService input
 (plugin context), so a probe-side InputBegan recorder sees nothing; only game scripts or
@@ -94,6 +101,11 @@ button it named is hidden when a keyboard exists; there was no mouse binding for
 ---
 
 ## Traps for probes (execute_luau)
+
+- **CameraGuard** resets a Scriptable or re-subjected camera within a second. Before a positioned `screen_capture` or a scripted frame, `workspace.CurrentCamera:SetAttribute("ScriptedCamera", true)`; clear it after. And do not do it in the user's session at all between sets.
+- **StudioTester** gives every Studio profile 5,120 Coins/s a few seconds after the live suite. Bank and wallet numbers in Studio include it; a teleport onto the collection pad pays hundreds of thousands.
+- A probe that teleports the character mid-capture makes the game toast "You left the creature behind." It happened to the user once today. Ask, or wait for a fresh session.
+- **Bash heredocs with apostrophes fail** in this harness ("unexpected EOF while looking for matching"). Write Python scripts to the scratchpad with the Write tool and run them.
 
 - **Own module cache, both datamodels, and stale across probes in Edit.** A `require` in a
   probe returns the module as first cached by an earlier probe. After editing a module, an
@@ -128,13 +140,13 @@ button it named is hidden when a keyboard exists; there was no mouse binding for
 | 3 | Movement speed | Done (`4e50529`) |
 | 4 | Change creatures at the pad | Done (`2c152fe`) |
 | 5 | Plot rework so creatures stand out | Parked ("maybe") |
-| 6 | "Catching is buggy af" | Frozen creatures (`5af5dbb`), teleporting legs, unjumpable wall, 2 s penalty + eject knockback: all fixed today. **Re-test with the friends** |
+| 6 | "Catching is buggy af" | Frozen creatures (`5af5dbb`), teleporting legs, unjumpable wall, 2 s penalty, knockback 38 -> 16 -> **28**: all fixed today. User: capture finishes faster; the wall must feel like a shove (28 unvalidated) |
 | 7 | Can't open a new area | Done (`d8634e7`) |
 | 8 | Notification loop | Done (`d8634e7`) |
 
-### Capture balance (applied, `281b0a5`)
+### Capture balance (applied, `281b0a5`, knockback `5e54b2b`)
 
-Base times 8/10/13/16 s unchanged. `hitPenalty` 1, `knockback` 16, `wallHeight` 3. The
+Base times 8/10/13/16 s unchanged. `hitPenalty` 1, `knockback` 28, `wallHeight` 3. The
 `capture balance` self-test suite pins the rules (penalty below every attack interval, knockback
 below tether range, wall lower than a jump, legs continuous). Legendary still needs ~14% dodging
 within the 45 s claim. **Next lever if it still feels off:** per-rarity `attackInterval`, not base
@@ -155,12 +167,18 @@ seconds. Re-test with the friends first.
 - Widen the animator's 220-stud camera cull if far creatures snapping into place still reads as teleporting.
 - **Region roads clip four plot corners** (angles 30/150/210/330 vs plots at 22.5+45k, radius 140). Needs a dog-leg through the gap between plots, or a different plot ring.
 
-## Suggested next task
+## Next set from the user (2026-09-07 evening, not started)
 
-1. Ask the user whether the creature click works now; that is the only unconfirmed piece.
-2. Re-test catching with the friends. If it still feels wrong, `hitPenalty` 2 → 1.
-3. Live build stamp.
-4. Progression-gated sidebar (hide Relaunch / Cities / Recipes until they matter).
+1. Zoomed out past a point, clicking a creature does nothing (see the click paragraph above).
+2. Region roads still cross the plot corners (Orbital Outpost named). Decision pending: dog-leg through the 45-degree gaps vs. move the plot ring.
+3. Pad toast: **done** (`418a649`), awaiting validation.
+4. More knockback in Gusty Gardens: **done at 28** (`5e54b2b`), awaiting validation.
+5. Cap how far the player can zoom out (`Player.CameraMaxZoomDistance`).
+6. HUD says Collectible N while the pad billboard says Bank 0. Check `CollectionPadUI` vs `HUD` bank sources (client-side prediction vs last snapshot?).
+7. CAUGHT card: the PERFECT CAPTURE ribbon sits on the viewport's bottom edge (screenshot). `CaptureReveal` ribbon position vs viewport height.
+8. Remove the SelectionBox outline on the targeted creature (`CaptureController` TargetHighlight); the floating label already marks the target.
+
+Then: live build stamp; progression-gated sidebar.
 
 ## House rules
 
