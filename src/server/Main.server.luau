@@ -98,12 +98,19 @@ if RunService:IsStudio() then
 	task.spawn(function()
 		local Players = game:GetService("Players")
 		local Profiles = require(Systems.Profiles)
+		-- StudioTester waits for this flag so its gifted creature cannot take the
+		-- pads the live suite deploys onto.
+		local function done()
+			workspace:SetAttribute("LiveTestDone", true)
+		end
 		local harness = Systems:FindFirstChild("TestHarness")
 		if not harness then
+			done()
 			return
 		end
 		local ok, module = pcall(require, harness)
 		if not ok or typeof(module) ~= "table" or typeof(module.runLive) ~= "function" then
+			done()
 			return
 		end
 		-- wait for someone to join and be given a plot
@@ -117,11 +124,13 @@ if RunService:IsStudio() then
 					if not ranOk then
 						warn("[LiveTest] crashed: " .. tostring(err))
 					end
+					done()
 					return
 				end
 			end
 			task.wait(1)
 		end
+		done()
 	end)
 end
 
@@ -129,6 +138,7 @@ end
 
 if RunService:IsStudio() then
 	require(Systems.HazardTestHarness).install()
+	require(Systems.StudioTester).init()
 end
 
 if RunService:IsStudio() then
