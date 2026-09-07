@@ -485,6 +485,28 @@ local function testUpgrades()
 
 	-- costs climb
 	check("upgrade cost level 0", Config.Economy.upgradeCost("tether_speed", 0) == 120)
+	-- Remote Collector: one level, and the gate that guards the CollectBank remote
+	local rc = Config.Economy.upgradeById.remote_collector
+	check("remote collector upgrade defined (1 level, 20000)", rc ~= nil and rc.maxLevel == 1 and rc.baseCost == 20000, tostring(rc and rc.baseCost))
+	do
+		local Economy = require(script.Parent.EconomyService)
+		local p = mockProfile(0)
+		p.data.bank = 500
+		p.remoteCollectReadyAt = 0
+		local okNo = Economy.remoteCollectGate(p, 1000)
+		check("remote collect refused without the upgrade", okNo == false)
+		p.data.upgrades.remote_collector = 1
+		local okYes = Economy.remoteCollectGate(p, 1000)
+		check("remote collect allowed with the upgrade", okYes == true)
+		p.remoteCollectReadyAt = 1030
+		local okCooling, why = Economy.remoteCollectGate(p, 1000)
+		check("remote collect refused during cooldown", okCooling == false and why ~= nil and why:find("recharging") ~= nil, tostring(why))
+		local okLater = Economy.remoteCollectGate(p, 1031)
+		check("remote collect allowed after cooldown", okLater == true)
+		p.data.bank = 0.4
+		local okEmpty = Economy.remoteCollectGate(p, 1031)
+		check("remote collect refused with an empty bank", okEmpty == false)
+	end
 	check("upgrade cost rises", Config.Economy.upgradeCost("tether_speed", 1) > Config.Economy.upgradeCost("tether_speed", 0))
 end
 

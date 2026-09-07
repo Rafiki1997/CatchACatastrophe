@@ -50,6 +50,8 @@ local function effectText(id: string, level: number, snap: Snapshot): string
 		return tostring(math.min(Config.Economy.storage.base + level * def.perLevel, def.cap or 120)) .. " creature storage"
 	elseif id == "decoration" then
 		return if level <= 0 then "Plain lot" else "Decoration tier " .. tostring(level)
+	elseif id == "remote_collector" then
+		return if level <= 0 then "Collect at your pad only" else "Collect from anywhere, every " .. tostring(Config.Economy.remoteCollectCooldown) .. " s"
 	end
 	return tostring(level)
 end

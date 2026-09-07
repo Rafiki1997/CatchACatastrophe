@@ -38,6 +38,9 @@ local titleLabel: TextLabel? = nil
 local bankLabel: TextLabel? = nil
 local bankBar: any = nil
 local bankWasFull = false
+local collectButton: TextButton? = nil
+local remoteReadyAt = 0
+local remoteBank = 0
 local dataPill: TextLabel? = nil
 local offlineCard: Frame? = nil
 local offlineText: TextLabel? = nil
@@ -113,9 +116,30 @@ function HUD.init()
 		color = Theme.colors.textDim,
 		xalign = Enum.TextXAlignment.Left,
 	})
-	-- No Collect button here. It collected from anywhere in the world, which made
-	-- the collection pad pointless; banking happens by stepping on the pad in your
-	-- city (a "Remote Collector" upgrade may bring remote collection back, paid for).
+	-- Collect from anywhere: only for owners of the Remote Collector upgrade, and
+	-- on its cooldown. Everyone else banks by stepping on the pad in their city.
+	collectButton = W.button({
+		parent = wallet,
+		name = "Collect",
+		text = "Collect",
+		size = UDim2.new(0, 96, 0, 28),
+		position = UDim2.new(1, -12, 0, 104),
+		anchor = Vector2.new(1, 0),
+		color = Theme.colors.accent,
+		textColor = Theme.colors.ink,
+		textSize = 14,
+		onClick = function()
+			Net.fire("CollectBank")
+		end,
+	})
+	collectButton.Visible = false
+	W.tooltip(collectButton :: GuiObject, "Remote Collector: move your bank into your wallet from anywhere, once a minute.")
+	task.spawn(function()
+		while true do
+			task.wait(1)
+			HUD.refreshCollectButton()
+		end
+	end)
 
 	-- ---------------------------------------------------------------- forecast
 	forecastRow = W.frame({
@@ -374,6 +398,22 @@ function HUD.refreshForecast()
 	end
 end
 
+-- Button text and enabled state from the last snapshot: "Collect", or the
+-- seconds left on the cooldown. Ticks once a second between snapshots.
+function HUD.refreshCollectButton()
+	if not collectButton or not collectButton.Visible then
+		return
+	end
+	local wait = remoteReadyAt - workspace:GetServerTimeNow()
+	if wait > 0 then
+		collectButton.Text = tostring(math.ceil(wait)) .. " s"
+		W.setEnabled(collectButton, false)
+	else
+		collectButton.Text = "Collect"
+		W.setEnabled(collectButton, remoteBank >= 1)
+	end
+end
+
 function HUD.update(snap: Types.Snapshot)
 	if not gui then
 		return
@@ -413,6 +453,16 @@ function HUD.update(snap: Types.Snapshot)
 		end
 	end
 	bankWasFull = snap.bankFull == true
+	if collectButton then
+		local owned = (snap.upgrades.remote_collector or 0) >= 1
+		collectButton.Visible = owned
+		if bankLabel then
+			bankLabel.Size = UDim2.new(1, if owned then -124 else -24, 0, 22)
+		end
+		remoteReadyAt = snap.remoteCollectReadyAt or 0
+		remoteBank = snap.bank
+		HUD.refreshCollectButton()
+	end
 
 	if offlineCard and offlineText then
 		if snap.offline then

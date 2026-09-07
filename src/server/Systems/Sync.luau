@@ -83,6 +83,7 @@ function Sync.build(profile: Profile): Snapshot
 			anchored = c.anchored,
 			cps = income.perCreature[uid] or 0,
 			normalCps = Stats.normalCps(profile, c, computed),
+			potentialCps = Stats.potentialCps(profile, c, computed),
 			circuitId = if key then income.pairs[key].circuitId else nil,
 			caughtAt = c.caughtAt,
 			perfect = c.perfect,
@@ -140,6 +141,7 @@ function Sync.build(profile: Profile): Snapshot
 		circuitUpgrades = d.circuitUpgrades,
 		regions = d.regions,
 		upgrades = d.upgrades,
+		remoteCollectReadyAt = profile.remoteCollectReadyAt,
 		derived = {
 			tetherRange = computed.tetherRange,
 			tetherSpeedMult = computed.tetherSpeedMult,

@@ -153,9 +153,11 @@ function Router.init()
 	end, via("Circuits", "startOverdrive"))
 
 	-- money
+	-- gated by the Remote Collector upgrade and its cooldown (Economy.collectRemote);
+	-- the pad pays through CollectionPadService, never through this remote
 	bind("CollectBank", function()
 		return true
-	end, via("Economy", "collect"))
+	end, via("Economy", "collectRemote"))
 	bind("ClaimOffline", function()
 		return true
 	end, via("Economy", "claimOffline"))

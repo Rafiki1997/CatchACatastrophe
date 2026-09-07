@@ -48,6 +48,9 @@ Economy.deploy = {
 -- Sell value = Rarities.info[rarity].sellSeconds x the creature's normal income.
 Economy.sellMin = 5
 
+-- seconds between remote collections (Remote Collector upgrade)
+Economy.remoteCollectCooldown = 60
+
 Economy.upgrades = {
 	{ id = "tether_speed", name = "Tether Speed", desc = "+10% capture speed per level", icon = "⏩", maxLevel = 8, baseCost = 120, costMult = 1.8, perLevel = 0.10 },
 	{ id = "tether_range", name = "Tether Range", desc = "+2 studs tether range per level (max 30)", icon = "📡", maxLevel = 6, baseCost = 200, costMult = 1.9, perLevel = 2, cap = 30 },
@@ -57,6 +60,11 @@ Economy.upgrades = {
 	{ id = "bank_capacity", name = "Bigger Bank", desc = "+30 minutes of bank storage per level", icon = "🏦", maxLevel = 6, baseCost = 500, costMult = 2.0, perLevel = 1800 },
 	{ id = "storage", name = "Creature Storage", desc = "+10 creature storage per level (max 120)", icon = "📦", maxLevel = 6, baseCost = 800, costMult = 1.7, perLevel = 10, cap = 120 },
 	{ id = "decoration", name = "City Decoration", desc = "Next decoration tier: more machinery, pipes and lights", icon = "🎨", maxLevel = 3, baseCost = 1500, costMult = 8, perLevel = 1 },
+	-- The HUD Collect button used to bank from anywhere, which made the collection
+	-- pad pointless. It is now this upgrade: one level, priced between the
+	-- Splashwater and Cinder Canyon unlocks, and on a cooldown so the pad stays
+	-- the normal path and remote is the rescue when the bank fills far from home.
+	{ id = "remote_collector", name = "Remote Collector", desc = "Collect your bank from anywhere, once a minute", icon = "📡", maxLevel = 1, baseCost = 20000, costMult = 1, perLevel = 1 },
 } :: { UpgradeDef }
 
 Economy.upgradeById = {} :: { [string]: UpgradeDef }

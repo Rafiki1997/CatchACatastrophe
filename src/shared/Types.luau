@@ -13,6 +13,7 @@ export type CreatureEntry = {
 	anchored: boolean, -- survives relaunch
 	cps: number, -- effective Coins/sec INCLUDING variant, relaunch and circuit state (0 when stored / cooling)
 	normalCps: number, -- region base x rarity x variant x relaunch (no circuit, no overdrive)
+	potentialCps: number, -- the same whether or not it is deployed (what a stored creature would earn)
 	circuitId: string?, -- recipe id when this creature is in an active pair
 	caughtAt: number, -- unix time
 	perfect: boolean, -- was caught with a perfect capture
@@ -84,6 +85,7 @@ export type Snapshot = {
 	circuitUpgrades: { [string]: boolean }, -- pairKey -> bought this run
 	regions: { [string]: boolean }, -- unlocked region ids
 	upgrades: { [string]: number }, -- upgrade id -> level (reset on relaunch)
+	remoteCollectReadyAt: number, -- server time when the Remote Collector may fire again (0 = ready)
 	derived: {
 		tetherRange: number,
 		tetherSpeedMult: number,

@@ -84,6 +84,7 @@ export type Profile = {
 	saving: boolean,
 	busy: boolean, -- a purchase / relaunch is mid-flight; blocks relaunch and double spends
 	lastCollectAt: number,
+	remoteCollectReadyAt: number, -- server time (GetServerTimeNow) when the Remote Collector may fire again
 }
 
 local profiles: { [Player]: Profile } = {}
@@ -309,6 +310,7 @@ function Profiles.create(player: Player, data: Data, dataSafe: boolean, testAdap
 		saving = false,
 		busy = false,
 		lastCollectAt = 0,
+		remoteCollectReadyAt = 0,
 	}
 	profiles[player] = profile
 	byUserId[player.UserId] = profile

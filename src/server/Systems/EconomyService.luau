@@ -118,6 +118,42 @@ function EconomyService.collect(profile: Profile, quiet: boolean?): (boolean, st
 	return true, nil
 end
 
+-- Remote Collector upgrade: the gate, without side effects, so the self-test
+-- can pin it. `now` is workspace:GetServerTimeNow().
+function EconomyService.remoteCollectGate(profile: Profile, now: number): (boolean, string?)
+	if (profile.data.upgrades.remote_collector or 0) < 1 then
+		return false, "Remote Collector needed: buy it at the Workshop to collect from anywhere."
+	end
+	local readyAt = profile.remoteCollectReadyAt or 0
+	if now < readyAt then
+		return false, "Remote Collector is recharging (" .. tostring(math.ceil(readyAt - now)) .. " s)."
+	end
+	if math.floor(profile.data.bank) <= 0 then
+		return false, "Nothing to collect yet."
+	end
+	return true, nil
+end
+
+-- What the HUD Collect button fires. The pad path (collect) checks neither the
+-- upgrade nor the cooldown; this one checks both, server-side, so a client
+-- without the upgrade cannot replay the old remote.
+function EconomyService.collectRemote(profile: Profile): (boolean, string?)
+	local now = workspace:GetServerTimeNow()
+	local ok, reason = EconomyService.remoteCollectGate(profile, now)
+	if not ok then
+		return false, reason
+	end
+	local before = profile.data.coins
+	local paid, err = EconomyService.collect(profile, true)
+	if not paid then
+		return false, err
+	end
+	profile.remoteCollectReadyAt = now + Config.Economy.remoteCollectCooldown
+	profile.dirty = true
+	Notify.player(profile.player, "success", Format.abbreviate(profile.data.coins - before) .. " Coins collected remotely!", 3)
+	return true, nil
+end
+
 -- ---------------------------------------------------------------- offline
 
 -- Called once, at load, before the profile goes live. Fills data.offlinePending.
