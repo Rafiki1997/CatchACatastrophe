@@ -21,6 +21,7 @@
 
 | Commit | What |
 |---|---|
+| `9562354` | Monetisation **Phase A** (see the block below). Store catalogue, PurchaseService, save schema, three chase tiers, egg roster, boosts wired, 127 new self-tests + 13 live checks. SelfTest 578, LiveTest 46. |
 | `44c3986` | **Zone labels scale harder**: user's feel test said every sign past 200 studs was one size and legible from the far edge. `Waypoints` now clamps depth 30..420 and raises the depth ratio to 1.25 (`REF` 60, `EXAGGERATE`); gold Unlock line hides under a 14 px title. Live: 11 px at 259 studs (was 21), 90 px at 49. Open question to the user: keep the 28-stud vanish, fade it, or drop it. |
 | `d6e5b11` | **Zone labels as outlined names that scale with distance** (`Controllers/Waypoints`): the 11 signs (6 gates, 4 hub, Your City) are the name alone in the destination's colour, FredokaOne, ink `UIStroke`, no card. Sized every frame from camera depth as a 44x7.6-stud sign would be, depth clamped 35..200 studs; locked gates keep a gold "Unlock X Coins" line; distance readout and element word removed. Live: title 36.2 px at depth 116 vs 36.8 modelled, 121 px at depth 7 (near clamp). User approved the plan; awaiting his feel check. |
 | `bd9ab36` | **Rarity shrinks the capture circle and grows the shove** (`rarityRangeMult` 1/.9/.8/.7, `rarityKnockbackMult` 1/1.1/1.2/1.35); circle stored on the capture and sent in CaptureState; ring on screen matches. Gusty Gardens pass; tune region by region next. **Unvalidated by the user.** |
@@ -120,7 +121,23 @@ button it named is hidden when a keyboard exists; there was no mouse binding for
 
 ---
 
+## Monetisation Phase A (2026-09-07, built; ids still 0)
+
+Server and data only. **No client Store panel yet** and **no remotes yet**: those are Phase B/C, and nothing is buyable until the place is published and real ids are pasted into `Config/Store.luau`.
+
+- **Catalogue** `src/shared/Config/Store.luau`: 4 passes (79/99/149/299), 4 coin bundles at the region unlock costs, Double Income 30 min / 2 h, Quick Tether 30 min, Cosmic Egg x1/10/50/100 (49/399/1499/2499). Every `assetId = 0`; the asset-id indexes only contain live entries, so a 0 can never resolve a receipt.
+- **Chase tiers** Mythic / Celestial / Astral (ranks 5-7, `weight = 0`, income mult 50/150/400) plus six egg-only species in `Species.eggList` that reuse existing builders. `Species.list` stays 24, so the Atlas denominator, the spawner and Relaunch are untouched.
+- **Pity**: three independent counters per egg (Mythic 50, Celestial 200, Astral 500). A hatch of tier T zeroes every counter at or below T.
+- **Save schema**: `data.purchases` (ledger, passes, cosmetics, counters), `data.boosts`, `data.eggs`. Sanitize drops unknown ids and expired/oversized boosts; serialize deep-copies. Runtime profiles gain `passes` and `eggAllowed`.
+- **The rule the service is built on**: never pay and get nothing. Every uncertain path returns NotProcessedYet; every granted PurchaseId goes in the ledger and a repeat is acknowledged without granting again (the duplicate check sits in `settle`, next to the ledger). Order is apply -> record -> save -> acknowledge, with rollback if the save fails.
+- **Boosts** extend rather than stack, capped at 4 banked hours. Income boosts lift payout but never `totalNormal`, so the bank cap and offline award cannot inflate. Quick Tether is capped WITH the upgrade at `Store.tetherSpeedCap` 2.0 and leaves telegraphs alone.
+- **Studio testing**: `S.Purchase.testGrant(profile, id)` grants with no Robux and no asset id (Studio + test adapter only). The live suite uses it on the real profile and forces a pity Astral.
+
+**Next (Phase B/C)**: `PromptPurchase` / `HatchEgg` remotes + RateLimiter entries, `Snapshot.store`, the Store panel (Passes / Coins / Boosts / Eggs with the odds and pity lines), sidebar button, boost chip, hatch reveal, and the Remote Collector Robux button on its Workshop row. Then the owner publishes, creates the products and pastes the ids.
+
 ## Traps for probes (execute_luau)
+
+- **A probe's `require` returns its own copy of a module**, with its own empty state: `Profiles.all()` in a probe is always empty even with a player in game. Test live server state from inside the server (the `runLive` suite) rather than from a probe.
 
 - **Never move the user's character.** A probe that stood him on the collection pad for a second (to fund a test) was reported as "randomly got teleported back to my city" mid-capture. Fund tests through remotes (UnlockRegion, BuyUpgrade) only when the wallet already allows it, or ask him.
 - **Which build is running?** Read the HUD pill (`BuildPill`) or the boot line `[Catch a Catastrophe!] Build <hash>`; a `*` means uncommitted changes were stamped in. Run `python tools/stamp.py` after editing and before syncing, or the pill lies.
