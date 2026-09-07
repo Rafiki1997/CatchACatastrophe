@@ -1,5 +1,32 @@
 # Catch A Catastrophe — Agent Relay State
 
+## Collection pad and tutorial indicators — CLOSED 2026-09-07 evening
+
+A checkpoint written earlier today opened this file with "ACTIVE INTERRUPTED
+WORK ... PARTIAL and UNVERIFIED" for the automatic collection pad and the
+tutorial direction indicators. Both were finished later the same day and
+validated by the user in Studio, so that block was stale and has been replaced
+with what is actually true. Nothing was lost; the work it described is done.
+
+- **Automatic collection: done and validated.** `CollectionPadService` owns
+  occupancy and payout, `EconomyService.collect` takes the `quiet` flag, the
+  service is wired in `Main.server`, `CollectionPadUI` draws the billboard and
+  progress, and `testCollectionPad` covers the timer rule. Stepping on the pad
+  pays the whole bank at once (`collectHoldSeconds` is 0), toasts
+  "N Coins collected!", and **pays once per visit**: the latch clears only when
+  the player leaves the pad footprint, and the billboard says
+  "Collected. Step off and back on to collect again" meanwhile.
+- **Tutorial indicators: done and validated.** The guide is no longer one thin
+  straight beam. It follows the road graph (up to 20 segments, Dijkstra over
+  every `Path` part with the hub plaza fully connected), is more than twice as
+  wide (1.4), and draws as evenly spaced dots on every segment: `TextureMode`
+  is `Wrap` with a 3-stud repeat, because Stretch spread a fixed number of
+  sparkles per beam and so read as a line on long legs and dots on short ones.
+  Short hops and real detours fall back to a straight line.
+- **Still true from that note:** nothing is published, and Studio state should
+  always be queried rather than assumed.
+
+
 - **Updated:** 2026-09-07 morning (Claude Code). Codex reached its weekly limit; Claude owns
   this repo until told otherwise, and took over Codex's unfinished collection pad indicator.
 - **Repo:** `C:\Users\rahul\orca\Catch-a-Catastrophe` — Rojo 7.7, branch `main`
@@ -21,6 +48,8 @@
 
 | Commit | What |
 |---|---|
+| `9b1fcc1` | **Store panel** (Passes / Coins / Boosts / Eggs), sidebar button, HUD boost chip, Robux button on the Remote Collector row. Everything reads "Coming soon" until the dashboard ids exist. |
+| `4e422ba` | **Store remotes**: `PromptPurchase`, `HatchEgg`, `TestGrant` (Studio only) + `HatchResult`, rate-limit buckets, `Snapshot.store`. `Remotes.serverToClient` is now the one list of remote direction. |
 | `9562354` | Monetisation **Phase A** (see the block below). Store catalogue, PurchaseService, save schema, three chase tiers, egg roster, boosts wired, 127 new self-tests + 13 live checks. SelfTest 578, LiveTest 46. |
 | `44c3986` | **Zone labels scale harder**: user's feel test said every sign past 200 studs was one size and legible from the far edge. `Waypoints` now clamps depth 30..420 and raises the depth ratio to 1.25 (`REF` 60, `EXAGGERATE`); gold Unlock line hides under a 14 px title. Live: 11 px at 259 studs (was 21), 90 px at 49. Open question to the user: keep the 28-stud vanish, fade it, or drop it. |
 | `d6e5b11` | **Zone labels as outlined names that scale with distance** (`Controllers/Waypoints`): the 11 signs (6 gates, 4 hub, Your City) are the name alone in the destination's colour, FredokaOne, ink `UIStroke`, no card. Sized every frame from camera depth as a 44x7.6-stud sign would be, depth clamped 35..200 studs; locked gates keep a gold "Unlock X Coins" line; distance readout and element word removed. Live: title 36.2 px at depth 116 vs 36.8 modelled, 121 px at depth 7 (near clamp). User approved the plan; awaiting his feel check. |
@@ -133,7 +162,11 @@ Server and data only. **No client Store panel yet** and **no remotes yet**: thos
 - **Boosts** extend rather than stack, capped at 4 banked hours. Income boosts lift payout but never `totalNormal`, so the bank cap and offline award cannot inflate. Quick Tether is capped WITH the upgrade at `Store.tetherSpeedCap` 2.0 and leaves telegraphs alone.
 - **Studio testing**: `S.Purchase.testGrant(profile, id)` grants with no Robux and no asset id (Studio + test adapter only). The live suite uses it on the real profile and forces a pity Astral.
 
-**Next (Phase B/C)**: `PromptPurchase` / `HatchEgg` remotes + RateLimiter entries, `Snapshot.store`, the Store panel (Passes / Coins / Boosts / Eggs with the odds and pity lines), sidebar button, boost chip, hatch reveal, and the Remote Collector Robux button on its Workshop row. Then the owner publishes, creates the products and pastes the ids.
+**Phases B and C are built** (`4e422ba`, `9b1fcc1`): remotes, rate limits, `Snapshot.store`, the Store panel with the odds and pity disclosure and a ten-cell hatch reveal, the sidebar button, the HUD boost chip and the Workshop Robux row. SelfTest 581, LiveTest 46.
+
+**What is left is the owner's:** publish the place, enable API Services, set Max Players to 6, create 4 passes and 11 developer products on the Creator Dashboard, and paste the ids into `Config/Store.luau`. Every row says "Coming soon" until then, and no receipt can resolve to a zero id by construction.
+
+**Testing without ids:** `game.ReplicatedStorage.Remotes.TestGrant:FireServer("<product id>")` from a Studio server context grants any product with no Robux (test-adapter profiles only), e.g. `egg_cosmic_100`, `boost_income_30m`, `coins_m`.
 
 ## Traps for probes (execute_luau)
 
