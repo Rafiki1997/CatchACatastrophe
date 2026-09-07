@@ -703,44 +703,6 @@ function CaptureController.init()
 		if input.UserInputType ~= Enum.UserInputType.MouseButton1 then
 			return
 		end
-		if RunService:IsStudio() then
-			-- Studio-only diagnostics for the "clicking a creature does nothing" report:
-			-- record exactly what this handler saw, readable from PlayerGui attributes.
-			local pg = player:FindFirstChildOfClass("PlayerGui")
-			if pg then
-				local seen = wildAtScreenPoint(input.Position.X, input.Position.Y)
-				local tool = player.Character and player.Character:FindFirstChild(TETHER_TOOL)
-				pg:SetAttribute("ClickDiagCount", ((pg:GetAttribute("ClickDiagCount") :: number?) or 0) + 1)
-				pg:SetAttribute("ClickDiagLast", "processed=" .. tostring(processed)
-					.. " capturing=" .. tostring(captureState ~= nil)
-					.. " touch=" .. tostring(Input.isTouch()) .. " gamepad=" .. tostring(Input.isGamepad())
-					.. " tool=" .. tostring(tool ~= nil)
-					.. " pos=" .. tostring(math.floor(input.Position.X)) .. "," .. tostring(math.floor(input.Position.Y))
-					.. " creatureUnderPoint=" .. tostring(seen and seen:GetAttribute("SpeciesId") or "none"))
-				-- and the maths for the nearest wild creature, so a miss explains itself
-				local hrpD = rootPart()
-				local nearest, nearestD = nil, math.huge
-				for _, m in CollectionService:GetTagged("Wild") do
-					if m:IsA("Model") and hrpD then
-						local d = (m:GetPivot().Position - hrpD.Position).Magnitude
-						if d < nearestD then nearest, nearestD = m, d end
-					end
-				end
-				if nearest then
-					local cam = camera()
-					local height = (nearest:GetAttribute("Height") :: number?) or 3
-					local screen, onScreen = cam:WorldToViewportPoint(nearest:GetPivot().Position + Vector3.new(0, height / 2, 0))
-					local pxPerStud = (cam.ViewportSize.Y / 2) / (math.max(screen.Z, 0.01) * math.tan(math.rad(cam.FieldOfView / 2)))
-					pg:SetAttribute("ClickDiagNearest", tostring(nearest:GetAttribute("SpeciesId"))
-						.. " dist=" .. tostring(math.floor(nearestD * 10) / 10) .. " range=" .. tostring(TARGET_RANGE)
-						.. " height=" .. tostring(height)
-						.. " screen=" .. tostring(math.floor(screen.X)) .. "," .. tostring(math.floor(screen.Y)) .. "," .. tostring(math.floor(screen.Z * 10) / 10)
-						.. " onScreen=" .. tostring(onScreen)
-						.. " radiusPx=" .. tostring(math.floor((height / 2 + 0.75) * pxPerStud))
-						.. " viewport=" .. tostring(cam.ViewportSize) .. " camType=" .. tostring(cam.CameraType))
-				end
-			end
-		end
 		if processed or captureState then
 			return
 		end
