@@ -25,6 +25,10 @@ Config.CompanyName = "Catastrophe Containment Co."
 -- (see MapBuilder). Cities per server follows the layout.
 Config.MapLayout = "B"
 Config.MaxPlayers = if Config.MapLayout == "B" then 6 else 8
+-- How far the camera may pull back. Past about 100 studs a creature is a few
+-- pixels wide and clicking it fails; 60 still frames a whole city. Applied to
+-- the Player at join (StarterPlayer properties do not sync through Rojo here).
+Config.CameraMaxZoomDistance = 60
 Config.DataVersion = 1
 Config.DataStoreName = "CatchCatastrophe_v1"
 -- Studio test adapter namespace (in-memory, never touches production keys).

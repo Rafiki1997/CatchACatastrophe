@@ -769,6 +769,8 @@ function Harness.runLive(profile: any)
 			end
 		end
 		check("no road crosses the arena floor disc", acrossArena == 0, tostring(acrossArena) .. " (floor r=" .. tostring(floor and floor.Size.X / 2) .. ")")
+		-- the zoom cap is what keeps creatures clickable; PlayerService sets it at join
+		check("camera zoom capped (Config.CameraMaxZoomDistance)", profile.player.CameraMaxZoomDistance <= Config.CameraMaxZoomDistance, tostring(profile.player.CameraMaxZoomDistance))
 		local arena = workspace:FindFirstChild("Arena")
 		local arenaRoads = 0
 		if arena then

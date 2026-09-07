@@ -59,7 +59,15 @@ function PlayerService.applyCharacter(profile: Profile)
 	end
 end
 
+-- Zoom cap: keeps creatures clickable (Config.CameraMaxZoomDistance). Applied at
+-- join AND on every character spawn: Roblox re-copies the StarterPlayer camera
+-- defaults when a character loads, which undid a join-only set (read back 400).
+local function applyCameraCap(player: Player)
+	player.CameraMaxZoomDistance = Config.CameraMaxZoomDistance
+end
+
 local function onCharacterAdded(profile: Profile, character: Model)
+	applyCameraCap(profile.player)
 	-- a fresh character means the old tether is gone
 	try("Capture", "onCharacterRemoved", profile)
 	task.defer(function()
@@ -85,6 +93,7 @@ local function onCharacterAdded(profile: Profile, character: Model)
 end
 
 function PlayerService.onJoin(player: Player)
+	applyCameraCap(player)
 	local data, dataSafe, usingTest = DataService.load(player)
 	if not player.Parent then
 		return
