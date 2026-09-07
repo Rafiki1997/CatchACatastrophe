@@ -41,7 +41,7 @@ Config.Quests.tutorial[1..7] = { step, title, body, target, info }, .tutorialDon
 Config.Events.crisis = { interval, warning, duration, pylons, pylonBaseWork, pylonWorkPerExtraPlayer, holdRate, qualifyWork, bossScale, bossHazardSpeed, bossAttackInterval, rewardSeconds, rewardMin, rewardMax, fallbackBoss }
 Config.Milestones.list / .byCount[n] = { count, decoration, decorationName, title }
 Config.Sounds.ids[name], .volume[name] -- click tether_start tether_tick capture hit warn break_ deploy collect purchase circuit overdrive relaunch crisis error quest
-Config.GameName, .CompanyName, .MapLayout ("A" | "B", chosen B 2026-09-07), .MaxPlayers (follows the layout: B = 6, A = 8), .DataVersion, .DataStoreName, .TestNamespace
+Config.GameName, .CompanyName, .MapLayout ("A" | "B", chosen B 2026-09-07), .MaxPlayers (follows the layout: B = 6, A = 8), .CameraMaxZoomDistance (60; PlayerService applies it at join and on every character spawn), .DataVersion, .DataStoreName, .TestNamespace
 ```
 
 Utilities: `Shared.Util.Format` (`abbreviate(n)` → "1.5K", `commas`, `clock(sec)` → "1:05", `duration(sec)` → "1m 5s", `coins`, `cps`, `percent(frac)`, `date(unix)`), `Shared.Util.Weighted` (`pick(weights)`, `pickIndex(items, getWeight)`, `pickChance(entries)`).
