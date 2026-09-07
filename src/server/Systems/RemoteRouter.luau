@@ -162,6 +162,17 @@ function Router.init()
 		return true
 	end, via("Economy", "claimOffline"))
 
+	-- store
+	bind("PromptPurchase", function(kind, id)
+		return (kind == "pass" or kind == "product") and isId(id)
+	end, via("Purchase", "prompt"))
+	bind("HatchEgg", function(eggId, count)
+		return isId(eggId) and isFiniteNumber(count) and (count == 1 or count == Config.Store.hatchBatch)
+	end, via("Purchase", "requestHatch"))
+	-- Studio only: the handler refuses anything but a test-adapter profile, so a
+	-- live client firing this gets nothing.
+	bind("TestGrant", isId, via("Purchase", "testGrantRemote"))
+
 	-- workshop
 	bind("BuyUpgrade", isId, via("Workshop", "buyUpgrade"))
 	bind("UnlockRegion", isId, via("Workshop", "unlockRegion"))

@@ -879,21 +879,7 @@ local function testRateLimiter()
 	-- every client remote has a deliberate bucket rather than the default
 	local Remotes = require(ReplicatedStorage.Shared.Remotes)
 	local limits = RateLimiter.limits()
-	local serverToClient = {
-		State = true,
-		Notify = true,
-		FloatingText = true,
-		Broadcast = true,
-		Effect = true,
-		CaptureState = true,
-		Hazard = true,
-		Knockback = true,
-		CaptureResult = true,
-		Forecast = true,
-		CrisisState = true,
-		TutorialStep = true,
-		Leaderboard = true,
-	}
+	local serverToClient = Remotes.serverToClient
 	for _, name in Remotes.eventNames do
 		if not serverToClient[name] then
 			check("remote " .. name .. " has a rate limit", limits[name] ~= nil)

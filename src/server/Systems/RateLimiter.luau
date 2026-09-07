@@ -38,6 +38,12 @@ local LIMITS: { [string]: { burst: number, refill: number } } = {
 	CollectBank = { burst = 3, refill = 1 },
 	ClaimOffline = { burst = 2, refill = 0.5 },
 
+	-- store. A purchase prompt is a window the player must dismiss, so it is
+	-- deliberately tight; hatching is a button they may hold down.
+	PromptPurchase = { burst = 2, refill = 0.5 },
+	HatchEgg = { burst = 6, refill = 2 },
+	TestGrant = { burst = 4, refill = 1 },
+
 	-- workshop
 	BuyUpgrade = { burst = 6, refill = 3 },
 	UnlockRegion = { burst = 3, refill = 1 },

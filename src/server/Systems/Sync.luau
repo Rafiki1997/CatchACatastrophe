@@ -71,6 +71,34 @@ function Sync.build(profile: Profile): Snapshot
 	local placeVersion = game.PlaceVersion
 	local build = BuildInfo.get()
 
+	-- Boost expiry is stored as unix time but the snapshot speaks server time,
+	-- so it is converted here rather than in the client's head.
+	local unixNow = os.time()
+	local storeBoosts: { [string]: { expiresAt: number, mult: number } } = {}
+	for id, expiresAt in d.boosts do
+		local boost = Config.Store.boosts[id]
+		if boost and expiresAt > unixNow then
+			storeBoosts[id] = { expiresAt = now + (expiresAt - unixNow), mult = boost.mult }
+		end
+	end
+	local storePity: { [string]: { [string]: number } } = {}
+	for eggId, counters in d.eggs.pity do
+		storePity[eggId] = table.clone(counters)
+	end
+	local storeState = {
+		passes = table.clone(profile.passes),
+		cosmetics = table.clone(d.purchases.cosmetics),
+		eggAllowed = profile.eggAllowed,
+		boosts = storeBoosts,
+		eggs = { counts = table.clone(d.eggs.counts), pity = storePity },
+		stats = {
+			coinsBought = d.purchases.coinsBought,
+			robuxSpent = d.purchases.robuxSpent,
+			boostsBought = d.purchases.boostsBought,
+			eggsOpened = d.purchases.eggsOpened,
+		},
+	}
+
 	-- creatures
 	local creatures: { [string]: Types.CreatureEntry } = {}
 	for uid, c in d.creatures do
@@ -142,6 +170,7 @@ function Sync.build(profile: Profile): Snapshot
 		regions = d.regions,
 		upgrades = d.upgrades,
 		remoteCollectReadyAt = profile.remoteCollectReadyAt,
+		store = storeState,
 		derived = {
 			tetherRange = computed.tetherRange,
 			tetherSpeedMult = computed.tetherSpeedMult,

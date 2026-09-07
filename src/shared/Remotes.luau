@@ -41,6 +41,9 @@ Remotes.eventNames = {
 	"TutorialAdvance", -- (step: number)  info-only steps
 	"VisitCity", -- (plotIndex: number)  0 = return home
 	"RequestState", -- ()
+	"PromptPurchase", -- (kind: "pass" | "product", id: string)  opens the Roblox purchase window
+	"HatchEgg", -- (eggId: string, count: number)  1 or Config.Store.hatchBatch
+	"TestGrant", -- (productId: string)  STUDIO ONLY: grants with no Robux, refused elsewhere
 
 	-- ===== Server -> Client =====
 	"State", -- (snapshot: Types.Snapshot)
@@ -56,6 +59,28 @@ Remotes.eventNames = {
 	"CrisisState", -- (state: Types.CrisisState?)
 	"TutorialStep", -- (step: number, done: boolean)
 	"Leaderboard", -- (boards: { income: { Types.LeaderRow }, collection: { Types.LeaderRow }, relaunches: { Types.LeaderRow } })
+	"HatchResult", -- (results: { { speciesId: string, rarity: string, uid: string } })  what an egg opened into
+}
+
+-- Which of the events above the SERVER fires. The rate limiter only guards what
+-- a client can send, and its self-test used to keep a second copy of this list,
+-- so every new server -> client remote failed the test until someone remembered
+-- to update it. One list, here, next to the names it describes.
+Remotes.serverToClient = {
+	State = true,
+	Notify = true,
+	FloatingText = true,
+	Broadcast = true,
+	Effect = true,
+	CaptureState = true,
+	Hazard = true,
+	Knockback = true,
+	CaptureResult = true,
+	Forecast = true,
+	CrisisState = true,
+	TutorialStep = true,
+	Leaderboard = true,
+	HatchResult = true,
 }
 
 Remotes.functionNames = {

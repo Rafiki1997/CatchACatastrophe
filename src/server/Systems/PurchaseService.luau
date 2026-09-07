@@ -25,6 +25,8 @@ local StoreConfig = require(ReplicatedStorage.Shared.Config.Store)
 local Format = require(ReplicatedStorage.Shared.Util.Format)
 local Weighted = require(ReplicatedStorage.Shared.Util.Weighted)
 
+local Remotes = require(ReplicatedStorage.Shared.Remotes)
+
 local DataService = require(script.Parent.DataService)
 local Notify = require(script.Parent.Notify)
 local Profiles = require(script.Parent.Profiles)
@@ -42,6 +44,7 @@ local Store = Config.Store
 local Rarities = Config.Rarities
 local Species = Config.Species
 
+local R = Remotes.get()
 local rng = Random.new()
 local started = false
 -- One warning per player per session when their save is offline, so a retrying
@@ -465,6 +468,25 @@ function PurchaseService.prompt(profile: Profile, kind: string, id: string): (bo
 		MarketplaceService:PromptProductPurchase(profile.player, entry.assetId)
 	end
 	return true, nil
+end
+
+-- What the Hatch buttons fire. The results go back on their own remote so the
+-- panel can play the reveal; the router only needs to know whether it worked.
+function PurchaseService.requestHatch(profile: Profile, eggId: string, count: number): (boolean, string?)
+	local ok, reason, results = PurchaseService.hatch(profile, eggId, count)
+	if not ok then
+		return false, reason
+	end
+	if profile.player.Parent and results then
+		R.Event.HatchResult:FireClient(profile.player, results)
+	end
+	return true, nil
+end
+
+-- The remote behind testGrant. Studio and test profiles only; on a live server
+-- this refuses every caller.
+function PurchaseService.testGrantRemote(profile: Profile, id: string): (boolean, string?)
+	return PurchaseService.testGrant(profile, id)
 end
 
 -- Studio only: grants a product with no Robux and no asset id, so the whole

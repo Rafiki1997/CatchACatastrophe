@@ -86,6 +86,17 @@ export type Snapshot = {
 	regions: { [string]: boolean }, -- unlocked region ids
 	upgrades: { [string]: number }, -- upgrade id -> level (reset on relaunch)
 	remoteCollectReadyAt: number, -- server time when the Remote Collector may fire again (0 = ready)
+	-- Robux. `boosts` expiry is SERVER time like everything else in the snapshot;
+	-- `eggAllowed` is false when the account's policy restricts paid random items,
+	-- and the Store hides its egg tab entirely in that case.
+	store: {
+		passes: { [string]: boolean },
+		cosmetics: { [string]: boolean },
+		eggAllowed: boolean,
+		boosts: { [string]: { expiresAt: number, mult: number } },
+		eggs: { counts: { [string]: number }, pity: { [string]: { [string]: number } } },
+		stats: { coinsBought: number, robuxSpent: number, boostsBought: number, eggsOpened: number },
+	},
 	derived: {
 		tetherRange: number,
 		tetherSpeedMult: number,
