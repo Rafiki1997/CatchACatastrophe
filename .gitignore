@@ -4,3 +4,6 @@ build/*.rbxm
 *.rbxl.lock
 .superpowers/
 .tmp/
+
+# Weppy Studio sync plugin runtime (Rojo is the source of truth here)
+weppy-project-sync/
