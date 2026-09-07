@@ -142,6 +142,8 @@ function HUD.init()
 	end)
 
 	-- ---------------------------------------------------------------- forecast
+	-- 300 px fits three chips; with all six regions unlocked the rest were simply
+	-- cut off. The list wraps into a second row instead.
 	forecastRow = W.frame({
 		parent = safe,
 		name = "Forecast",
@@ -150,7 +152,9 @@ function HUD.init()
 		anchor = Vector2.new(1, 0),
 		transparency = 1,
 	})
-	W.list(forecastRow, Enum.FillDirection.Horizontal, 5, Enum.HorizontalAlignment.Right)
+	forecastRow.AutomaticSize = Enum.AutomaticSize.Y
+	local forecastLayout = W.list(forecastRow, Enum.FillDirection.Horizontal, 5, Enum.HorizontalAlignment.Right)
+	forecastLayout.Wraps = true
 
 	-- ---------------------------------------------------------------- sidebar
 	-- Keep navigation below the wallet. Short viewports scroll instead of
@@ -371,7 +375,7 @@ function HUD.refreshForecast()
 				parent = forecastRow,
 				name = def.id,
 				text = "",
-				size = UDim2.new(0, 92, 1, 0),
+				size = UDim2.new(0, 92, 0, 30),
 				textSize = 12,
 				font = Theme.fonts.bold,
 				color = Theme.colors.text,
@@ -380,6 +384,17 @@ function HUD.refreshForecast()
 				order = def.index,
 			})
 			forecastChips[def.id] = chip
+			local regionDef = def
+			W.tooltip(chip :: GuiObject, function()
+				local entry = forecastData[regionDef.id]
+				local t = State.now()
+				if entry and t < entry.surgeUntil then
+					return regionDef.name .. " is surging for " .. Format.clock(entry.surgeUntil - t) .. ": a perfect capture there comes out Overcharged (1.5x income)."
+				elseif entry then
+					return regionDef.name .. ": next Legendary creature appears in " .. Format.clock(math.max(0, entry.nextLegendaryAt - t)) .. "."
+				end
+				return regionDef.name .. ": forecast not received yet."
+			end)
 		end
 		if chip then
 			chip.Visible = unlocked
