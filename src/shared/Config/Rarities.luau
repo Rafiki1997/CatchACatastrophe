@@ -32,6 +32,9 @@ Rarities.order = { "Common", "Uncommon", "Rare", "Legendary", "Mythic", "Celesti
 -- Egg-only tiers, in order. `Rarities.isEggTier(r)` is the one place that knows.
 Rarities.eggTiers = { "Mythic", "Celestial", "Astral" }
 
+-- The tiers that exist in the wild: one species per region per entry.
+Rarities.wildOrder = { "Common", "Uncommon", "Rare", "Legendary" }
+
 Rarities.info = {
 	Common = { rank = 1, label = "Common", icon = "●", color = Color3.fromRGB(180, 186, 196), weight = 60, mult = 1, captureSeconds = 8, hazardSpeed = 1.0, attackInterval = 3.2, sellSeconds = 20, glow = 0, broadcast = false },
 	Uncommon = { rank = 2, label = "Uncommon", icon = "◆", color = Color3.fromRGB(96, 210, 120), weight = 28, mult = 2.5, captureSeconds = 10, hazardSpeed = 1.15, attackInterval = 2.8, sellSeconds = 25, glow = 0, broadcast = false },

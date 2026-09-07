@@ -77,6 +77,8 @@ local function mockProfile(coins: number): Profiles.Profile
 		leaving = false,
 		saving = false,
 		busy = false,
+		passes = {},
+		eggAllowed = true,
 		lastCollectAt = 0,
 	}
 	return profile
@@ -112,7 +114,8 @@ local function testConfig()
 	for _, region in Config.Regions.list do
 		local list = Config.Species.byRegion[region.id]
 		check("region " .. region.id .. " has 4 species", list ~= nil and #list == 4)
-		for _, rarity in Config.Rarities.order do
+		-- wild tiers only: Mythic and above hatch from eggs and have no region
+		for _, rarity in Config.Rarities.wildOrder do
 			check(region.id .. " has a " .. rarity, Config.Species.find(region.id, rarity) ~= nil)
 		end
 	end
@@ -546,6 +549,216 @@ local function testUpgrades()
 	check("upgrade cost rises", Config.Economy.upgradeCost("tether_speed", 1) > Config.Economy.upgradeCost("tether_speed", 0))
 end
 
+
+-- Money code, so the tests are about what must never happen: paying twice,
+-- paying and getting nothing, or a forged save granting anything at all.
+local function testPurchases()
+	local Purchase = require(script.Parent.PurchaseService)
+	local Store = Config.Store
+
+	-- catalogue shape
+	local ids: { [string]: boolean } = {}
+	local liveAssets: { [number]: string } = {}
+	for _, entry in Store.passes do
+		check("pass id " .. entry.id .. " is unique", not ids[entry.id])
+		ids[entry.id] = true
+		if entry.assetId > 0 then
+			check("pass asset " .. tostring(entry.assetId) .. " is unique", liveAssets[entry.assetId] == nil)
+			liveAssets[entry.assetId] = entry.id
+		end
+	end
+	for _, entry in Store.products do
+		check("product id " .. entry.id .. " is unique", not ids[entry.id])
+		ids[entry.id] = true
+		if entry.assetId > 0 then
+			check("product asset " .. tostring(entry.assetId) .. " is unique", liveAssets[entry.assetId] == nil)
+			liveAssets[entry.assetId] = entry.id
+		end
+	end
+	-- a 0 asset id must be unreachable from a receipt
+	check("no product is reachable by asset id 0", Store.productByAssetId[0] == nil)
+	check("no pass is reachable by asset id 0", Store.passByAssetId[0] == nil)
+
+	-- coin bundles are priced at the region unlock costs
+	local expectedCoins = { coins_s = 2500, coins_m = 15000, coins_l = 75000, coins_xl = 300000 }
+	for id, amount in expectedCoins do
+		local product = Store.productById[id]
+		check(id .. " grants " .. tostring(amount), product ~= nil and product.grant.kind == "coins" and product.grant.amount == amount)
+	end
+
+	-- egg odds are percentages, so the panel number is the table number
+	for eggId, egg in Store.eggs do
+		local sum = 0
+		for _, entry in egg.odds do
+			sum += entry.weight
+			check(eggId .. " odds tier " .. entry.rarity .. " exists", Config.Rarities.info[entry.rarity] ~= nil)
+		end
+		check(eggId .. " odds sum to 100", approx(sum, 100), tostring(sum))
+		local lastRank = math.huge
+		for _, row in Store.eggOdds(eggId) do
+			local rank = Config.Rarities.rank(row.rarity)
+			check(eggId .. " odds are listed best tier first", rank < lastRank, row.rarity)
+			lastRank = rank
+		end
+	end
+	-- the three chase tiers exist, never spawn wild, and climb in value
+	local previous = Config.Rarities.info.Legendary.mult
+	for _, tier in Config.Rarities.eggTiers do
+		local info = Config.Rarities.info[tier]
+		check(tier .. " exists", info ~= nil)
+		check(tier .. " never spawns in the wild", info.weight == 0, tostring(info.weight))
+		check(tier .. " is worth more than the tier below", info.mult > previous, tostring(info.mult))
+		previous = info.mult
+		check(tier .. " has egg species", #Config.Species.eggSpecies(tier) > 0)
+	end
+	check("wild ladder is unchanged", #Config.Rarities.wildOrder == 4)
+	check("egg species stay out of the Atlas count", Config.Species.count == #Config.Species.list)
+	for _, def in Config.Species.eggList do
+		check(def.id .. " is egg only", def.eggOnly == true)
+		check(def.id .. " borrows a real builder", def.builder ~= nil and Config.Species.byId[def.builder] ~= nil, tostring(def.builder))
+		check(def.id .. " is not in a region roster", Config.Species.find(def.region, def.rarity) == nil or Config.Species.find(def.region, def.rarity).id ~= def.id)
+	end
+
+	-- pity thresholds climb with the tier, or the higher ones can never land
+	for eggId, egg in Store.eggs do
+		local floor = 0
+		for _, tier in Config.Rarities.eggTiers do
+			local threshold = egg.pity[tier]
+			check(eggId .. " pity for " .. tier .. " is above the tier below", threshold ~= nil and threshold > floor, tostring(threshold))
+			floor = threshold or floor
+		end
+	end
+	do
+		local p = mockProfile(0)
+		local remaining = Store.pityRemaining("cosmic_egg", p.data.eggs.pity.cosmic_egg)
+		check("a fresh player sees the full pity distance", #remaining == 3 and remaining[1].remaining == Store.eggs.cosmic_egg.pity.Mythic, tostring(remaining[1] and remaining[1].remaining))
+	end
+
+	-- boosts extend, never stack, and never bank more than their cap
+	do
+		local p = mockProfile(0)
+		local now = os.time()
+		local product = Store.productById.boost_income_30m
+		local ok = Purchase.settle(p, product, { PurchaseId = "b1", ProductId = 0, CurrencySpent = 0 }, function()
+			return true
+		end)
+		check("a boost purchase is granted", ok == Enum.ProductPurchaseDecision.PurchaseGranted)
+		local first = Purchase.boostSecondsLeft(p, "income_2x", now)
+		check("30 minutes of boost", first >= 1795 and first <= 1801, tostring(first))
+		Purchase.settle(p, product, { PurchaseId = "b2", ProductId = 0, CurrencySpent = 0 }, function()
+			return true
+		end)
+		local second = Purchase.boostSecondsLeft(p, "income_2x", now)
+		check("buying again adds time", second >= 3595 and second <= 3601, tostring(second))
+		check("the multiplier never stacks", Stats.boostMult(p, "income", now) == 2, tostring(Stats.boostMult(p, "income", now)))
+		p.data.boosts.income_2x = now + 999999
+		local capped = Profiles.sanitize(DataService.roundTrip(p.data))
+		check("a far future boost is capped on load", capped.boosts.income_2x ~= nil and capped.boosts.income_2x - os.time() <= Store.boosts.income_2x.maxStackSeconds + 2, tostring(capped.boosts.income_2x))
+		p.data.boosts.income_2x = now - 5
+		local expired = Profiles.sanitize(DataService.roundTrip(p.data))
+		check("an expired boost is dropped on load", expired.boosts.income_2x == nil)
+	end
+
+	-- an income boost pays out more without inflating the bank cap or offline
+	do
+		local p = mockProfile(0)
+		give(p, "breeze_bean", "Normal", 1)
+		local now = workspace:GetServerTimeNow()
+		local plain = Stats.income(p, now)
+		p.data.boosts.income_2x = os.time() + 600
+		local boosted = Stats.income(p, now)
+		check("a boost doubles what the city pays", approx(boosted.total, plain.total * 2, 0.01), tostring(boosted.total))
+		check("a boost leaves the bank cap alone", approx(boosted.totalNormal, plain.totalNormal, 0.001), tostring(boosted.totalNormal))
+	end
+
+	-- Quick Tether is capped WITH the upgrade, not on top of it
+	do
+		local p = mockProfile(0)
+		p.data.upgrades.tether_speed = Config.Economy.upgradeById.tether_speed.maxLevel
+		local maxed = Stats.compute(p).tetherSpeedMult
+		p.data.boosts.tether_fast = os.time() + 600
+		local boosted = Stats.compute(p).tetherSpeedMult
+		check("Quick Tether cannot pass the capture speed cap", boosted <= Store.tetherSpeedCap + 0.001, tostring(boosted))
+		check("Quick Tether does something below the cap", boosted >= maxed, tostring(boosted))
+	end
+
+	-- receipts: never twice, never on a failed save
+	do
+		local p = mockProfile(0)
+		local product = Store.productById.coins_m
+		local receipt = { PurchaseId = "abc123", ProductId = 0, CurrencySpent = 149 }
+		local saved = function()
+			return true
+		end
+		local first = Purchase.settle(p, product, receipt, saved)
+		check("a coin bundle is granted", first == Enum.ProductPurchaseDecision.PurchaseGranted)
+		check("the coins arrived", p.data.coins == 15000, tostring(p.data.coins))
+		check("the receipt is in the ledger", #p.data.purchases.ledger == 1)
+		local before = p.data.coins
+		local again = Purchase.settle(p, product, receipt, saved)
+		check("a repeated receipt is not granted twice", p.data.coins == before, tostring(p.data.coins))
+		local _ = again
+		-- a failed save must roll everything back
+		local coinsBefore, ledgerBefore = p.data.coins, #p.data.purchases.ledger
+		local failed = Purchase.settle(p, Store.productById.coins_s, { PurchaseId = "def456", ProductId = 0, CurrencySpent = 49 }, function()
+			return false
+		end)
+		check("a failed save is not acknowledged", failed == Enum.ProductPurchaseDecision.NotProcessedYet)
+		check("a failed save gives no coins", p.data.coins == coinsBefore, tostring(p.data.coins))
+		check("a failed save leaves no ledger row", #p.data.purchases.ledger == ledgerBefore, tostring(#p.data.purchases.ledger))
+		check("a failed save leaves the profile free", p.busy == false)
+	end
+
+	-- the ledger stays bounded
+	do
+		local p = mockProfile(0)
+		local product = Store.productById.egg_cosmic_1
+		for i = 1, Store.ledgerMax + 12 do
+			Purchase.settle(p, product, { PurchaseId = "bulk" .. tostring(i), ProductId = 0, CurrencySpent = 0 }, function()
+				return true
+			end)
+		end
+		check("the ledger is trimmed to its cap", #p.data.purchases.ledger == Store.ledgerMax, tostring(#p.data.purchases.ledger))
+		check("the oldest receipt is the one dropped", p.data.purchases.ledger[1].id ~= "bulk1")
+		check("the eggs all arrived", p.data.eggs.counts.cosmic_egg == Store.ledgerMax + 12, tostring(p.data.eggs.counts.cosmic_egg))
+	end
+
+	-- a receipt for a product that does not exist yet is never acknowledged
+	check("an unknown asset id resolves to nothing", Store.productByAssetId[987654321] == nil)
+	check("a receipt with no player is not processed", Purchase.processReceipt({ PurchaseId = "nobody", ProductId = 987654321, PlayerId = -424242, CurrencySpent = 49 }) == Enum.ProductPurchaseDecision.NotProcessedYet)
+
+	-- hatching: storage is checked first, pity forces the tier, counters reset
+	do
+		local p = mockProfile(0)
+		p.data.eggs.counts.cosmic_egg = 3
+		local ok, reason = Purchase.hatch(p, "cosmic_egg", 5)
+		check("only 1 or " .. tostring(Store.hatchBatch) .. " hatch at a time", ok == false, tostring(reason))
+		local okOwned = Purchase.hatch(p, "cosmic_egg", Store.hatchBatch)
+		check("you cannot hatch eggs you do not own", okOwned == false)
+	end
+	do
+		local p = mockProfile(0)
+		local counters = { Mythic = Store.eggs.cosmic_egg.pity.Mythic - 1, Celestial = 0, Astral = 0 }
+		p.data.eggs.pity.cosmic_egg = counters
+		local remaining = Store.pityRemaining("cosmic_egg", counters)
+		check("pity counts down to the next Mythic", remaining[1].rarity == "Mythic" and remaining[1].remaining == 1, tostring(remaining[1].remaining))
+	end
+
+	-- a forged save grants nothing
+	do
+		local p = mockProfile(0)
+		p.data.purchases.passes = { vip = true, not_a_pass = true } :: any
+		p.data.eggs.counts = { cosmic_egg = 5, not_an_egg = 99 } :: any
+		p.data.boosts = { not_a_boost = os.time() + 600 } :: any
+		local clean = Profiles.sanitize(DataService.roundTrip(p.data))
+		check("a real pass survives a save", clean.purchases.passes.vip == true)
+		check("an invented pass is dropped", clean.purchases.passes.not_a_pass == nil)
+		check("real eggs survive a save", clean.eggs.counts.cosmic_egg == 5, tostring(clean.eggs.counts.cosmic_egg))
+		check("an invented egg is dropped", clean.eggs.counts.not_an_egg == nil)
+		check("an invented boost is dropped", clean.boosts.not_a_boost == nil)
+	end
+end
+
 local function testData()
 	local profile = mockProfile(1234)
 	give(profile, "breeze_bean", "Overcharged", 1)
@@ -924,10 +1137,61 @@ function Harness.runLive(profile: any)
 		end
 	end
 
+	-- The purchase pipeline against the real profile: a probe cannot do this,
+	-- because a probe's `require` returns its own copy of every module and so its
+	-- own empty profile table. This runs inside the server, on the live profile.
+	local hatched: { string } = {}
+	do
+		local Purchase = S.Purchase
+		if Purchase then
+			local coinsBefore = profile.data.coins
+			local ledgerBefore = #profile.data.purchases.ledger
+			local grantedCoins = Purchase.testGrant(profile, "coins_m")
+			check("a coin bundle grants through the real pipeline", grantedCoins == true and profile.data.coins == coinsBefore + 15000, tostring(profile.data.coins - coinsBefore))
+			check("the receipt reached the ledger", #profile.data.purchases.ledger == ledgerBefore + 1, tostring(#profile.data.purchases.ledger))
+
+			local plain = Stats.income(profile, workspace:GetServerTimeNow())
+			Purchase.testGrant(profile, "boost_income_30m")
+			local boosted = Stats.income(profile, workspace:GetServerTimeNow())
+			check("a live income boost doubles the payout", approx(boosted.total, plain.total * 2, 0.01), tostring(boosted.total))
+			check("a live income boost leaves the bank basis alone", approx(boosted.totalNormal, plain.totalNormal, 0.001), tostring(boosted.totalNormal))
+			check("the boost has time on it", Purchase.boostSecondsLeft(profile, "income_2x") > 1700, tostring(Purchase.boostSecondsLeft(profile, "income_2x")))
+
+			Purchase.testGrant(profile, "egg_cosmic_10")
+			check("eggs land in the inventory", (profile.data.eggs.counts.cosmic_egg or 0) >= 10, tostring(profile.data.eggs.counts.cosmic_egg))
+			-- pity is one hatch from a guaranteed Astral, so this proves the whole
+			-- chain: forced tier, egg-only species, a real creature in the city
+			profile.data.eggs.pity.cosmic_egg = { Mythic = 49, Celestial = 199, Astral = 499 }
+			local okHatch, reason, results = Purchase.hatch(profile, "cosmic_egg", 1)
+			check("an egg hatches", okHatch == true, tostring(reason))
+			if results and results[1] then
+				local result = results[1]
+				table.insert(hatched, result.uid)
+				check("pity forces the top tier", result.rarity == "Astral", result.rarity)
+				local def = Config.Species.byId[result.speciesId]
+				check("the hatch is an egg-only species", def ~= nil and def.eggOnly == true, result.speciesId)
+				check("the creature is really in the city", profile.data.creatures[result.uid] ~= nil)
+				local counters = profile.data.eggs.pity.cosmic_egg
+				check("an Astral resets every pity counter", counters.Mythic == 0 and counters.Celestial == 0 and counters.Astral == 0, tostring(counters.Mythic) .. "/" .. tostring(counters.Celestial) .. "/" .. tostring(counters.Astral))
+				check("its model builds", CreatureModels.build(result.speciesId) ~= nil)
+			end
+			-- nothing is for sale yet, so a prompt must refuse rather than open a
+			-- purchase window with no product behind it
+			local promptOk, promptWhy = Purchase.prompt(profile, "product", "coins_m")
+			check("a product with no dashboard id says coming soon", promptOk == false and promptWhy ~= nil and promptWhy:find("coming soon") ~= nil, tostring(promptWhy))
+		end
+	end
+
 	-- tidy up: remove what this suite added
 	if profile.data.creatures[stormUid] then
 		S.City.sell(profile, stormUid)
 	end
+	for _, uid in hatched do
+		if profile.data.creatures[uid] then
+			profile.data.creatures[uid] = nil
+		end
+	end
+	profile.data.boosts.income_2x = nil
 
 	print(("[LiveTest] passed %d, failed %d"):format(passed, failed))
 	if failed > 0 then
@@ -955,6 +1219,7 @@ function Harness.run()
 		{ name = "collection pad", fn = testCollectionPad },
 		{ name = "income", fn = testIncome },
 		{ name = "upgrades", fn = testUpgrades },
+		{ name = "purchases", fn = testPurchases },
 		{ name = "data", fn = testData },
 		{ name = "sell/storage", fn = testSellAndStorage },
 		{ name = "quests", fn = testQuestsAndRewards },
