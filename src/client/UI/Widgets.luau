@@ -8,6 +8,7 @@ local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GuiService = game:GetService("GuiService")
+local UserInputService = game:GetService("UserInputService")
 
 local Theme = require(script.Parent.Theme)
 local Sounds = require(ReplicatedStorage.Shared.Config.Sounds)
@@ -399,6 +400,55 @@ function W.progress(parent: Instance, size: UDim2, color: Color3?, order: number
 end
 
 -- Scrolling list with automatic canvas size.
+
+-- Mouse-wheel fallback for scroll lists. Playtest: the scrollbar dragged but the
+-- wheel did nothing. When a wheel tick arrives that nothing in the GUI consumed
+-- (processed == false) and the cursor is over this frame, scroll it by hand.
+-- Native wheel scrolling marks its input processed, so this never doubles it.
+local WHEEL_STEP = 60
+
+local function visibleChain(frame: GuiObject): boolean
+	local node: Instance? = frame
+	while node and not node:IsA("ScreenGui") do
+		if node:IsA("GuiObject") and not node.Visible then
+			return false
+		end
+		node = node.Parent
+	end
+	return node ~= nil and (node :: ScreenGui).Enabled
+end
+
+function W.wheelFallback(frame: ScrollingFrame)
+	local connection: RBXScriptConnection? = nil
+	connection = UserInputService.InputChanged:Connect(function(input, processed)
+		if not frame.Parent then
+			if connection then
+				connection:Disconnect()
+			end
+			return
+		end
+		if processed or input.UserInputType ~= Enum.UserInputType.MouseWheel then
+			return
+		end
+		if not visibleChain(frame) or frame.ScrollingDirection == Enum.ScrollingDirection.X then
+			return
+		end
+		local mouse = UserInputService:GetMouseLocation()
+		local inset = GuiService:GetGuiInset()
+		local x, y = mouse.X - inset.X, mouse.Y - inset.Y
+		local p, size = frame.AbsolutePosition, frame.AbsoluteSize
+		if x < p.X or x > p.X + size.X or y < p.Y or y > p.Y + size.Y then
+			return
+		end
+		local maxY = frame.AbsoluteCanvasSize.Y - size.Y
+		if maxY <= 0 then
+			return
+		end
+		local target = math.clamp(frame.CanvasPosition.Y - input.Position.Z * WHEEL_STEP, 0, maxY)
+		frame.CanvasPosition = Vector2.new(frame.CanvasPosition.X, target)
+	end)
+end
+
 function W.scroll(parent: Instance, size: UDim2?, position: UDim2?, padding: number?, direction: Enum.FillDirection?): (ScrollingFrame, UIListLayout)
 	local s = Instance.new("ScrollingFrame")
 	s.Name = "Scroll"
@@ -413,6 +463,7 @@ function W.scroll(parent: Instance, size: UDim2?, position: UDim2?, padding: num
 	s.ScrollingDirection = Enum.ScrollingDirection.Y
 	s.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
 	s.Parent = parent
+	W.wheelFallback(s)
 	local layout = W.list(s, direction, padding or 8)
 	return s, layout
 end
@@ -432,6 +483,7 @@ function W.scrollGrid(parent: Instance, cellSize: UDim2, size: UDim2?, position:
 	s.ScrollingDirection = Enum.ScrollingDirection.Y
 	s.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
 	s.Parent = parent
+	W.wheelFallback(s)
 	local grid = W.grid(s, cellSize, padding)
 	return s, grid
 end
