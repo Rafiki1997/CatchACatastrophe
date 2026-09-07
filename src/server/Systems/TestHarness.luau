@@ -275,6 +275,30 @@ local function testModels()
 	end
 end
 
+-- A model replicated from the server reaches the client BEFORE its parts do:
+-- at the moment the "Animated" tag signal fires it has no PrimaryPart and no
+-- children. Animate.track must say so instead of silently doing nothing, or the
+-- caller marks the model tracked and every wild creature stands frozen while
+-- the server walks it away (the "catching is buggy" report).
+local function testAnimateTrack()
+	local Animate = require(ReplicatedStorage.Shared.Models.Animate)
+	local m = Instance.new("Model")
+	local first = Animate.track(m)
+	check("Animate.track returns false for a model with no root yet", first == false, tostring(first))
+	check("Animate.track does not register a rootless model", Animate.isTracked(m) == false)
+	local root = Instance.new("Part")
+	root.Name = "Root"
+	root.Parent = m
+	m.PrimaryPart = root
+	local second = Animate.track(m)
+	check("Animate.track returns true once the root exists", second == true, tostring(second))
+	check("Animate.track registers the model once the root exists", Animate.isTracked(m) == true)
+	check("Animate.track is idempotent for a tracked model", Animate.track(m) == true)
+	Animate.untrack(m)
+	check("Animate.untrack forgets the model", Animate.isTracked(m) == false)
+	m:Destroy()
+end
+
 -- A built plot carries the pad-management prompt on every pad, disabled, and
 -- short enough in range that only the pad you stand at can show one.
 local function testPlot()
@@ -301,6 +325,37 @@ local function testPlot()
 end
 
 -- The heart of it: every income factor applied exactly once.
+local function testCollectionPad()
+	local CollectionPad = require(script.Parent.CollectionPadService)
+	local since, pay = CollectionPad.advance(nil, 10, true, true)
+	check("collection starts without paying", since == 10 and not pay)
+	since, pay = CollectionPad.advance(since, 10.99, true, true)
+	check("collection waits the full second", since == 10 and not pay)
+	since, pay = CollectionPad.advance(since, 11, true, true)
+	check("collection pays at one second and clears timer", since == nil and pay)
+	since, pay = CollectionPad.advance(since, 11.1, true, true)
+	check("collection next cycle cannot pay immediately", since == 11.1 and not pay)
+	since, pay = CollectionPad.advance(since, 11.5, false, true)
+	check("stepping off cancels collection", since == nil and not pay)
+	since, pay = CollectionPad.advance(since, 12, true, true)
+	check("returning starts a fresh collection", since == 12 and not pay)
+	since, pay = CollectionPad.advance(since, 13, true, false)
+	check("empty bank cancels even a completed timer", since == nil and not pay)
+	since, pay = CollectionPad.advance(nil, 14, true, false)
+	check("empty bank cannot start collection", since == nil and not pay)
+	local pad = Instance.new("Part")
+	pad.Size = Vector3.new(8, 0.4, 8)
+	pad.CFrame = CFrame.new(20, 2, 30) * CFrame.Angles(0, math.rad(45), 0)
+	local function point(x: number, y: number, z: number): Vector3
+		return pad.CFrame:PointToWorldSpace(Vector3.new(x, y, z))
+	end
+	check("collection accepts feet on rotated pad", CollectionPad.withinPad(pad, point(0, 3.2, 0), 3))
+	check("collection rejects outside rotated pad", not CollectionPad.withinPad(pad, point(4.2, 3.2, 0), 3))
+	check("collection rejects above pad", not CollectionPad.withinPad(pad, point(0, 6, 0), 3))
+	check("collection rejects below pad", not CollectionPad.withinPad(pad, point(0, 0, 0), 3))
+	pad:Destroy()
+end
+
 local function testIncome()
 	local profile = mockProfile(0)
 	local now = workspace:GetServerTimeNow()
@@ -691,6 +746,8 @@ function Harness.run()
 		{ name = "hazards", fn = testHazards },
 		{ name = "models", fn = testModels },
 		{ name = "plot", fn = testPlot },
+		{ name = "animate", fn = testAnimateTrack },
+		{ name = "collection pad", fn = testCollectionPad },
 		{ name = "income", fn = testIncome },
 		{ name = "upgrades", fn = testUpgrades },
 		{ name = "data", fn = testData },

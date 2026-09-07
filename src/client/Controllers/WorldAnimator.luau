@@ -19,17 +19,21 @@ local TAG = "Animated"
 local tracked: { [Model]: boolean } = {}
 local pylonTint: { [Model]: BasePart } = {}
 
-local function track(model: Model)
-	if tracked[model] then
-		return
+-- Animate.track needs the model's root part, and a model replicated from the
+-- server arrives BEFORE its parts: at the instant the tag signal fires it has no
+-- PrimaryPart and no children. So the first attempt usually cannot register it,
+-- and it has to be retried once the parts land, or the model stands frozen for
+-- the rest of the session while the server walks it away.
+local function attemptTrack(model: Model): boolean
+	local ok, result = pcall(Animate.track, model)
+	if not ok then
+		warn("[WorldAnimator] track failed: " .. tostring(result))
+		return true -- a real error; do not keep retrying it
+	end
+	if result ~= true then
+		return false
 	end
 	tracked[model] = true
-	local ok, err = pcall(Animate.track, model)
-	if not ok then
-		tracked[model] = nil
-		warn("[WorldAnimator] track failed: " .. tostring(err))
-		return
-	end
 	-- pylons show their containment progress in the crystal's colour
 	if model:GetAttribute("Kind") == "pylon" then
 		local crystal = model:FindFirstChild("Crystal", true)
@@ -37,6 +41,49 @@ local function track(model: Model)
 			pylonTint[model] = crystal
 		end
 	end
+	return true
+end
+
+local function track(model: Model)
+	if tracked[model] then
+		return
+	end
+	if attemptTrack(model) then
+		return
+	end
+	-- Retry one frame after each new child, so the whole replication batch has
+	-- landed before Animate scans the descendants for blades, lights and tints.
+	local conns: { RBXScriptConnection } = {}
+	local pending = false
+	local function stop()
+		for _, c in conns do
+			c:Disconnect()
+		end
+		table.clear(conns)
+	end
+	local function retry()
+		if pending or tracked[model] then
+			return
+		end
+		pending = true
+		task.defer(function()
+			pending = false
+			if tracked[model] or not model.Parent then
+				stop()
+				return
+			end
+			if attemptTrack(model) then
+				stop()
+			end
+		end)
+	end
+	table.insert(conns, model.ChildAdded:Connect(retry))
+	table.insert(conns, model:GetPropertyChangedSignal("PrimaryPart"):Connect(retry))
+	table.insert(conns, model.AncestryChanged:Connect(function(_, parent)
+		if not parent then
+			stop()
+		end
+	end))
 end
 
 local function untrack(model: Model)

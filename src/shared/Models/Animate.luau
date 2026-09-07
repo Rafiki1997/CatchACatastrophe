@@ -14,7 +14,13 @@
 --   ShiftGroup (int)                  -> only one group visible at a time ("shift" style)
 --
 -- Usage (client):
---   Animate.track(model)     -- start animating a model
+--   Animate.track(model) -> boolean  -- true when animating (now or already);
+--                                    false when the model has no root part YET.
+--                                    A model replicated from the server arrives
+--                                    before its parts, so a call from the tag
+--                                    signal is usually false: call again when
+--                                    its children land (WorldAnimator does).
+--   Animate.isTracked(model) -> boolean
 --   Animate.untrack(model)
 --   Animate.step(now, cameraPos)  -- call every RenderStepped
 
@@ -84,13 +90,13 @@ local function collect(model: Model, t: Tracked)
 	end
 end
 
-function Animate.track(model: Model)
+function Animate.track(model: Model): boolean
 	if tracked[model] then
-		return
+		return true
 	end
 	local root = model.PrimaryPart or model:FindFirstChild("Root") :: BasePart?
 	if not root then
-		return
+		return false
 	end
 	local base = model:GetAttribute("BasePivot")
 	local t: Tracked = {
@@ -121,6 +127,11 @@ function Animate.track(model: Model)
 	model:GetAttributeChangedSignal("AnimSpeed"):Connect(function()
 		t.speed = (model:GetAttribute("AnimSpeed") :: number?) or 1
 	end)
+	return true
+end
+
+function Animate.isTracked(model: Model): boolean
+	return tracked[model] ~= nil
 end
 
 function Animate.untrack(model: Model)
