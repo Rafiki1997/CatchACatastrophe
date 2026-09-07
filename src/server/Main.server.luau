@@ -127,6 +127,10 @@ end
 -- ---------------------------------------------------------------- self tests
 
 if RunService:IsStudio() then
+	require(Systems.HazardTestHarness).install()
+end
+
+if RunService:IsStudio() then
 	task.delay(3, function()
 		local harness = Systems:FindFirstChild("TestHarness")
 		if not harness then

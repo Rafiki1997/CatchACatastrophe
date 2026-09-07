@@ -377,7 +377,7 @@ local function tickActive(now: number)
 		else
 			for _, player in Players:GetPlayers() do
 				local hrp = rootOf(player)
-				if hrp and inArena(hrp) and not entry.hitAt[player.UserId] and S.Capture.hazardHits(entry.event, hrp.Position, now) then
+				if hrp and inArena(hrp) and not entry.hitAt[player.UserId] and S.Capture.hazardHits(entry.event, hrp.Position, now, S.Capture.feetY(hrp)) then
 					entry.hitAt[player.UserId] = true
 					local away = Vector3.new(hrp.Position.X - entry.event.origin.X, 0, hrp.Position.Z - entry.event.origin.Z)
 					local dir = if away.Magnitude > 0.1 then away.Unit else Vector3.new(0, 0, 1)

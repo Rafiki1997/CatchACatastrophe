@@ -32,6 +32,7 @@ Capture.tick = 0.1 -- server capture tick
 Capture.captureSecondsCap = 16
 Capture.knockback = 38 -- client-side impulse studs/s applied on a hit
 Capture.hitStun = 0.6 -- seconds the tether cannot re-engage after a hit
+Capture.ringHeight = 0.8 -- feet above this height clear the low splash band
 Capture.roamRadius = 22 -- wild creatures wander within this distance of their spawn
 Capture.roamSpeed = 4 -- studs/s (client interpolates from path attributes)
 Capture.arenaRadius = 20 -- hazards are placed inside this radius around the creature

@@ -36,7 +36,9 @@ local highlight: SelectionBox? = nil
 local rangeRing: BasePart? = nil
 local tetherBeam: { attachment0: Attachment, attachment1: Attachment, beam: Beam, holder: BasePart }? = nil
 local captureState: Types.CaptureState? = nil
-local pullTarget: { position: Vector3, strength: number, until_: number }? = nil
+local pullTarget: { position: Vector3, radius: number, strength: number, until_: number }? = nil
+local RING_SEGMENTS = 32
+local warningGeneration = 0
 
 local CaptureHUD: any = nil
 
@@ -365,25 +367,16 @@ local function spawnHazard(ev: Types.HazardEvent)
 		)
 		table.insert(parts, wall)
 	elseif ev.shape == "ring" then
-		local ring = makePart(
-			"HazardRing",
-			Vector3.new(0.4, 2, 2),
-			CFrame.new(ev.origin + Vector3.new(0, 0.2, 0)) * CFrame.Angles(0, 0, math.rad(90)),
-			telegraphColor,
-			0.55,
-			Enum.PartType.Cylinder
-		)
-		table.insert(parts, ring)
-		-- an outline of where it will finish, so the dodge is plannable
-		local outline = makePart(
-			"HazardRingOutline",
-			Vector3.new(0.15, ev.travel * 2, ev.travel * 2),
-			CFrame.new(ev.origin + Vector3.new(0, 0.1, 0)) * CFrame.Angles(0, 0, math.rad(90)),
-			telegraphColor,
-			0.9,
-			Enum.PartType.Cylinder
-		)
-		table.insert(parts, outline)
+		-- Hollow bands leave the safe centre visible, including the final-radius
+		-- outline shown during the warning.
+		for i = 1, RING_SEGMENTS do
+			local a = (i - 1) * math.pi * 2 / RING_SEGMENTS
+			local band = makePart("HazardRing", Vector3.new(0.1, Config.Capture.ringHeight, 0.1), CFrame.new(ev.origin), telegraphColor, 0.6)
+			table.insert(parts, band)
+			local outline = makePart("HazardRingOutline", Vector3.new(0.16, 0.15, ev.travel * math.pi * 2 / RING_SEGMENTS * 1.03),
+				CFrame.new(ev.origin + Vector3.new(math.cos(a) * ev.travel, 0.1, math.sin(a) * ev.travel)) * CFrame.Angles(0, -a, 0), telegraphColor, 0.75)
+			table.insert(parts, outline)
+		end
 	elseif ev.shape == "circles" then
 		for _, position in ev.positions do
 			local disc = makePart(
@@ -410,10 +403,13 @@ local function spawnHazard(ev: Types.HazardEvent)
 			table.insert(parts, zone)
 			local column = makePart("HazardWellColumn", Vector3.new(ev.radius, 14, ev.radius), CFrame.new(centre + Vector3.new(0, 7, 0)), telegraphColor, 0.88, Enum.PartType.Ball)
 			table.insert(parts, column)
-			pullTarget = { position = centre, strength = ev.pullStrength, until_ = ev.telegraphEndsAt }
+			pullTarget = { position = centre, radius = ev.radius, strength = ev.pullStrength, until_ = ev.telegraphEndsAt }
 		end
 	end
 
+	for _, p in parts do
+		p:SetAttribute("HazardId", ev.id)
+	end
 	if s.reducedFlashing then
 		for _, p in parts do
 			p.Material = Enum.Material.SmoothPlastic
@@ -424,10 +420,12 @@ local function spawnHazard(ev: Types.HazardEvent)
 
 	local h = hud()
 	if h and h.setHazardWarning then
+		warningGeneration += 1
+		local generation = warningGeneration
 		local def = Config.Capture.hazards[ev.element]
 		h.setHazardWarning(if def then def.warning else "Incoming!", ev.color)
 		task.delay(math.max(0.8, ev.activeEndsAt - workspace:GetServerTimeNow()), function()
-			if h.setHazardWarning then
+			if generation == warningGeneration and h.setHazardWarning then
 				h.setHazardWarning(nil, nil)
 			end
 		end)
@@ -463,12 +461,18 @@ local function stepHazards(now: number)
 				pathPart.Transparency = if active then 0.9 else 0.8
 			end
 		elseif ev.shape == "ring" then
-			local ring = entry.parts[1]
-			if ring then
-				local r = math.max(0.4, ev.travel * u)
-				ring.Size = Vector3.new(0.4, r * 2, r * 2)
+			local r = math.max(0.05, ev.travel * u)
+			local inner = math.max(0, r - ev.radius)
+			local outer = r + ev.radius
+			local middle = (inner + outer) / 2
+			for j = 1, RING_SEGMENTS do
+				local ring = entry.parts[j * 2 - 1]
+				local a = (j - 1) * math.pi * 2 / RING_SEGMENTS
+				ring.Size = Vector3.new(outer - inner, Config.Capture.ringHeight, outer * math.pi * 2 / RING_SEGMENTS * 1.03)
+				ring.CFrame = CFrame.new(ev.origin + Vector3.new(math.cos(a) * middle, Config.Capture.ringHeight / 2, math.sin(a) * middle)) * CFrame.Angles(0, -a, 0)
 				ring.Color = colour
 				ring.Transparency = if active then 0.35 else 0.6
+				entry.parts[j * 2].Transparency = if active then 0.95 else 0.75
 			end
 		elseif ev.shape == "circles" then
 			for _, disc in entry.parts do
@@ -507,12 +511,11 @@ local function applyPull(dt: number)
 		return
 	end
 	local delta = horizontal(target.position - hrp.Position)
-	if delta.Magnitude < 1 then
+	if delta.Magnitude < 1 or delta.Magnitude > target.radius then
 		return
 	end
-	local s = settings()
-	local strength = target.strength * (if s.reducedMotion then 0.5 else 1)
-	local pull = delta.Unit * strength
+	-- Reduced motion affects presentation, not capture difficulty.
+	local pull = delta.Unit * target.strength
 	hrp.AssemblyLinearVelocity = Vector3.new(
 		hrp.AssemblyLinearVelocity.X + pull.X * dt,
 		hrp.AssemblyLinearVelocity.Y,
@@ -529,6 +532,7 @@ function CaptureController.onCaptureState(state: Types.CaptureState?)
 		h.setState(state)
 	end
 	if not state then
+		warningGeneration += 1
 		clearTether()
 		pullTarget = nil
 		for _, entry in activeHazards do

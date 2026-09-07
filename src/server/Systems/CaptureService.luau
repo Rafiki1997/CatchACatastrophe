@@ -56,6 +56,20 @@ end
 
 -- ---------------------------------------------------------------- hazards
 
+-- Root-to-feet distance differs between R6 and R15 and with avatar scale.
+function CaptureService.feetY(hrp: BasePart): number
+	local humanoid = hrp.Parent and hrp.Parent:FindFirstChildOfClass("Humanoid")
+	local offset = hrp.Size.Y / 2
+	if humanoid then
+		offset += humanoid.HipHeight
+		if humanoid.RigType == Enum.HumanoidRigType.R6 then
+			local leg = hrp.Parent:FindFirstChild("Left Leg")
+			offset += if leg and leg:IsA("BasePart") then leg.Size.Y else 2
+		end
+	end
+	return hrp.Position.Y - offset
+end
+
 -- Build one hazard. `origin` is the creature, `targetPos` the catcher.
 function CaptureService.buildHazard(def: any, origin: Vector3, targetPos: Vector3, now: number, speed: number, boss: boolean?): HazardEvent
 	hazardSeq += 1
@@ -114,7 +128,7 @@ function CaptureService.buildHazard(def: any, origin: Vector3, targetPos: Vector
 end
 
 -- Is `pos` inside the hazard at `now`? Only true during the active window.
-function CaptureService.hazardHits(ev: HazardEvent, pos: Vector3, now: number): boolean
+function CaptureService.hazardHits(ev: HazardEvent, pos: Vector3, now: number, feetY: number?): boolean
 	if now < ev.telegraphEndsAt or now > ev.activeEndsAt then
 		return false
 	end
@@ -130,6 +144,9 @@ function CaptureService.hazardHits(ev: HazardEvent, pos: Vector3, now: number): 
 		local across = rel:Dot(right)
 		return math.abs(along) <= ev.width + 1.5 and math.abs(across) <= ev.length
 	elseif ev.shape == "ring" then
+		if feetY and feetY > ev.origin.Y + C.ringHeight then
+			return false
+		end
 		local r = ev.travel * u
 		local d = (p - horizontal(ev.origin)).Magnitude
 		return math.abs(d - r) <= ev.radius + 1
@@ -383,7 +400,7 @@ local function tickCapture(profile: Profile, dt: number, now: number)
 		local ev = entry.event
 		if now > ev.activeEndsAt + 0.5 then
 			table.remove(cap.hazards, i)
-		elseif not entry.resolved and CaptureService.hazardHits(ev, hrp.Position, now) then
+		elseif not entry.resolved and CaptureService.hazardHits(ev, hrp.Position, now, CaptureService.feetY(hrp)) then
 			entry.resolved = true
 			cap.hits += 1
 			cap.perfect = false

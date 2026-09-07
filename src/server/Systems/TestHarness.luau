@@ -152,6 +152,41 @@ local function testConfig()
 	check("pair key is order independent", Config.Circuits.pairKey(4, 3) == Config.Circuits.pairKey(3, 4))
 end
 
+local function testHazards()
+	local Capture = require(script.Parent.CaptureService)
+	for _, element in { "Water", "Heat", "Frost", "Storm", "Cosmic" } do
+		local def = Config.Capture.hazards[element]
+		for _, speed in { 1, 1.5 } do
+			local ev = Capture.buildHazard(def, Vector3.zero, Vector3.new(8, 3, 0), 100, speed)
+			local mid = (ev.telegraphEndsAt + ev.activeEndsAt) / 2
+			local inside = ev.positions[1] or Vector3.zero
+			if ev.shape == "ring" then
+				inside = Vector3.new(8, 3, 0)
+			elseif ev.shape == "line" then
+				inside = ev.origin + ev.direction * ev.travel / 2
+			end
+			local key = element .. " speed " .. tostring(speed)
+			check(key .. " warning harmless", not Capture.hazardHits(ev, inside, ev.telegraphEndsAt - 0.001, 0))
+			check(key .. " active hits", Capture.hazardHits(ev, inside, mid, 0))
+			check(key .. " expired harmless", not Capture.hazardHits(ev, inside, ev.activeEndsAt + 0.001, 0))
+			check(key .. " outside safe", not Capture.hazardHits(ev, Vector3.new(100, 3, 100), mid, 0))
+			check(key .. " warning scales", approx(ev.telegraphEndsAt - 100, def.telegraph / speed))
+			check(key .. " active scales", approx(ev.activeEndsAt - ev.telegraphEndsAt, def.active / speed))
+			if ev.shape == "circles" then
+				check(key .. " patch count", #ev.positions == def.count)
+				check(key .. " targets catcher", ev.positions[1] == Vector3.new(8, 0, 0))
+			elseif ev.shape == "ring" then
+				check(key .. " jump clears band", not Capture.hazardHits(ev, inside, mid, Config.Capture.ringHeight + 0.1))
+				check(key .. " low feet hit", Capture.hazardHits(ev, inside, mid, Config.Capture.ringHeight - 0.1))
+				check(key .. " centre safe behind band", not Capture.hazardHits(ev, Vector3.zero, mid, 0))
+			elseif ev.shape == "line" then
+				local right = Vector3.new(-ev.direction.Z, 0, ev.direction.X)
+				check(key .. " sidestep safe", not Capture.hazardHits(ev, inside + right * (ev.length + 1), mid, 0))
+			end
+		end
+	end
+end
+
 local function testFormat()
 	check("abbreviate 999", Format.abbreviate(999) == "999", Format.abbreviate(999))
 	check("abbreviate 1500", Format.abbreviate(1500) == "1.5K", Format.abbreviate(1500))
@@ -180,6 +215,37 @@ local function testModels()
 		end
 	end
 	check("all 24 creature models build", built == 24, tostring(built) .. "/24")
+
+	-- Effects accumulate across builder, variant, and rarity passes. Check the
+	-- finished combinations, including silhouettes used by the collection UI.
+	for _, def in Config.Species.list do
+		for _, appearance in { "Normal", "Overcharged", "Prismatic", "Silhouette" } do
+			local silhouette = appearance == "Silhouette"
+			local ok, model = pcall(CreatureModels.build, def.id, if silhouette then "Normal" else appearance, silhouette)
+			if ok and typeof(model) == "Instance" then
+				local parts, lights, emitters = 0, 0, 0
+				local safe = true
+				for _, inst in model:GetDescendants() do
+					if inst:IsA("BasePart") then
+						parts += 1
+						safe = safe and inst.Anchored and not inst.CanCollide
+					elseif inst:IsA("Light") then
+						lights += 1
+					elseif inst:IsA("ParticleEmitter") then
+						emitters += 1
+					end
+				end
+				check(def.id .. " " .. appearance .. " render budget", parts >= 14 and parts <= 45 and lights <= 2 and emitters <= 3 and safe,
+					("%d parts, %d lights, %d emitters"):format(parts, lights, emitters))
+				if silhouette then
+					check(def.id .. " silhouette has no effects", lights == 0 and emitters == 0)
+				end
+				model:Destroy()
+			else
+				check(def.id .. " " .. appearance .. " builds", false, tostring(model))
+			end
+		end
+	end
 
 	for _, job in MachineryBuilders.stationJobs() do
 		local ok, model = pcall(MachineryBuilders.buildWorkStation, job, Color3.fromRGB(255, 255, 255))
@@ -597,6 +663,7 @@ function Harness.run()
 	local suites: { { name: string, fn: () -> () } } = {
 		{ name = "config", fn = testConfig },
 		{ name = "format", fn = testFormat },
+		{ name = "hazards", fn = testHazards },
 		{ name = "models", fn = testModels },
 		{ name = "income", fn = testIncome },
 		{ name = "upgrades", fn = testUpgrades },
