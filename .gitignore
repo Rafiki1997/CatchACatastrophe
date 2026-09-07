@@ -7,3 +7,4 @@ build/*.rbxm
 
 # Weppy Studio sync plugin runtime (Rojo is the source of truth here)
 weppy-project-sync/
+build/*.png
