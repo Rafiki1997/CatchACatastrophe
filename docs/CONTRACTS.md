@@ -31,7 +31,7 @@ Config.Variants.order / .info[v] = { mult, label, icon, color, material?, tint?,
 Config.Circuits.list / .byId / .recipe(elemA, elemB) -> CircuitDef? -- { id, name, elements, desc, hint, color, machine }
 Config.Circuits.baseBonus (0.25), .upgradedBonus (0.40), .upgradeCostSeconds (120), .upgradeMinCost (500), .overdrive {activeSeconds=20, cooldownSeconds=15, multiplier=2, ventHoldSeconds}
 Config.Circuits.grid {cols=6, rows=4}, .maxPads (24), .padCoords(pad) -> col,row, .areAdjacent(a,b), .pairKey(a,b) -> "3-4", .parsePairKey(key)
-Config.Capture.tetherRange (18), .tetherRangeCap (30), .outOfRangeGrace (1), .hitPenalty (2), .encounterLifetime (45), .wildLifetime, .tick (0.1), .captureSecondsCap (16), .knockback, .hitStun, .roamRadius, .roamSpeed, .arenaRadius, .claimRange
+Config.Capture.tetherRange (18), .tetherRangeCap (30), .outOfRangeGrace (1), .hitPenalty (1, must stay below every rarity's attackInterval / hazardSpeed), .knockback (16, below tetherRange), .wallHeight (3, feet above clear Gust / Ice Wave), .encounterLifetime (45), .wildLifetime, .tick (0.1), .captureSecondsCap (16), .knockback, .hitStun, .roamRadius, .roamSpeed, .arenaRadius, .claimRange
 Config.Capture.hazards[element] = { element, name, warning, shape ("line"|"ring"|"circles"|"pull"), telegraph, active, radius, count, spawnRadius, length, width, travel, pullStrength, color }
 Config.Economy.startingCoins (150), .maxCoins, .income {tickInterval, stateSyncInterval, bankCapSeconds, bankCapPerLevel}, .offline {efficiency, capSeconds, minAwaySeconds}, .storage {base, max}, .deploy {startingPads, hardCap}, .sellMin
 Config.Economy.upgrades / .upgradeById[id] = { id, name, desc, icon, maxLevel, baseCost, costMult, perLevel, cap? }; .upgradeCost(id, currentLevel)

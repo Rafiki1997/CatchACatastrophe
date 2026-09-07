@@ -182,6 +182,8 @@ local function testHazards()
 			elseif ev.shape == "line" then
 				local right = Vector3.new(-ev.direction.Z, 0, ev.direction.X)
 				check(key .. " sidestep safe", not Capture.hazardHits(ev, inside + right * (ev.length + 1), mid, 0))
+				check(key .. " jump clears wall", not Capture.hazardHits(ev, inside, mid, Config.Capture.wallHeight + 0.1))
+				check(key .. " low feet hit by wall", Capture.hazardHits(ev, inside, mid, Config.Capture.wallHeight - 0.1))
 			end
 		end
 	end
@@ -273,6 +275,21 @@ local function testModels()
 	if okPylon and typeof(pylon) == "Instance" then
 		(pylon :: Model):Destroy()
 	end
+end
+
+-- Capture balance rules that must hold whatever the numbers are tuned to.
+local function testCaptureBalance()
+	for rarity, info in Config.Rarities.info do
+		local interval = info.attackInterval / info.hazardSpeed
+		check(rarity .. " hit penalty is below its attack interval (net progress even when hit every time)", Config.Capture.hitPenalty < interval, tostring(Config.Capture.hitPenalty) .. " vs " .. tostring(interval))
+	end
+	check("knockback cannot throw the player out of tether range on its own", Config.Capture.knockback < Config.Capture.tetherRange, tostring(Config.Capture.knockback))
+	check("a sweeping wall is lower than a jump", Config.Capture.wallHeight < 7, tostring(Config.Capture.wallHeight))
+	-- a roaming leg continues from where the previous one ended, never from the spawn pivot
+	local Encounters = require(script.Parent.EncounterService)
+	local pivot = Vector3.new(0, 0, 0)
+	check("first leg starts at the pivot", Encounters.legStart(nil, pivot) == pivot)
+	check("later legs start where the last one ended", Encounters.legStart(Vector3.new(5, 0, 7), pivot) == Vector3.new(5, 0, 7))
 end
 
 -- A model replicated from the server reaches the client BEFORE its parts do:
@@ -783,6 +800,7 @@ function Harness.run()
 		{ name = "models", fn = testModels },
 		{ name = "plot", fn = testPlot },
 		{ name = "animate", fn = testAnimateTrack },
+		{ name = "capture balance", fn = testCaptureBalance },
 		{ name = "collection pad", fn = testCollectionPad },
 		{ name = "income", fn = testIncome },
 		{ name = "upgrades", fn = testUpgrades },

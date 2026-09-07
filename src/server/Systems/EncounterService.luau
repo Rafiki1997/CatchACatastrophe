@@ -90,8 +90,16 @@ end
 
 -- ---------------------------------------------------------------- roaming
 
+-- Where a new roaming leg starts. The server never moves its own model (the
+-- client interpolates the path attributes), so the model's pivot is the SPAWN
+-- point forever; a leg started from it snaps the creature back home every few
+-- seconds. The previous leg's end is where the creature actually is.
+function EncounterService.legStart(previousTo: any, pivot: Vector3): Vector3
+	return if typeof(previousTo) == "Vector3" then previousTo else pivot
+end
+
 local function newLeg(encounter: Encounter, now: number)
-	local from = encounter.model:GetPivot().Position
+	local from = EncounterService.legStart(encounter.model:GetAttribute("PathTo"), encounter.model:GetPivot().Position)
 	local angle = rng:NextNumber(0, math.pi * 2)
 	local dist = rng:NextNumber(6, Config.Capture.roamRadius)
 	local target = encounter.home + Vector3.new(math.cos(angle) * dist, 0, math.sin(angle) * dist)

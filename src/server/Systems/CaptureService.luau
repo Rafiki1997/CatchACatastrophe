@@ -137,12 +137,17 @@ function CaptureService.hazardHits(ev: HazardEvent, pos: Vector3, now: number, f
 	local p = horizontal(pos)
 
 	if ev.shape == "line" then
+		-- a wall is jumpable: feet above its top are clear
+		if feetY and feetY > ev.origin.Y + C.wallHeight then
+			return false
+		end
 		local centre = horizontal(ev.origin + ev.direction * (ev.travel * u))
 		local rel = p - centre
 		local along = rel:Dot(ev.direction)
 		local right = Vector3.new(-ev.direction.Z, 0, ev.direction.X)
 		local across = rel:Dot(right)
-		return math.abs(along) <= ev.width + 1.5 and math.abs(across) <= ev.length
+		-- +1 is the character's own half-width; the band is otherwise the drawn wall
+		return math.abs(along) <= ev.width + 1.0 and math.abs(across) <= ev.length
 	elseif ev.shape == "ring" then
 		if feetY and feetY > ev.origin.Y + C.ringHeight then
 			return false

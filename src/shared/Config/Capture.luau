@@ -25,14 +25,20 @@ local Capture = {}
 Capture.tetherRange = 18 -- studs, before upgrades
 Capture.tetherRangeCap = 30
 Capture.outOfRangeGrace = 1.0 -- seconds outside range before the tether breaks
-Capture.hitPenalty = 2 -- seconds of progress removed by a break or hit (clamped at 0)
+-- Seconds of progress removed by a break or a hit (clamped at 0). Must stay below
+-- every rarity's attack interval (attackInterval / hazardSpeed, Legendary 1.33 s) or
+-- a player who is hit every time makes no progress at all; the self-test asserts it.
+Capture.hitPenalty = 1
 Capture.encounterLifetime = 45 -- seconds a claimed encounter lasts without completion
 Capture.wildLifetime = 240 -- seconds an unclaimed wild creature roams before it wanders off (recycled)
 Capture.tick = 0.1 -- server capture tick
 Capture.captureSecondsCap = 16
-Capture.knockback = 38 -- client-side impulse studs/s applied on a hit
+-- Client-side impulse on a hit. A shove, not an eject: at 38 it threw the player
+-- clean out of the 18-stud tether, so every hit also cost a break a second later.
+Capture.knockback = 16
 Capture.hitStun = 0.6 -- seconds the tether cannot re-engage after a hit
 Capture.ringHeight = 0.8 -- feet above this height clear the low splash band
+Capture.wallHeight = 3 -- feet above this clear a sweeping wall (Gust, Ice Wave); the client draws the wall this tall
 Capture.roamRadius = 22 -- wild creatures wander within this distance of their spawn
 Capture.roamSpeed = 4 -- studs/s (client interpolates from path attributes)
 Capture.arenaRadius = 20 -- hazards are placed inside this radius around the creature
@@ -42,10 +48,10 @@ Capture.claimRange = 22 -- must be this close to claim (slightly above tether ra
 -- Overcharged variant: perfect capture while the region's surge is active.
 
 Capture.hazards = {
-	Wind = { element = "Wind", name = "Gust", warning = "Gust incoming! Step aside", shape = "line", telegraph = 1.2, active = 1.5, radius = 0, count = 1, spawnRadius = 0, length = 9, width = 1.6, travel = 30, pullStrength = 0, color = Color3.fromRGB(180, 240, 200) },
+	Wind = { element = "Wind", name = "Gust", warning = "Gust incoming! Jump it or step aside", shape = "line", telegraph = 1.2, active = 1.5, radius = 0, count = 1, spawnRadius = 0, length = 9, width = 1.6, travel = 30, pullStrength = 0, color = Color3.fromRGB(180, 240, 200) },
 	Water = { element = "Water", name = "Splash Ring", warning = "Splash ring! Hop over the band", shape = "ring", telegraph = 1.0, active = 1.4, radius = 1.4, count = 1, spawnRadius = 0, length = 0, width = 0, travel = 16, pullStrength = 0, color = Color3.fromRGB(110, 190, 255) },
 	Heat = { element = "Heat", name = "Eruption", warning = "Marked ground erupts! Move off the patches", shape = "circles", telegraph = 1.4, active = 0.5, radius = 4, count = 3, spawnRadius = 12, length = 0, width = 0, travel = 0, pullStrength = 0, color = Color3.fromRGB(255, 120, 60) },
-	Frost = { element = "Frost", name = "Ice Wave", warning = "Ice wave sliding in! Get out of its path", shape = "line", telegraph = 1.2, active = 1.8, radius = 0, count = 1, spawnRadius = 0, length = 11, width = 2.0, travel = 30, pullStrength = 0, color = Color3.fromRGB(170, 230, 255) },
+	Frost = { element = "Frost", name = "Ice Wave", warning = "Ice wave sliding in! Jump it or get out of its path", shape = "line", telegraph = 1.2, active = 1.8, radius = 0, count = 1, spawnRadius = 0, length = 11, width = 2.0, travel = 30, pullStrength = 0, color = Color3.fromRGB(170, 230, 255) },
 	Storm = { element = "Storm", name = "Lightning", warning = "Lightning! Leave the marked spots", shape = "circles", telegraph = 1.1, active = 0.35, radius = 3.5, count = 2, spawnRadius = 10, length = 0, width = 0, travel = 0, pullStrength = 0, color = Color3.fromRGB(255, 235, 110) },
 	Cosmic = { element = "Cosmic", name = "Gravity Pulse", warning = "Gravity zone! Fight the pull, then clear the ring", shape = "pull", telegraph = 1.6, active = 0.4, radius = 7, count = 1, spawnRadius = 8, length = 0, width = 0, travel = 0, pullStrength = 9, color = Color3.fromRGB(210, 150, 255) },
 } :: { [string]: HazardDef }

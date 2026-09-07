@@ -49,16 +49,16 @@ Touch never needs two fingers at once or a precision drag. Every button is at le
 ## Capture
 
 Tether a creature from within 18 studs and hold contact for the required seconds while dodging its
-element's hazard. Leaving range for more than a second, or taking a hit, costs 2 seconds of progress
+element's hazard. Leaving range for more than a second, or taking a hit, costs 1 second of progress
 and ends your perfect run. An encounter is yours alone for 45 seconds; nobody can steal it, hit you, or
 receive that creature.
 
 | Element | Hazard | What it does |
 |---|---|---|
-| Wind | Gust | A wall sweeps across the arena |
+| Wind | Gust | A 3-stud wall sweeps across the arena; jump it or step aside |
 | Water | Splash Ring | A ring expands outward from the creature |
 | Heat | Eruption | Three patches are marked, then erupt |
-| Frost | Ice Wave | A wide wall slides through, slower and thicker |
+| Frost | Ice Wave | A wide wall slides through, slower and thicker; also jumpable |
 | Storm | Lightning | Two spots are marked, then struck |
 | Cosmic | Gravity Pulse | A well pulls you in, then pulses |
 

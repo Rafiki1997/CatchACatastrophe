@@ -414,10 +414,11 @@ local function spawnHazard(ev: Types.HazardEvent)
 			0.8
 		)
 		table.insert(parts, pathPart)
+		local wallH = Config.Capture.wallHeight
 		local wall = makePart(
 			"HazardWall",
-			Vector3.new(ev.length * 2, 5, ev.width * 2),
-			CFrame.lookAt(ev.origin + Vector3.new(0, 2.5, 0), ev.origin + Vector3.new(0, 2.5, 0) + ev.direction),
+			Vector3.new(ev.length * 2, wallH, ev.width * 2),
+			CFrame.lookAt(ev.origin + Vector3.new(0, wallH / 2, 0), ev.origin + Vector3.new(0, wallH / 2, 0) + ev.direction),
 			telegraphColor,
 			0.6
 		)
@@ -508,7 +509,8 @@ local function stepHazards(now: number)
 			local wall = entry.parts[2]
 			if wall then
 				local centre = ev.origin + ev.direction * (ev.travel * u)
-				wall.CFrame = CFrame.lookAt(Vector3.new(centre.X, ev.origin.Y + 2.5, centre.Z), Vector3.new(centre.X, ev.origin.Y + 2.5, centre.Z) + ev.direction)
+				local mid = ev.origin.Y + Config.Capture.wallHeight / 2
+				wall.CFrame = CFrame.lookAt(Vector3.new(centre.X, mid, centre.Z), Vector3.new(centre.X, mid, centre.Z) + ev.direction)
 				wall.Color = colour
 				wall.Transparency = if active then 0.35 else 0.7
 			end
