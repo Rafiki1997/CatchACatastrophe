@@ -3,13 +3,19 @@
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Config = require(ReplicatedStorage.Shared.Config)
+local Format = require(ReplicatedStorage.Shared.Util.Format)
 local Profiles = require(script.Parent.Profiles)
 local S = require(script.Parent.Services)
 local Sync = require(script.Parent.Sync)
+local Notify = require(script.Parent.Notify)
 
 local CollectionPad = {}
 local DURATION = Config.Economy.collectHoldSeconds
 local cycles: { [Player]: { since: number, pad: BasePart, character: Model } } = {}
+-- One payout per visit. Without this the pad paid every 0.2 s for as long as the
+-- player stood on it (a toast and a "+N" flash five times a second); stepping
+-- off and back on collects again.
+local paidThisVisit: { [Player]: boolean } = {}
 
 -- Pure timer rule, also exercised by the self-test suite.
 function CollectionPad.advance(since: number?, now: number, eligible: boolean, hasCoins: boolean): (number?, boolean)
@@ -52,16 +58,29 @@ function CollectionPad.update(profile: Profiles.Profile, now: number)
 	if cycle and (cycle.pad ~= pad or cycle.character ~= character) then
 		cycle = nil
 	end
-	local since, pay = CollectionPad.advance(cycle and cycle.since, now, eligible == true, profile.data.bank >= 1)
+	-- Leaving the pad footprint re-arms the payout. Anything less (a jump, a
+	-- brief moment in the air, a menu opening) must not: that would pay again.
+	local onPad = pad and pad.Parent and root and root:IsA("BasePart") and character
+	if onPad then
+		local l = pad.CFrame:PointToObjectSpace(root.Position)
+		onPad = math.abs(l.X) <= pad.Size.X / 2 + 1 and math.abs(l.Z) <= pad.Size.Z / 2 + 1 and math.abs(l.Y) < 8
+	end
+	if not onPad then
+		paidThisVisit[player] = nil
+	end
+	local since, pay = CollectionPad.advance(cycle and cycle.since, now, eligible == true, profile.data.bank >= 1 and not paidThisVisit[player])
 	cycles[player] = if since and pad and character then { since = since, pad = pad, character = character } else nil
 	player:SetAttribute("CollectionStartedAt", since)
 	player:SetAttribute("CollectionStatus", if not eligible then nil elseif since then "Collecting" else "Waiting")
 	if pay and S.Economy then
 		local before = profile.data.coins
 		local ok = S.Economy.collect(profile, true)
+		paidThisVisit[player] = true
 		if ok then
-			player:SetAttribute("CollectionLastAmount", profile.data.coins - before)
+			local amount = profile.data.coins - before
+			player:SetAttribute("CollectionLastAmount", amount)
 			player:SetAttribute("CollectionLastAt", now)
+			Notify.player(player, "success", Format.abbreviate(amount) .. " Coins collected!", 3)
 			Sync.push(profile)
 		end
 	end
@@ -70,6 +89,7 @@ end
 function CollectionPad.init()
 	game:GetService("Players").PlayerRemoving:Connect(function(player)
 		cycles[player] = nil
+		paidThisVisit[player] = nil
 	end)
 	local elapsed = 0
 	RunService.Heartbeat:Connect(function(dt)
