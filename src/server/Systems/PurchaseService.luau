@@ -339,9 +339,27 @@ local function grantedText(product: Product): string
 	return product.name .. " added!"
 end
 
+local function ledgerHas(profile: Profile, purchaseId: string): boolean
+	for _, row in profile.data.purchases.ledger do
+		if row.id == purchaseId then
+			return true
+		end
+	end
+	return false
+end
+
 -- Grant, record, save, then acknowledge. `save` is injectable so the self-tests
 -- can prove the rollback path without touching a DataStore.
+--
+-- The duplicate check lives here as well as in processReceipt on purpose: the
+-- promise "one receipt grants once" belongs to whatever writes the ledger, so
+-- it holds for every caller (a retry, a test grant, anything added later)
+-- rather than only for the path that remembers to look first.
 function PurchaseService.settle(profile: Profile, product: Product, receipt: any, save: ((Profile, string) -> boolean)?): Enum.ProductPurchaseDecision
+	local purchaseId = tostring(receipt.PurchaseId)
+	if ledgerHas(profile, purchaseId) then
+		return Enum.ProductPurchaseDecision.PurchaseGranted
+	end
 	profile.busy = true
 	local ok, undo = applyGrant(profile, product)
 	if not ok then
@@ -349,7 +367,7 @@ function PurchaseService.settle(profile: Profile, product: Product, receipt: any
 		warn("[Purchase] could not apply " .. product.id .. " for " .. profile.player.Name)
 		return Enum.ProductPurchaseDecision.NotProcessedYet
 	end
-	local row = { id = tostring(receipt.PurchaseId), productId = receipt.ProductId or 0, at = os.time() }
+	local row = { id = purchaseId, productId = receipt.ProductId or 0, at = os.time() }
 	table.insert(profile.data.purchases.ledger, row)
 	while #profile.data.purchases.ledger > Store.ledgerMax do
 		table.remove(profile.data.purchases.ledger, 1)
@@ -382,15 +400,6 @@ function PurchaseService.settle(profile: Profile, product: Product, receipt: any
 	Sync.push(profile)
 	print("[Purchase] granted " .. product.id .. " to " .. profile.player.Name)
 	return Enum.ProductPurchaseDecision.PurchaseGranted
-end
-
-local function ledgerHas(profile: Profile, purchaseId: string): boolean
-	for _, row in profile.data.purchases.ledger do
-		if row.id == purchaseId then
-			return true
-		end
-	end
-	return false
 end
 
 -- Every uncertain answer is NotProcessedYet: Roblox will offer the receipt
