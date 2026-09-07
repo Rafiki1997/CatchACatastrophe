@@ -640,6 +640,42 @@ function Harness.runLive(profile: any)
 		return 0, 0, {}
 	end
 
+	-- Routes and signs: what Controllers.RouteLights / Waypoints read off the map.
+	do
+		local CollectionService = game:GetService("CollectionService")
+		local chevrons = CollectionService:GetTagged("RouteChevron")
+		local tagged, neon, ordered = 0, 0, 0
+		local routes: { [string]: number } = {}
+		for _, p in chevrons do
+			if p:IsA("BasePart") then
+				tagged += 1
+				if p.Material == Enum.Material.Neon then
+					neon += 1
+				end
+				local id, index, count = p:GetAttribute("RouteId"), p:GetAttribute("Index"), p:GetAttribute("Count")
+				if typeof(id) == "string" and typeof(index) == "number" and typeof(count) == "number" and index >= 1 and index <= count then
+					ordered += 1
+					routes[id] = count
+				end
+			end
+		end
+		local routeCount = 0
+		for _ in routes do
+			routeCount += 1
+		end
+		check("route chevrons are tagged", tagged > 0, tostring(tagged))
+		check("route chevrons are Neon", neon == tagged, tostring(neon) .. "/" .. tostring(tagged))
+		check("route chevrons carry RouteId / Index <= Count", ordered == tagged, tostring(ordered) .. "/" .. tostring(tagged))
+		check("hub, plots, gates and arena all have routes", routeCount >= 20, tostring(routeCount))
+		local signs = 0
+		for _, p in CollectionService:GetTagged("Waypoint") do
+			if p:IsA("BasePart") and typeof(p:GetAttribute("WaypointName")) == "string" then
+				signs += 1
+			end
+		end
+		check("hub destinations carry waypoint names", signs >= 4, tostring(signs))
+	end
+
 	local function income()
 		return Stats.income(profile, workspace:GetServerTimeNow())
 	end

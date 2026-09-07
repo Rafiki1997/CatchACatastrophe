@@ -140,6 +140,7 @@ local CHEVRON_SPACING = 11
 local CHEVRON_MAX = 16
 local BOLLARD_SPACING = 30
 local BOLLARD_MAX = 7
+local routeCounter = 0 -- every path() call is one route for Controllers.RouteLights
 
 local function path(parent: Instance, from: Vector3, to: Vector3, width: number, accent: Color3?)
 	width *= 1.5
@@ -180,22 +181,30 @@ local function path(parent: Instance, from: Vector3, to: Vector3, width: number,
 		})
 	end
 
-	-- chevrons pointing at the destination
+	-- chevrons pointing at the destination. Neon, and tagged with their order
+	-- along the route so the client can run a light down them toward `to`
+	-- (Controllers.RouteLights); painted arrows alone vanish when you stand on them.
 	local count = math.clamp(math.floor(length / CHEVRON_SPACING), 1, CHEVRON_MAX)
 	local step = length / (count + 1)
 	local arm = width * 0.52
+	routeCounter += 1
+	local routeId = "route" .. tostring(routeCounter)
 	for i = 1, count do
 		local along = -length / 2 + step * i
 		for _, side in { -1, 1 } do
-			part({
+			local chevron = part({
 				name = "PathChevron",
 				size = Vector3.new(2.1, 0.16, arm),
 				-- each half of the ">" is rotated in from the centre line
 				cf = base * CFrame.new(side * arm * 0.32, 0.21, along) * CFrame.Angles(0, side * math.rad(38), 0),
 				color = rgb(210, 125, 12),
-				material = Enum.Material.SmoothPlastic,
+				material = Enum.Material.Neon,
 				parent = parent,
 			})
+			chevron:SetAttribute("RouteId", routeId)
+			chevron:SetAttribute("Index", i)
+			chevron:SetAttribute("Count", count)
+			CollectionService:AddTag(chevron, "RouteChevron")
 		end
 	end
 
@@ -305,6 +314,10 @@ local function buildHub(parent: Instance)
 	label(surface(sign, Enum.NormalId.Front, 24), "Text", "UPGRADE WORKSHOP", UDim2.fromScale(1, 1), UDim2.fromScale(0, 0), HAZARD)
 	local workshopTerminal = part({ name = "Terminal", size = Vector3.new(4, 4.5, 2.4), cf = CFrame.new(workshopPos + Vector3.new(0, 2.8, -7)), color = rgb(58, 62, 82), collide = true, parent = workshop })
 	workshopTerminal:SetAttribute("OpensPanel", "Workshop")
+	workshopTerminal:SetAttribute("WaypointName", "Upgrade Workshop")
+	workshopTerminal:SetAttribute("WaypointColor", HAZARD)
+	workshopTerminal:SetAttribute("WaypointHeight", 12)
+	CollectionService:AddTag(workshopTerminal, "Waypoint")
 	label(surface(workshopTerminal, Enum.NormalId.Front, 22), "Text", "UPGRADES", UDim2.fromScale(1, 0.6), UDim2.fromScale(0, 0.2), rgb(190, 245, 255))
 
 	-- ---------------------------------------------------------------- beacon
@@ -330,6 +343,10 @@ local function buildHub(parent: Instance)
 	label(surface(beaconSign, Enum.NormalId.Front, 24), "Text", "CITY RELAUNCH", UDim2.fromScale(1, 1), UDim2.fromScale(0, 0), rgb(140, 235, 255))
 	local beaconTerminal = part({ name = "Terminal", size = Vector3.new(4, 4.5, 2.4), cf = CFrame.new(beaconPos + Vector3.new(0, 3.4, -8)), color = rgb(58, 62, 82), collide = true, parent = beacon })
 	beaconTerminal:SetAttribute("OpensPanel", "Relaunch")
+	beaconTerminal:SetAttribute("WaypointName", "City Relaunch")
+	beaconTerminal:SetAttribute("WaypointColor", rgb(140, 235, 255))
+	beaconTerminal:SetAttribute("WaypointHeight", 12)
+	CollectionService:AddTag(beaconTerminal, "Waypoint")
 	label(surface(beaconTerminal, Enum.NormalId.Front, 22), "Text", "RELAUNCH", UDim2.fromScale(1, 0.6), UDim2.fromScale(0, 0.2), rgb(190, 245, 255))
 
 	-- ---------------------------------------------------------------- atlas kiosk
@@ -342,6 +359,10 @@ local function buildHub(parent: Instance)
 	part({ name = "Canopy", size = Vector3.new(12, 0.8, 8), cf = CFrame.new(atlasPos + Vector3.new(0, 8.4, 0)), color = rgb(120, 220, 150), parent = kiosk })
 	local atlasTerminal = part({ name = "Terminal", size = Vector3.new(5, 4.5, 2.2), cf = CFrame.new(atlasPos + Vector3.new(0, 3, -3)), color = rgb(58, 62, 82), collide = true, parent = kiosk })
 	atlasTerminal:SetAttribute("OpensPanel", "Atlas")
+	atlasTerminal:SetAttribute("WaypointName", "Catastrophe Atlas")
+	atlasTerminal:SetAttribute("WaypointColor", rgb(120, 220, 150))
+	atlasTerminal:SetAttribute("WaypointHeight", 12)
+	CollectionService:AddTag(atlasTerminal, "Waypoint")
 	label(surface(atlasTerminal, Enum.NormalId.Front, 22), "Text", "CATASTROPHE ATLAS", UDim2.fromScale(1, 0.7), UDim2.fromScale(0, 0.15), rgb(190, 245, 255))
 
 	-- ---------------------------------------------------------------- company board
@@ -414,6 +435,10 @@ local function buildArena(parent: Instance)
 	hazardStrip(arena, CFrame.new(0, 1.4, -120.1), 40, 1.4, 0.2)
 
 	local bossSpot = part({ name = "BossSpot", size = Vector3.new(2, 1, 2), cf = CFrame.new(centre + Vector3.new(0, 0.5, 0)), transparency = 1, collide = false, query = false, parent = arena })
+	bossSpot:SetAttribute("WaypointName", "Crisis Arena")
+	bossSpot:SetAttribute("WaypointColor", rgb(255, 120, 100))
+	bossSpot:SetAttribute("WaypointHeight", 14)
+	CollectionService:AddTag(bossSpot, "Waypoint")
 
 	-- screen
 	part({ name = "ScreenPostL", size = Vector3.new(1, 13, 1), cf = CFrame.new(-8, 6.5, -134), color = DECK, collide = true, parent = arena })
