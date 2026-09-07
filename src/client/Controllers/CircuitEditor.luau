@@ -9,6 +9,7 @@
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
+local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config)
@@ -196,8 +197,12 @@ local function selectPad(pad: number?)
 	selectedPad = nil
 end
 
+-- x, y are screen space (InputObject.Position, GUI inset removed); the ray wants
+-- viewport space, so add the inset back (58 px with the current topbar). Same
+-- mismatch as the creature picker had; hidden here by big pads and a close camera.
 local function padUnderPoint(x: number, y: number): number?
-	local ray = camera():ViewportPointToRay(x, y)
+	local inset = GuiService:GetGuiInset()
+	local ray = camera():ViewportPointToRay(x + inset.X, y + inset.Y)
 	local params = RaycastParams.new()
 	params.FilterType = Enum.RaycastFilterType.Exclude
 	params.FilterDescendantsInstances = { player.Character :: any, workspace:FindFirstChild("ClientFX") :: any }
