@@ -245,20 +245,6 @@ function Router.init()
 			if profile.dirty then
 				Sync.push(profile)
 			end
-		elseif kind == "Collect" and S.Economy then
-			-- the spec offers two ways to bank: step on the pad, or press it
-			local plotIndex = host and host:GetAttribute("PlotIndex")
-			if plotIndex == profile.plotIndex and not profile.visiting then
-				local ok, result, message = pcall(S.Economy.collect, profile)
-				if ok and result == false and typeof(message) == "string" then
-					Notify.player(player, "error", message, 4)
-				end
-				if profile.dirty then
-					Sync.push(profile)
-				end
-			else
-				Notify.player(player, "error", "That is not your collection pad.", 4)
-			end
 		end
 	end)
 
@@ -302,33 +288,6 @@ function Router.init()
 		end
 	end)
 
-	-- ---------------------------------------------------------------- collect pad
-	for _, plot in (if S.City then S.City.allPlots() else {}) do
-		local pad = plot.collectPad
-		if pad and pad:IsA("BasePart") then
-			pad.Touched:Connect(function(hit)
-				local character = hit.Parent
-				local player = character and Players:GetPlayerFromCharacter(character)
-				if not player then
-					return
-				end
-				local profile = Profiles.get(player)
-				-- only the owner: a visitor standing on the pad collects nothing
-				if not profile or profile.plotIndex ~= plot.index or profile.visiting then
-					return
-				end
-				if not RateLimiter.allow(player, "CollectBank") then
-					return
-				end
-				if S.Economy then
-					pcall(S.Economy.collect, profile)
-				end
-				if profile.dirty then
-					Sync.push(profile)
-				end
-			end)
-		end
-	end
 end
 
 -- Prompts for the world objects the server owns.
@@ -372,11 +331,6 @@ function Router.attachPrompts(refs: any)
 				plot.ventPrompt = vent
 			end
 
-			local collect = addPrompt(plot.collectPad, "Collect", "Collection Pad", 0, 14)
-			if collect then
-				plot.collectPad:SetAttribute("Prompt", "Collect")
-				plot.collectPad:SetAttribute("PlotIndex", plot.index)
-			end
 		end
 	end
 

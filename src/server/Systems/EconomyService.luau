@@ -86,7 +86,7 @@ end
 
 -- ---------------------------------------------------------------- bank
 
-function EconomyService.collect(profile: Profile): (boolean, string?)
+function EconomyService.collect(profile: Profile, quiet: boolean?): (boolean, string?)
 	if profile.visiting then
 		return false, "You can only collect in your own city."
 	end
@@ -109,7 +109,7 @@ function EconomyService.collect(profile: Profile): (boolean, string?)
 	safeCall("Quests", "tutorialEvent", profile, "collect")
 
 	local plot = profile.plot
-	if plot then
+	if plot and not quiet then
 		local pos = plot.collectPad.Position + Vector3.new(0, 3, 0)
 		Notify.floating(profile.player, "+" .. Format.abbreviate(payout), pos, Color3.fromRGB(255, 208, 72))
 		Notify.effectFor(profile.player, "collect", pos)

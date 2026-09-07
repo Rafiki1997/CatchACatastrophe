@@ -83,6 +83,7 @@ Quests.init()
 Leaderboard.init(refs)
 Router.init()
 Router.attachPrompts(refs)
+require(Systems.CollectionPadService).init()
 PlayerService.init()
 
 print(("[%s] server ready in %d ms"):format(Config.GameName, math.floor((os.clock() - startedAt) * 1000)))
