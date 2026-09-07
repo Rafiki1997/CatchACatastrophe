@@ -25,6 +25,7 @@ local SIDEBAR = {
 	{ panel = "Atlas", icon = "A", caption = "Atlas" },
 	{ panel = "Recipes", icon = "R", caption = "Recipes" },
 	{ panel = "Workshop", icon = "W", caption = "Workshop" },
+	{ panel = "Store", icon = "R", caption = "Store" },
 	{ panel = "Quests", icon = "Q", caption = "Quests" },
 	{ panel = "Cities", icon = "V", caption = "Cities" },
 	{ panel = "Relaunch", icon = "L", caption = "Relaunch" },
@@ -39,6 +40,7 @@ local bankLabel: TextLabel? = nil
 local bankBar: any = nil
 local bankWasFull = false
 local collectButton: TextButton? = nil
+local boostChip: TextLabel? = nil
 local remoteReadyAt = 0
 local remoteBank = 0
 local dataPill: TextLabel? = nil
@@ -104,6 +106,22 @@ function HUD.init()
 		color = Theme.colors.accentAlt,
 		xalign = Enum.TextXAlignment.Left,
 	})
+	-- a running boost is worth seeing on the HUD, not only in the Store
+	boostChip = W.label({
+		parent = wallet,
+		name = "BoostChip",
+		text = "",
+		size = UDim2.new(0, 120, 0, 18),
+		position = UDim2.new(1, -12, 0, 46),
+		anchor = Vector2.new(1, 0),
+		textSize = 12,
+		xalign = Enum.TextXAlignment.Center,
+		font = Theme.fonts.bold,
+		color = Theme.colors.ink,
+		bg = Theme.colors.overdrive,
+		radius = Theme.sizes.radiusSmall,
+		visible = false,
+	})
 	bankBar = W.progress(wallet, UDim2.new(1, -24, 0, 20), Theme.colors.coin, nil, UDim2.new(0, 12, 0, 84))
 	bankLabel = W.label({
 		parent = wallet,
@@ -138,6 +156,7 @@ function HUD.init()
 		while true do
 			task.wait(1)
 			HUD.refreshCollectButton()
+			HUD.refreshBoostChip()
 		end
 	end)
 
@@ -415,6 +434,32 @@ end
 
 -- Button text and enabled state from the last snapshot: "Collect", or the
 -- seconds left on the cooldown. Ticks once a second between snapshots.
+-- Ticks with the collect countdown so the chip counts down between snapshots.
+function HUD.refreshBoostChip()
+	if not boostChip then
+		return
+	end
+	local snap = State.get()
+	if not snap then
+		boostChip.Visible = false
+		return
+	end
+	local now = State.now()
+	local bestLeft, bestMult = 0, 1
+	for _, boost in snap.store.boosts do
+		local left = boost.expiresAt - now
+		if left > bestLeft then
+			bestLeft, bestMult = left, boost.mult
+		end
+	end
+	if bestLeft <= 0 then
+		boostChip.Visible = false
+		return
+	end
+	boostChip.Visible = true
+	boostChip.Text = tostring(bestMult) .. "x  " .. Format.clock(bestLeft)
+end
+
 function HUD.refreshCollectButton()
 	if not collectButton or not collectButton.Visible then
 		return
@@ -478,6 +523,7 @@ function HUD.update(snap: Types.Snapshot)
 		remoteBank = snap.bank
 		HUD.refreshCollectButton()
 	end
+	HUD.refreshBoostChip()
 
 	if offlineCard and offlineText then
 		if snap.offline then

@@ -121,6 +121,28 @@ local function createUpgradeRow(def: any): any
 	})
 	-- the button shows an abbreviated price; the tooltip gives the exact figure
 	-- and how far off it is
+	-- Some upgrades can also be bought outright with Robux. The pass button only
+	-- appears for those, and only until it is owned.
+	local pass = Config.Store.passById[def.id]
+	local passButton: TextButton? = nil
+	if pass then
+		passButton = W.button({
+			parent = card,
+			name = "Robux",
+			text = tostring(pass.robuxHint) .. " R$",
+			size = UDim2.new(0, 92, 0, 46),
+			position = UDim2.new(1, -140, 0.5, 0),
+			anchor = Vector2.new(1, 0.5),
+			color = Theme.colors.gold,
+			textColor = Theme.colors.ink,
+			textSize = 14,
+			wrap = true,
+			onClick = function()
+				Net.fire("PromptPurchase", "pass", pass.id)
+			end,
+		})
+		W.tooltip(passButton :: GuiObject, pass.name .. ": " .. pass.desc)
+	end
 	W.tooltip(button, function()
 		local snap = State.get()
 		if not snap then
@@ -139,12 +161,22 @@ local function createUpgradeRow(def: any): any
 			.. (if short > 0 then "\nYou need " .. Format.commas(short) .. " more." else "\nYou can afford this.")
 	end)
 
-	local record = { frame = card, icon = icon, title = title, levelLabel = levelLabel, effect = effect, button = button, def = def }
+	local record = { frame = card, icon = icon, title = title, levelLabel = levelLabel, effect = effect, button = button, passButton = passButton, def = def }
 	upgradeRows[def.id] = record
 	return record
 end
 
 local function updateUpgradeRow(row: any, snap: Snapshot)
+	-- the Robux alternative disappears once the pass is owned, and says "Soon"
+	-- while the product does not exist on the dashboard yet
+	if row.passButton then
+		local pass = Config.Store.passById[row.def.id]
+		row.passButton.Visible = not snap.store.passes[row.def.id]
+		if not Config.Store.isLive(pass) then
+			row.passButton.Text = "Soon"
+			W.setEnabled(row.passButton, false)
+		end
+	end
 	local def = row.def
 	local level = snap.upgrades[def.id] or 0
 	local maxLevel = maxLevelFor(def.id, snap)
