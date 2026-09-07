@@ -316,6 +316,23 @@ local function serialize(profile: Profile): Data
 	end
 	copy.settings = table.clone(d.settings)
 	copy.stats = table.clone(d.stats)
+	copy.purchases = {
+		ledger = {},
+		passes = table.clone(d.purchases.passes),
+		cosmetics = table.clone(d.purchases.cosmetics),
+		coinsBought = d.purchases.coinsBought,
+		robuxSpent = d.purchases.robuxSpent,
+		boostsBought = d.purchases.boostsBought,
+		eggsOpened = d.purchases.eggsOpened,
+	}
+	for i, row in d.purchases.ledger do
+		copy.purchases.ledger[i] = table.clone(row)
+	end
+	copy.boosts = table.clone(d.boosts)
+	copy.eggs = { counts = table.clone(d.eggs.counts), pity = {} }
+	for id, counters in d.eggs.pity do
+		copy.eggs.pity[id] = table.clone(counters)
+	end
 	return copy
 end
 

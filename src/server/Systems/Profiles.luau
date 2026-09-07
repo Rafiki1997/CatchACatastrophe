@@ -54,6 +54,22 @@ export type Data = {
 	lastOnlineAt: number, -- unix, written on every save while online
 	settings: { music: number, sfx: number, reducedMotion: boolean, reducedFlashing: boolean, notifications: boolean },
 	stats: { captures: number, perfect: number, relaunches: number, connects: number, overdrives: number, collects: number, crisisWins: number, earned: number },
+	-- Robux. `ledger` is the receipt history that makes ProcessReceipt idempotent
+	-- (newest last, oldest dropped past Config.Store.ledgerMax); `passes` is the
+	-- last verified Game Pass ownership, used only when the Roblox API is down.
+	purchases: {
+		ledger: { { id: string, productId: number, at: number } },
+		passes: { [string]: boolean },
+		cosmetics: { [string]: boolean },
+		coinsBought: number,
+		robuxSpent: number,
+		boostsBought: number,
+		eggsOpened: number,
+	},
+	boosts: { [string]: number }, -- boost id -> unix time it expires
+	-- Unhatched eggs, and one pity counter per chase tier per egg: hatches since
+	-- that tier or better (see Config.Store.eggs.*.pity).
+	eggs: { counts: { [string]: number }, pity: { [string]: { [string]: number } } },
 	lastSaved: number, -- unix
 	sessionId: string?, -- owning server session (see DataService)
 	sessionAt: number?, -- unix when the session claimed the profile
@@ -83,6 +99,8 @@ export type Profile = {
 	leaving: boolean,
 	saving: boolean,
 	busy: boolean, -- a purchase / relaunch is mid-flight; blocks relaunch and double spends
+	passes: { [string]: boolean }, -- Game Passes verified this session (bundle expanded)
+	eggAllowed: boolean, -- false when the account's policy restricts paid random items
 	lastCollectAt: number,
 	remoteCollectReadyAt: number, -- server time (GetServerTimeNow) when the Remote Collector may fire again
 }
@@ -111,6 +129,9 @@ function Profiles.defaultData(): Data
 		lastOnlineAt = 0,
 		settings = { music = 0.6, sfx = 0.8, reducedMotion = false, reducedFlashing = false, notifications = true },
 		stats = { captures = 0, perfect = 0, relaunches = 0, connects = 0, overdrives = 0, collects = 0, crisisWins = 0, earned = 0 },
+		purchases = { ledger = {}, passes = {}, cosmetics = {}, coinsBought = 0, robuxSpent = 0, boostsBought = 0, eggsOpened = 0 },
+		boosts = {},
+		eggs = { counts = {}, pity = {} },
 		lastSaved = 0,
 		sessionId = nil,
 		sessionAt = nil,
@@ -283,6 +304,62 @@ function Profiles.sanitize(raw: any): Data
 			(d.stats :: any)[k] = num(raw.stats[k], 0, 0, 1e15)
 		end
 	end
+	-- Robux. Everything here is money-adjacent, so nothing is trusted: unknown
+	-- ids are dropped, counters clamped, and an expired or absurd boost timer is
+	-- discarded rather than honoured.
+	if typeof(raw.purchases) == "table" then
+		local p = raw.purchases
+		if typeof(p.ledger) == "table" then
+			for _, row in p.ledger do
+				if typeof(row) == "table" and typeof(row.id) == "string" and #row.id > 0 and #row.id <= 128 then
+					table.insert(d.purchases.ledger, { id = row.id, productId = int(row.productId, 0, 0, 1e12), at = num(row.at, 0, 0, 4e9) })
+				end
+			end
+			while #d.purchases.ledger > Config.Store.ledgerMax do
+				table.remove(d.purchases.ledger, 1)
+			end
+		end
+		d.purchases.passes = boolMap(p.passes, function(id: string): boolean
+			return Config.Store.passById[id] ~= nil
+		end)
+		d.purchases.cosmetics = boolMap(p.cosmetics)
+		d.purchases.coinsBought = num(p.coinsBought, 0, 0, 1e15)
+		d.purchases.robuxSpent = num(p.robuxSpent, 0, 0, 1e12)
+		d.purchases.boostsBought = int(p.boostsBought, 0, 0, 1e9)
+		d.purchases.eggsOpened = int(p.eggsOpened, 0, 0, 1e9)
+	end
+	if typeof(raw.boosts) == "table" then
+		local now = os.time()
+		for id, expiresAt in raw.boosts do
+			local boost = Config.Store.boosts[id]
+			if boost and typeof(expiresAt) == "number" then
+				local capped = math.min(num(expiresAt, 0, 0, 4e9), now + boost.maxStackSeconds)
+				if capped > now then
+					d.boosts[id] = capped
+				end
+			end
+		end
+	end
+	if typeof(raw.eggs) == "table" then
+		if typeof(raw.eggs.counts) == "table" then
+			for id, n in raw.eggs.counts do
+				if Config.Store.eggs[id] then
+					d.eggs.counts[id] = int(n, 0, 0, 10000)
+				end
+			end
+		end
+		if typeof(raw.eggs.pity) == "table" then
+			for id, counters in raw.eggs.pity do
+				if Config.Store.eggs[id] and typeof(counters) == "table" then
+					local out: { [string]: number } = {}
+					for _, rarity in Config.Rarities.eggTiers do
+						out[rarity] = int(counters[rarity], 0, 0, 100000)
+					end
+					d.eggs.pity[id] = out
+				end
+			end
+		end
+	end
 	return d
 end
 
@@ -309,6 +386,8 @@ function Profiles.create(player: Player, data: Data, dataSafe: boolean, testAdap
 		leaving = false,
 		saving = false,
 		busy = false,
+		passes = {},
+		eggAllowed = false, -- until PolicyService says otherwise
 		lastCollectAt = 0,
 		remoteCollectReadyAt = 0,
 	}
