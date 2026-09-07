@@ -40,7 +40,6 @@ local fxFolder: Folder? = nil
 local labels: { [Model]: BillboardGui } = {}
 local activeHazards: { { event: Types.HazardEvent, parts: { BasePart }, cleaned: boolean } } = {}
 local currentTarget: Model? = nil
-local highlight: SelectionBox? = nil
 local rangeRing: BasePart? = nil
 local tetherBeam: { attachment0: Attachment, attachment1: Attachment, beam: Beam, holder: BasePart }? = nil
 local captureState: Types.CaptureState? = nil
@@ -304,19 +303,8 @@ local function setTarget(model: Model?)
 		return
 	end
 	currentTarget = model
-	if not highlight then
-		local box = Instance.new("SelectionBox")
-		box.Name = "TargetHighlight"
-		box.LineThickness = 0.06
-		box.SurfaceTransparency = 0.85
-		box.Color3 = Color3.fromRGB(255, 220, 120)
-		box.SurfaceColor3 = Color3.fromRGB(255, 220, 120)
-		box.Parent = fx()
-		highlight = box
-	end
-	if highlight then
-		highlight.Adornee = model
-	end
+	-- No box around the target: the floating name label over it is the marker
+	-- (playtest: "remove the boxes/outlines around the creatures").
 
 	local info = nil
 	if model then
