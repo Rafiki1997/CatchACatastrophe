@@ -21,6 +21,7 @@
 
 | Commit | What |
 |---|---|
+| `675f4d2` | Wheel fallback on `W.scroll`/`W.scrollGrid` (acts only when nothing consumed the wheel). User report: Workshop list scrolls by bar, not wheel; not reproduced with injected wheel (300 px native). Awaiting re-test. |
 | `2313f29` | Creatures panel: stored creatures read "N/s when deployed" (`potentialCps`); they showed 0/s. |
 | `fabcba0` | **Remote Collector** upgrade (20,000 Coins, 60 s cooldown): `CollectBank` now runs `Economy.collectRemote` (gated + cooldown; the open remote is closed); HUD Collect button for owners with countdown. SelfTest 457. |
 | `dc00d2c` | **Live build stamp**: `tools/stamp.py` writes gitignored `Shared/Build.luau` (hash, dirty, times); HUD pill, Settings footer and boot log show it; post-commit hook refreshes it. Run `python tools/stamp.py` before every sync. LiveTest 33. |
