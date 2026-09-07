@@ -139,20 +139,51 @@ function HUD.init()
 	W.list(forecastRow, Enum.FillDirection.Horizontal, 5, Enum.HorizontalAlignment.Right)
 
 	-- ---------------------------------------------------------------- sidebar
-	local sidebar = W.frame({
-		parent = safe,
-		name = "Sidebar",
-		size = UDim2.new(0, 72, 0, #SIDEBAR * 72),
-		position = UDim2.new(0, 14, 0.5, 20),
-		anchor = Vector2.new(0, 0.5),
-		transparency = 1,
-	})
-	W.list(sidebar, Enum.FillDirection.Vertical, 6)
+	-- Keep navigation below the wallet. Short viewports scroll instead of
+	-- overlapping the wallet or losing the last buttons below the screen.
+	local sidebar = Instance.new("ScrollingFrame")
+	sidebar.Name = "Sidebar"
+	sidebar.Size = UDim2.new(0, 180, 1, -(Theme.hudSafeTop + 166))
+	sidebar.Position = UDim2.new(0, 14, 0, Theme.hudSafeTop + 150)
+	sidebar.BackgroundTransparency = 1
+	sidebar.BorderSizePixel = 0
+	sidebar.CanvasSize = UDim2.new()
+	sidebar.AutomaticCanvasSize = Enum.AutomaticSize.Y
+	sidebar.ScrollingDirection = Enum.ScrollingDirection.Y
+	sidebar.ScrollBarThickness = 3
+	sidebar.ScrollBarImageColor3 = Theme.colors.textDim
+	sidebar.Parent = safe
+	W.padding(sidebar, { left = 3, right = 9, top = 3, bottom = 3 })
+	W.list(sidebar, Enum.FillDirection.Vertical, 8)
+	local navButtons: { [string]: TextButton } = {}
 	for i, entry in SIDEBAR do
-		W.iconButton(sidebar, entry.icon, entry.caption, Theme.colors.bgAlt, function()
-			W.togglePanel(entry.panel)
-		end, i)
+		local button = W.button({
+			parent = sidebar,
+			name = entry.panel,
+			text = entry.caption,
+			size = UDim2.new(1, 0, 0, 52),
+			color = Theme.colors.bgDeep,
+			textColor = Theme.colors.text,
+			textSize = 18,
+			font = Theme.fonts.bold,
+			stroke = Theme.colors.bgAlt,
+			order = i,
+			onClick = function()
+				W.togglePanel(entry.panel)
+			end,
+		})
+		button.TextXAlignment = Enum.TextXAlignment.Left
+		W.padding(button, { left = 16, right = 12 })
+		navButtons[entry.panel] = button
 	end
+	W.onPanelChanged(function(panelName: string?)
+		for name, button in navButtons do
+			local selected = name == panelName
+			local background = if selected then Theme.colors.accent else Theme.colors.bgDeep
+			local foreground = if selected then Theme.colors.ink else Theme.colors.text
+			W.setButtonColor(button, background, foreground)
+		end
+	end)
 
 	-- ---------------------------------------------------------------- offline card
 	offlineCard = W.frame({

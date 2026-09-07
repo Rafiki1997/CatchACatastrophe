@@ -238,6 +238,7 @@ function TutorialUI.init()
 end
 
 function TutorialUI.setStep(step: number, isDone: boolean)
+	local previousStep = currentStep
 	currentStep = math.clamp(step, 1, Config.Quests.tutorialDoneStep)
 	done = isDone or step >= Config.Quests.tutorialDoneStep
 	ensureBeam()
@@ -258,6 +259,7 @@ function TutorialUI.setStep(step: number, isDone: boolean)
 		card.Visible = false
 		return
 	end
+	local shouldAnimate = not card.Visible or currentStep ~= previousStep
 	card.Visible = true
 	if stepLabel then
 		stepLabel.Text = "STEP " .. tostring(def.step) .. " / " .. tostring(#Config.Quests.tutorial)
@@ -272,7 +274,7 @@ function TutorialUI.setStep(step: number, isDone: boolean)
 		gotItButton.Visible = def.info
 	end
 	local snap = State.get()
-	if not snap or not snap.settings.reducedMotion then
+	if shouldAnimate and (not snap or not snap.settings.reducedMotion) then
 		W.pop(card, 1.08)
 	end
 end

@@ -142,6 +142,7 @@ local BOLLARD_SPACING = 30
 local BOLLARD_MAX = 7
 
 local function path(parent: Instance, from: Vector3, to: Vector3, width: number, accent: Color3?)
+	width *= 1.5
 	local delta = to - from
 	local length = delta.Magnitude
 	if length < 1 then
@@ -156,12 +157,13 @@ local function path(parent: Instance, from: Vector3, to: Vector3, width: number,
 	local trim = accent or HAZARD
 
 	-- roadbed: darker than the plaza so the chevrons read against it
-	local base = CFrame.lookAt(Vector3.new(mid.X, 0.12, mid.Z), Vector3.new(mid.X, 0.12, mid.Z) + dir)
+	-- Region ground tops out at 0.3; keep the road and markings above it.
+	local base = CFrame.lookAt(Vector3.new(mid.X, 0.4, mid.Z), Vector3.new(mid.X, 0.4, mid.Z) + dir)
 	part({
 		name = "Path",
 		size = Vector3.new(width, 0.25, length),
 		cf = base,
-		color = rgb(122, 122, 132),
+		color = rgb(25, 27, 32),
 		material = Enum.Material.Asphalt,
 		parent = parent,
 	})
@@ -170,8 +172,8 @@ local function path(parent: Instance, from: Vector3, to: Vector3, width: number,
 	for _, side in { -1, 1 } do
 		part({
 			name = "PathEdge",
-			size = Vector3.new(0.5, 0.2, length),
-			cf = base * CFrame.new(side * (width / 2 - 0.3), 0.05, 0),
+			size = Vector3.new(0.75, 0.12, length),
+			cf = base * CFrame.new(side * (width / 2 - 0.5), 0.2, 0),
 			color = trim,
 			material = Enum.Material.SmoothPlastic,
 			parent = parent,
@@ -181,17 +183,17 @@ local function path(parent: Instance, from: Vector3, to: Vector3, width: number,
 	-- chevrons pointing at the destination
 	local count = math.clamp(math.floor(length / CHEVRON_SPACING), 1, CHEVRON_MAX)
 	local step = length / (count + 1)
-	local arm = width * 0.42
+	local arm = width * 0.52
 	for i = 1, count do
 		local along = -length / 2 + step * i
 		for _, side in { -1, 1 } do
 			part({
 				name = "PathChevron",
-				size = Vector3.new(0.85, 0.16, arm),
+				size = Vector3.new(2.1, 0.16, arm),
 				-- each half of the ">" is rotated in from the centre line
-				cf = base * CFrame.new(side * arm * 0.32, 0.09, along) * CFrame.Angles(0, side * math.rad(38), 0),
-				color = HAZARD,
-				material = Enum.Material.Neon,
+				cf = base * CFrame.new(side * arm * 0.32, 0.21, along) * CFrame.Angles(0, side * math.rad(38), 0),
+				color = rgb(210, 125, 12),
+				material = Enum.Material.SmoothPlastic,
 				parent = parent,
 			})
 		end
