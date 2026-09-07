@@ -36,7 +36,7 @@ local incomeLabel: TextLabel? = nil
 local titleLabel: TextLabel? = nil
 local bankLabel: TextLabel? = nil
 local bankBar: any = nil
-local collectButton: TextButton? = nil
+local bankWasFull = false
 local dataPill: TextLabel? = nil
 local offlineCard: Frame? = nil
 local offlineText: TextLabel? = nil
@@ -105,27 +105,16 @@ function HUD.init()
 		parent = wallet,
 		name = "Bank",
 		text = "Collectible: 0",
-		size = UDim2.new(1, -120, 0, 22),
+		size = UDim2.new(1, -24, 0, 22),
 		position = UDim2.new(0, 12, 0, 106),
 		textSize = 14,
 		font = Theme.fonts.body,
 		color = Theme.colors.textDim,
 		xalign = Enum.TextXAlignment.Left,
 	})
-	collectButton = W.button({
-		parent = wallet,
-		name = "Collect",
-		text = "Collect",
-		size = UDim2.new(0, 96, 0, 28),
-		position = UDim2.new(1, -12, 0, 104),
-		anchor = Vector2.new(1, 0),
-		color = Theme.colors.accent,
-		textColor = Theme.colors.ink,
-		textSize = 15,
-		onClick = function()
-			Net.fire("CollectBank")
-		end,
-	})
+	-- No Collect button here. It collected from anywhere in the world, which made
+	-- the collection pad pointless; banking happens by stepping on the pad in your
+	-- city (a "Remote Collector" upgrade may bring remote collection back, paid for).
 
 	-- ---------------------------------------------------------------- forecast
 	forecastRow = W.frame({
@@ -314,7 +303,7 @@ function HUD.init()
 			.. Format.duration(snap.derived.bankCapSeconds)
 			.. " of production).\nIt stops filling when full, so collect before then."
 	end)
-	W.tooltip(collectButton :: GuiObject, "Move everything in the bank into your wallet. You can also step on the collection pad in your city.")
+	W.tooltip(bankLabel :: GuiObject, "Coins waiting in your bank. Step on the collection pad in your city to move them into your wallet.")
 	W.tooltip(dataPill :: GuiObject, function()
 		local snap = State.get()
 		if not snap then
@@ -412,16 +401,17 @@ function HUD.update(snap: Types.Snapshot)
 	end
 	if bankLabel then
 		if snap.bankFull then
-			bankLabel.Text = "BANK FULL - collect now"
+			bankLabel.Text = "BANK FULL - step on your collection pad"
+			if not bankWasFull then
+				W.pop(bankLabel, 1.12)
+			end
 			bankLabel.TextColor3 = Theme.colors.danger
 		else
 			bankLabel.Text = "Collectible: " .. Format.abbreviate(snap.bank)
 			bankLabel.TextColor3 = Theme.colors.textDim
 		end
 	end
-	if collectButton then
-		W.setEnabled(collectButton, snap.bank >= 1)
-	end
+	bankWasFull = snap.bankFull == true
 
 	if offlineCard and offlineText then
 		if snap.offline then
