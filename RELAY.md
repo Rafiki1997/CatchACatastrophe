@@ -21,6 +21,7 @@
 
 | Commit | What |
 |---|---|
+| `bd9ab36` | **Rarity shrinks the capture circle and grows the shove** (`rarityRangeMult` 1/.9/.8/.7, `rarityKnockbackMult` 1/1.1/1.2/1.35); circle stored on the capture and sent in CaptureState; ring on screen matches. Gusty Gardens pass; tune region by region next. **Unvalidated by the user.** |
 | `459e933` | **Difficulty by zone and rarity**: `Config.Capture.zoneTuning` (warning 100%..60%, +0..+2 patches, penalty 1..2.25 s, knockback 32..40) x rarity (+15% size, -10% warning per rank). Stored on the capture at start; boss arena untouched. SelfTest 467. **Unvalidated by the user.** |
 | `01d28de` | **Atlas** 880x600, cards 200x224: tabs and descriptions no longer truncate. |
 | `53a8e71` | CAUGHT card: **Store** instead of Nice, with a tooltip. |
@@ -164,9 +165,9 @@ button it named is hidden when a keyboard exists; there was no mouse binding for
 | 7 | Can't open a new area | Done (`d8634e7`) |
 | 8 | Notification loop | Done (`d8634e7`) |
 
-### Capture balance (applied, `281b0a5`; zone/rarity tuning `459e933`)
+### Capture balance (applied, `281b0a5`; zone tuning `459e933`; rarity circle/shove `bd9ab36`)
 
-Base times 8/10/13/16 s unchanged. Zone 1: `hitPenalty` 1, `knockback` 32, `wallHeight` 3. Higher zones per `Config.Capture.zoneTuning` (warning down to 60%, up to +2 patches, penalty up to 2.25 s, knockback up to 40); rarity adds 15% hazard size and cuts 10% warning per rank.
+Base times 8/10/13/16 s unchanged. Zone 1 Common: `hitPenalty` 1, `knockback` 32, circle 18, `wallHeight` 3. Zones per `Config.Capture.zoneTuning` (warning to 60%, up to +2 patches, penalty to 2.25 s, knockback to 40); rarity adds 15% hazard size, cuts 10% warning, shrinks the circle to 70% and multiplies knockback to 1.35 at Legendary. Region-by-region pass in progress: Gusty Gardens done, the user validates before the next region.
 `capture balance` self-test suite pins the rules (penalty below every attack interval, knockback
 below tether range, wall lower than a jump, legs continuous). Legendary still needs ~14% dodging
 within the 45 s claim. **Next lever if it still feels off:** per-rarity `attackInterval`, not base
