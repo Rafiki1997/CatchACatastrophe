@@ -21,6 +21,8 @@
 
 | Commit | What |
 |---|---|
+| `40e20b9` | **Variant tooltips**: `Variants.describe`; Creatures panel badge, pad picker badge and CAUGHT card explain Overcharged / Prismatic on hover. |
+| `c174b63` | **Forecast row wraps** (was a 300 px strip: only 3 of 6 regions showed); chips have hover text explaining SURGE and the Legendary countdown. |
 | `675f4d2` | Wheel fallback on `W.scroll`/`W.scrollGrid` (acts only when nothing consumed the wheel). User report: Workshop list scrolls by bar, not wheel; not reproduced with injected wheel (300 px native). Awaiting re-test. |
 | `2313f29` | Creatures panel: stored creatures read "N/s when deployed" (`potentialCps`); they showed 0/s. |
 | `fabcba0` | **Remote Collector** upgrade (20,000 Coins, 60 s cooldown): `CollectBank` now runs `Economy.collectRemote` (gated + cooldown; the open remote is closed); HUD Collect button for owners with countdown. SelfTest 457. |
