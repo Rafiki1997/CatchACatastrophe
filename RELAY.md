@@ -21,6 +21,8 @@
 
 | Commit | What |
 |---|---|
+| `1340b56` | **Target box removed** (SelectionBox on the aimed creature); the floating name label is the marker. |
+| `c7f582b` | **CAUGHT card**: PERFECT is a 92x22 gold pill in the name row (y 214), name label 100 px narrower; the old ribbon straddled the picture edge. |
 | `e9489ec` | **Layout B chosen**: `Config.MapLayout` = B, six cities between straight region roads, `MaxPlayers` 6, arena moved to polar(262, 300) with a spur off the Frostbite road, scenery under it cleared at build. A kept behind the switch. **Place setting Players.MaxPlayers still 60: set to 6 in Game Settings.** |
 | `8a5543f` | **Region roads dog-leg (option A)**: 30/150/210/330 through the 45-degree gaps, Frostbite (270) via the 315 gap around the arena, connectors at r=186 in 15-degree chords. Live checks: no road crosses a city platform/apron or the arena disc. 36 roads, LiveTest 31. |
 | `9d5b301` | Studio-only click diagnostics removed (user confirmed the click works). |
@@ -175,9 +177,9 @@ seconds. Re-test with the friends first.
 3. Pad toast: **done** (`418a649`), awaiting validation.
 4. More knockback in Gusty Gardens: **done at 28** (`5e54b2b`), awaiting validation.
 5. Cap how far the player can zoom out (`Player.CameraMaxZoomDistance`).
-6. HUD says Collectible N while the pad billboard says Bank 0. Check `CollectionPadUI` vs `HUD` bank sources (client-side prediction vs last snapshot?).
-7. CAUGHT card: the PERFECT CAPTURE ribbon sits on the viewport's bottom edge (screenshot). `CaptureReveal` ribbon position vs viewport height.
-8. Remove the SelectionBox outline on the targeted creature (`CaptureController` TargetHighlight); the floating label already marks the target.
+6. HUD Collectible vs billboard Bank 0: **traced live, they match to the coin every second**. Cause was the old pad draining the bank 5x/s while standing on it; fixed by one payout per visit. No code change; user to validate.
+7. CAUGHT card: **done** (`c7f582b`), awaiting validation.
+8. Target box: **done, removed** (`1340b56`), awaiting validation.
 
 Then: live build stamp; progression-gated sidebar.
 
