@@ -21,6 +21,8 @@
 
 | Commit | What |
 |---|---|
+| `d847050` | CircuitEditor pad picker adds the GUI inset before its ray (same 58 px mismatch). |
+| `ce8858e` | **Click picker in viewport space** (`GetMouseLocation`): clicks were 58 px (topbar inset) above the projection; hidden up close, fatal at the 60-stud zoom cap. Measured with an injected click. |
 | `489ac60` | **Click target floor 24 px, click ray 1000 studs** (CaptureController). |
 | `dcf1f81` | **Zoom cap 60** via `Config.CameraMaxZoomDistance`, applied at join and on every character spawn (a join-only set read back 400; StarterPlayer properties do not sync through Rojo here). LiveTest 32. |
 | `1340b56` | **Target box removed** (SelectionBox on the aimed creature); the floating name label is the marker. |
@@ -108,6 +110,7 @@ button it named is hidden when a keyboard exists; there was no mouse binding for
 
 ## Traps for probes (execute_luau)
 
+- **Coordinate spaces.** `InputObject.Position` and `user_mouse_input` are screen space (GUI inset removed). `UserInputService:GetMouseLocation()`, `WorldToViewportPoint` and `ViewportPointToRay` are viewport space. They differ by `GuiService:GetGuiInset()` = 58 px with the current topbar. Never compare across the two without converting.
 - **CameraGuard** resets a Scriptable or re-subjected camera within a second. Before a positioned `screen_capture` or a scripted frame, `workspace.CurrentCamera:SetAttribute("ScriptedCamera", true)`; clear it after. And do not do it in the user's session at all between sets.
 - **StudioTester** gives every Studio profile 5,120 Coins/s a few seconds after the live suite. Bank and wallet numbers in Studio include it; a teleport onto the collection pad pays hundreds of thousands.
 - A probe that teleports the character mid-capture makes the game toast "You left the creature behind." It happened to the user once today. Ask, or wait for a fresh session.
@@ -174,7 +177,7 @@ seconds. Re-test with the friends first.
 
 ## Next set from the user (2026-09-07 evening, not started)
 
-1. Zoomed-out clicks: **done** (`489ac60`, with the zoom cap `dcf1f81`), awaiting validation.
+1. Zoomed-out clicks: **done** (`489ac60` click floor, `dcf1f81` zoom cap, `ce8858e` coordinate fix: the real cause), awaiting validation.
 2. Region roads: **done, layout B chosen** (`e9489ec`) after comparing with A (`8a5543f`). Six cities per server now. Open: set the place Players.MaxPlayers to 6; hub rim lamps follow the six cities; CitiesPanel Visit list follows MaxPlayers.
 3. Pad toast: **done** (`418a649`), awaiting validation.
 4. More knockback in Gusty Gardens: **done at 28** (`5e54b2b`), awaiting validation.
