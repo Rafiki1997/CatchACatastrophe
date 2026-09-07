@@ -161,16 +161,20 @@ namespace, and the HUD says "Studio test data".
 
 ## Status
 
-Written and committed: 77 files, about 19,000 lines, covering everything in the spec.
+The implementation covers the spec across 80 Luau source files. The current art
+pass is documented in [docs/CREATURE_ART.md](docs/CREATURE_ART.md).
 
 ### Verified in a running Studio session
 
-- **All 77 scripts compile.** Checked by compiling every `LuaSourceContainer` in the place.
-- **The server boots**: 1,027-part map, all systems up, ready in 65 ms.
-- **Unit self-tests: 222 passed, 0 failed.** Config integrity, all 24 creature models building at
+- **Structural/quote checks and Rojo build pass** across all 80 source files.
+- **The server boots**: 2,001-part map, all systems up, ready in 259 ms in the latest run.
+- **Unit self-tests: 418 passed, 0 failed.** Hazard geometry/timing, config integrity, all 24 creature models building at
   sensible heights, the income formula applying each factor exactly once, circuit and adjacency
   validation, the Overdrive state machine, save round-tripping and sanitising of hostile input, sell
   value, scaled rewards, and a rate limit on every client remote.
+- **All 96 creature appearances meet render budgets**, including effect-free collection silhouettes.
+- **Live tests: 22 passed, 0 failed**, covering deploy, circuit machinery, Overdrive calculations,
+  collection rounding, sell guards, and locked-region claim refusal.
 - **World builds correctly**: hub, arena with 3 prompted pylons, all six regions populated with the
   right species, plot assigned with 6 unlocked pads, vent prompt wired.
 - **A capture completes end to end, driven through the real remotes as a client**: tether accrues,
@@ -183,11 +187,10 @@ Written and committed: 77 files, about 19,000 lines, covering everything in the 
 
 ### Not yet verified
 
-- The other five hazard patterns (only Wind was exercised live).
-- Circuits, Overdrive and the vent **in a live session** — they pass in the unit tests and a live suite
-  now exists for them (`Harness.runLive`, runs automatically in Studio once a player has a plot), but
-  it has not been run yet. Building one needs two unlocked regions, so it is not reachable in the first
-  minute of play.
+- Human dodge difficulty for the five remaining patterns. All ten controlled live capture
+  cases pass (hit and perfect dodge per element); see [hazard verification](docs/HAZARD_VERIFICATION.md).
+- Manual circuit-editor and vent interaction still need a playthrough; the automated live suite
+  passes. Building a circuit needs two unlocked regions.
 - Relaunch, offline claim on rejoin, the Containment Crisis, and two clients at once.
 - Balance against measured play. Every number is still the spec's proposed starting value.
 

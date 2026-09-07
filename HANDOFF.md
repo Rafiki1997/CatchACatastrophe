@@ -1,6 +1,154 @@
 # Catch a Catastrophe! — pickup doc
 
-**Updated:** 2026-09-06, end of the art-pass session. This is the file to read first.
+**Updated:** 2026-09-06, handoff to Claude after runtime build stamp work.
+
+## Current handoff to Claude (takes precedence over historical sections)
+
+- Work exclusively in `C:\Users\rahul\orca\Catch-a-Catastrophe`. Do not follow
+  historical external-project paths below. Start with this project's `RELAY.md`.
+- User requested the handoff; no new gameplay feature or publishing is requested.
+- Latest change: server snapshots include `build.placeVersion` from `game.PlaceVersion`
+  and `build.environment` (`Studio` or `Live`). The HUD renders `Build <number> | <environment>`.
+- Files: `src/shared/Types.luau`, `src/server/Systems/Sync.luau`,
+  `src/client/UI/HUD.luau`. Source presence was checked during this handoff.
+- Important remaining limitation: the pill is visible only when `RunService:IsStudio()`
+  or `snap.testAdapter` is true. Normal live players cannot see it. The stamp has no
+  source revision marker or automatic comparison of local changes with published code.
+  Review that gap against the user's original goal of checking whether latest changes
+  are published before describing the feature as complete for live use.
+- Prior implementation validation: structural lint and quote scan passed on 80 files;
+  `rojo build -o build/CatchACatastrophe.rbxl` succeeded. No fresh Studio runtime
+  validation of the stamp was recorded. Checks were not rerun for this documentation handoff.
+- Last recorded Studio state: Play stopped after hazard verification. Current Studio
+  state and published version have not been checked in this handoff. No publishing
+  or commit was performed by this handoff. Earlier work reports no publishing.
+- Art style was approved and extended to all 24 creatures. Five remaining capture
+  hazards were verified: 418 self-tests, 22 live tests, and 10 controlled hazard
+  capture cases passed before the stamp change. These are historical results.
+- Next gameplay verification: manual circuit editor and Overdrive vent, then relaunch,
+  offline rejoin, Containment Crisis, multiplayer, and measured balance/human dodge timing.
+- Preserve existing working-tree edits. Use disk and Rojo for source changes; verify
+  Studio is stopped before editing scripts. Read `docs/CONTRACTS.md` before module edits.
+
+Everything below is historical; statements about clean git state, pending art approval,
+untested hazards, and Studio state may be superseded by this checkpoint.
+
+## Latest work: five remaining capture hazards
+
+- User approved the full creature roster and requested Water, Heat, Frost, Storm,
+  and Cosmic capture hazards. Existing patterns were exercised and corrected.
+- Water now renders a hollow splash band and allows jumping above it, using
+  avatar feet height for both capture and Crisis hit checks.
+- Cosmic pull is restricted to its visible zone and has the same strength with
+  reduced motion enabled. Older warning timers cannot erase newer warnings.
+- Verification: **418 self-tests, 22 existing live tests, 10 hazard capture cases
+  passed**. Each element completed one deliberate-hit and one perfect-dodge capture
+  through real client remotes and the normal server heartbeat. Warnings, geometry,
+  and effect cleanup were observed on the client. Separate checks passed for the
+  Cosmic pull boundary and overlapping HUD warnings.
+- Two earlier live runs ended before observing a warning; the subsequent full run
+  passed without further production changes. Human dodge timing/balance is still
+  unmeasured; the harness controls avatar placement and freezes roaming.
+- `docs/HAZARD_VERIFICATION.md` documents behavior, test limits, and repeatable steps.
+  `Systems/HazardTestHarness` is Studio-only and requires the in-memory adapter.
+  `tools/capture_hazard_observer.luau` starts captures and observes client effects.
+- Static checks and Rojo build pass (80 source files). Earlier terrain/creature art
+  is preserved. Nothing published or committed. Play stopped after testing to
+  clear the temporary observer and reset the test world.
+- Next suggested work: manual circuit-editor and Overdrive vent interaction,
+  followed by relaunch, offline rejoin, Crisis, and multiplayer verification.
+
+## Latest work — approved style extended to all creatures
+
+- User approved the four Gusty Gardens creatures and authorized the remaining 20.
+  All five other regions are polished; see `docs/CREATURE_ART.md` for details.
+- Modified the three `CreatureBuilders` files, added `Shared.Models.ToyFace`, and
+  reused the approved Wind eye/smile helpers without changing that region's geometry.
+- Variant/rarity additions in `ModelKit` now respect the existing total budget of
+  two lights/three emitters while preserving creature-specific effects.
+- Added 120 appearance-budget/silhouette assertions to `TestHarness`. Fresh run:
+  **342 self-tests passed; 22 live tests passed**. All 96 appearances build with
+  22–43 parts, within 20% of configured height. Static checks and Rojo build pass.
+- All five new region lineups were inspected with the built-in Studio `screen_capture`
+  tool. It works without the other connector's paid screenshot capability. Corrected
+  flattened facial meshes and connected the mammoth's tusks after visual inspection.
+- Twenty animation samples confirm ring tilt and warning-sign punctuation stability.
+- Temporary Edit preview was removed. Play is running with the client-only review
+  opened at Splashwater Bay: **Previous region / Next region / Change appearance /
+  Back to game**. Actual button clicks verified navigation, variants, and cleanup.
+- Review utility: `tools/creature_art_review.luau`, outside Rojo's shipped source tree.
+  Run via Client `execute_luau` during Play to restore it after stopping. Back to game
+  restores camera/UI; stopping Play removes it. No persistent review scripts.
+- Build refreshed; source synchronized through Rojo. Nothing published or committed.
+  Earlier terrain/art changes remain intact. Existing impact-sound warning and
+  disabled Studio persistence remain. Next: user review, then discuss the next task.
+
+## Previous work — four Gusty Gardens creatures
+
+- Refined Breeze Bean, Gust Bunny, Twister Terrier, and Sir Spins-a-Lot in
+  `src/shared/Models/CreatureBuilders/WindWater.luau`. Style and per-creature changes
+  are recorded in `docs/GUSTY_GARDENS_ART.md`; visual approval is pending.
+- Rounded proportions, clearer faces and signatures; fixed face colours retain
+  contrast through variants. Bunny feet now orbit independent centres, and both
+  bunny/knight wind rings retain horizontal orientation. Removed the knight's
+  duplicate sparkle emitter to keep every variant within the effect budget.
+- Validated 16 model/variant combinations: top within 20% of configured height,
+  24–29 parts, at most two lights and three emitters, anchored and noncolliding.
+  Water builders were compared with HEAD and are unchanged.
+- Structural lint, quote scan, Rojo build, and diff whitespace checks pass.
+  Latest Play run: 222 self-tests and 22 live tests passed. Existing sound warning remains.
+- Left Play running with a temporary client-only `Workspace.GustyArtReview` lineup
+  and fixed front camera. Stop Play removes the lineup and resets the camera;
+  neither is included in source/build. No inventory or progression changes.
+- Next: gather the user's feedback on these four before extending the style.
+  No publishing or commit performed. Earlier terrain and handoff edits remain intact.
+
+## Previous work — terrain and scenery polish
+
+- `src/server/Map/MapBuilder.luau`: added deterministic landscape construction with
+  meadow banks and trees between destinations, plus six regional backdrops: grassy
+  groves, dunes and beach grass, layered canyon rock, snowy ridges and trees,
+  slate storm ridges, and floating cosmic shards with luminous seams.
+- Muted only the central logo tiles to slate grey; route arrows and hazard stripes
+  retain their existing colours.
+- Added 232 anchored scenery parts; total map count is now 2,001. Continuous base
+  ground remains in place. No extra lights, emitters, assets, or animation loops.
+- Placement audit passed: conservative horizontal bounds stay outside the reserved
+  190-stud city/hub ring, all six 75-stud region interiors, and all 25 routes with
+  four studs of additional clearance. Scenery does not participate in touch/query.
+- Rojo script synchronization confirmed directly after disk edits. Place-property
+  synchronization remains a separate unresolved item from the prior checkpoint.
+- Validation: structural lint and quote scan pass on 78 files; Rojo build succeeds;
+  latest live run passes 222 self-tests and 22 live tests, server ready in 146 ms.
+- Viewport screenshot capture is blocked by the connector's Basic license. Visual
+  approval is pending. Temporary Edit preview was removed; Studio is left in Play
+  for the user to review. Nothing published or committed.
+- Build refreshed at `build/CatchACatastrophe.rbxl`. Existing impact-sound warning
+  and disabled Studio persistence remain. Next: user art review, then discuss the
+  next item before implementing further features.
+
+## Previous checkpoint — lighting pickup
+
+- Work is scoped exclusively to `C:\Users\rahul\orca\Catch-a-Catastrophe`.
+- All 78 Studio scripts matched disk by path and normalized-source Adler-32 checksum;
+  no Studio-only scripts were found in the three managed script trees.
+- Rojo 7.7 responds on port 34872 for `CatchACatastrophe`. The plugin connection and
+  automatic synchronization of place properties have not been confirmed.
+- In Edit mode, applied the existing `default.project.json` Lighting properties and
+  its Atmosphere, Bloom, Grade, and SunRays instances. No script sources were changed.
+- Verified all 27 accessible configured lighting properties in the subsequent Play run:
+  zero mismatches, Atmosphere present, ClockTime approximately 15.1.
+- `Lighting.Technology` is inaccessible to the Studio bridge for both reads and writes.
+  Its configured `Future` value still needs checking through Studio/Rojo.
+- Fresh Play output: **SelfTest 222 passed / 0 failed; LiveTest 22 passed / 0 failed**.
+  This supersedes the older statements below that the live suite had never run.
+- Outstanding output: `rbxasset://sounds/impact_generic.mp3` fails to load. DataStore API
+  access is disabled; the game uses its in-memory test adapter in Studio.
+- Left Studio in Play for the user's lighting and wayfinding review. Nothing published.
+- Next: review the art, verify Rojo property synchronization and rendering settings,
+  then continue the remaining gameplay verification listed below.
+
+The sections below preserve the earlier art-pass handoff; this checkpoint takes precedence.
 
 ## What this is
 
