@@ -13,11 +13,13 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Config = require(ReplicatedStorage.Shared.Config)
 local Format = require(ReplicatedStorage.Shared.Util.Format)
 local Types = require(ReplicatedStorage.Shared.Types)
+local DecorModels = require(ReplicatedStorage.Shared.Models.DecorModels)
 
 local W = require(script.Parent.Parent.Widgets)
 local Theme = require(script.Parent.Parent.Theme)
 local Net = require(script.Parent.Parent.Parent.Net)
 local State = require(script.Parent.Parent.Parent.State)
+local DecorPlacer = require(script.Parent.Parent.Parent.Controllers.DecorPlacer)
 
 type Snapshot = Types.Snapshot
 
@@ -42,26 +44,34 @@ local function regionName(regionId: string): string
 end
 
 local function createRow(parent: Instance, item: any, order: number): any
-	local card = W.card(parent, 74, order)
-	-- a dot in the item's own colour: for an aura it is the particle, for a
-	-- decoration or a ground it is the paint
-	W.label({
-		parent = card,
-		text = if item.family == "aura" then "●" else "■",
-		size = UDim2.new(0, 46, 0, 46),
-		position = UDim2.new(0, 10, 0.5, 0),
-		anchor = Vector2.new(0, 0.5),
-		textSize = 26,
-		xalign = Enum.TextXAlignment.Center,
-		color = item.color,
-		bg = Theme.colors.bgDeep,
-		radius = Theme.sizes.radiusSmall,
-	})
+	local card = W.card(parent, 78, order)
+	-- a decoration gets a real preview, since "what does it look like" is the
+	-- whole question; an aura or a ground is a colour, so a swatch says it
+	if item.family == "decor" and DecorModels.has(item.preset) then
+		local vp = W.viewport(card, UDim2.new(0, 54, 0, 64), UDim2.new(0, 8, 0.5, -32), Theme.colors.bgDeep)
+		local ok, model = pcall(DecorModels.build, item.preset, item.color, item.id)
+		if ok and model then
+			vp.setModel(model)
+		end
+	else
+		W.label({
+			parent = card,
+			text = if item.family == "aura" then "●" else "■",
+			size = UDim2.new(0, 46, 0, 46),
+			position = UDim2.new(0, 10, 0.5, 0),
+			anchor = Vector2.new(0, 0.5),
+			textSize = 26,
+			xalign = Enum.TextXAlignment.Center,
+			color = item.color,
+			bg = Theme.colors.bgDeep,
+			radius = Theme.sizes.radiusSmall,
+		})
+	end
 	W.label({
 		parent = card,
 		text = item.name,
-		size = UDim2.new(1, -210, 0, 20),
-		position = UDim2.new(0, 66, 0, 10),
+		size = UDim2.new(1, -250, 0, 20),
+		position = UDim2.new(0, 70, 0, 10),
 		textSize = 16,
 		font = Theme.fonts.bold,
 		color = Theme.colors.text,
@@ -69,8 +79,8 @@ local function createRow(parent: Instance, item: any, order: number): any
 	local detail = W.label({
 		parent = card,
 		text = item.desc,
-		size = UDim2.new(1, -210, 0, 34),
-		position = UDim2.new(0, 66, 0, 30),
+		size = UDim2.new(1, -250, 0, 34),
+		position = UDim2.new(0, 70, 0, 30),
 		textSize = 12,
 		color = Theme.colors.textDim,
 		wrap = true,
@@ -90,16 +100,53 @@ local function createRow(parent: Instance, item: any, order: number): any
 			if not snap then
 				return
 			end
-			if snap.cosmetics.owned[item.id] then
-				local key = Cosmetics.slotKeyOf[item.id] or item.family
-				local wearing = snap.cosmetics.equipped[key] == item.id
-				Net.fire("EquipCosmetic", key, if wearing then "" else item.id)
-			else
+			if not snap.cosmetics.owned[item.id] then
 				Net.fire("BuyCosmetic", item.id)
+			elseif item.family == "decor" then
+				-- choosing where it goes happens in the city, not in this list
+				local rot = 0
+				for _, entry in snap.cosmetics.placed do
+					if entry.id == item.id then
+						rot = entry.rot
+					end
+				end
+				DecorPlacer.start(item.id, rot)
+			else
+				Net.fire("EquipCosmetic", item.family, if snap.cosmetics.equipped[item.family] == item.id then "" else item.id)
 			end
 		end,
 	})
-	return { frame = card, button = button, detail = detail, item = item }
+	-- only a decoration can be put away again
+	local storeButton: TextButton? = nil
+	if item.family == "decor" then
+		local made = W.button({
+			parent = card,
+			name = "PutAway",
+			text = "Put away",
+			size = UDim2.new(0, 92, 0, 46),
+			position = UDim2.new(1, -136, 0.5, 0),
+			anchor = Vector2.new(1, 0.5),
+			color = Theme.colors.bgAlt,
+			textColor = Theme.colors.textDim,
+			textSize = 13,
+			wrap = true,
+			onClick = function()
+				local snap = State.get()
+				if not snap then
+					return
+				end
+				for slotId, entry in snap.cosmetics.placed do
+					if entry.id == item.id then
+						Net.fire("StoreDecor", slotId)
+						return
+					end
+				end
+			end,
+		})
+		made.Visible = false
+		storeButton = made
+	end
+	return { frame = card, button = button, storeButton = storeButton, detail = detail, item = item }
 end
 
 -- Owned items offer Wear or Wearing; unowned ones show a price, or what to do
@@ -107,10 +154,31 @@ end
 local function updateRow(row: any, snap: Snapshot)
 	local item = row.item
 	local owned = snap.cosmetics.owned[item.id] == true
-	local key = Cosmetics.slotKeyOf[item.id] or item.family
 	local price = Cosmetics.price(item)
+	if owned and item.family == "decor" then
+		-- a decoration is either out in the city or waiting in the inventory,
+		-- and either way it can only be touched from home
+		local isOut = false
+		for _, entry in snap.cosmetics.placed do
+			if entry.id == item.id then
+				isOut = true
+			end
+		end
+		local canDecorate = DecorPlacer.canDecorate()
+		row.button.Text = if isOut then "Move it" else "Place it"
+		W.setButtonColor(row.button, if isOut then Theme.colors.accentAlt else Theme.colors.accent, Theme.colors.ink)
+		W.setEnabled(row.button, canDecorate)
+		row.detail.Text = if not canDecorate then "Stand in your own city to place this."
+			elseif isOut then item.desc .. "  It is out in your city."
+			else item.desc .. "  Waiting in your inventory."
+		if row.storeButton then
+			row.storeButton.Visible = isOut
+			W.setEnabled(row.storeButton, canDecorate)
+		end
+		return
+	end
 	if owned then
-		if snap.cosmetics.equipped[key] == item.id then
+		if snap.cosmetics.equipped[item.family] == item.id then
 			row.button.Text = if item.family == "aura" then "Wearing" else "Placed"
 			W.setButtonColor(row.button, Theme.colors.success, Theme.colors.ink)
 		else
@@ -173,7 +241,7 @@ function M.init()
 		scrolls[name] = scroll
 		local family = FAMILY_OF[name]
 		local header = if name == "Style" then "Auras follow you around. Most are earned by playing; the prestige ones cannot be bought at all."
-			elseif name == "Decor" then "One ornament per corner of your city. Anyone who visits you will see them."
+			elseif name == "Decor" then "Buy an ornament, then stand in your city and press Place it. You pick the spot and which way it faces."
 			else "What your whole city is built on."
 		W.label({
 			parent = W.card(scroll, 40, 0),
