@@ -764,6 +764,7 @@ end
 -- that they are kept: earned once, kept forever, and never worn without owning.
 local function testCosmetics()
 	local Cosmetics = require(script.Parent.CosmeticsService)
+	local DecorModels = require(ReplicatedStorage.Shared.Models.DecorModels)
 	local catalogue = Config.Cosmetics
 
 	-- catalogue shape
@@ -830,6 +831,45 @@ local function testCosmetics()
 		Cosmetics.refresh(p, true)
 		check("relaunching grants both prestige auras", p.data.cosmetics.owned.aura_relaunch_1 == true and p.data.cosmetics.owned.aura_relaunch_5 == true)
 		check("crisis wins grant their aura", p.data.cosmetics.owned.aura_crisis_10 == true)
+	end
+
+	-- buying with Coins: the money is taken, the item arrives, and it goes up by
+	-- itself so nothing bought is invisible
+	do
+		local p = mockProfile(50000)
+		local before = p.data.coins
+		local okBuy, whyBuy = Cosmetics.buy(p, "decor_banner")
+		local price = catalogue.price(catalogue.byId.decor_banner)
+		check("a decoration can be bought with Coins", okBuy == true, tostring(whyBuy))
+		check("the Coins were taken", p.data.coins == before - price, tostring(p.data.coins))
+		check("it is owned", p.data.cosmetics.owned.decor_banner == true)
+		check("it went up by itself", p.data.cosmetics.equipped.decor_back_left == "decor_banner", tostring(p.data.cosmetics.equipped.decor_back_left))
+		check("buying it twice is refused", Cosmetics.buy(p, "decor_banner") == false)
+
+		local poor = mockProfile(10)
+		local okPoor, whyPoor = Cosmetics.buy(poor, "decor_beacon")
+		check("no Coins means no purchase", okPoor == false and whyPoor ~= nil and whyPoor:find("Coins") ~= nil, tostring(whyPoor))
+		check("nothing was taken", poor.data.coins == 10, tostring(poor.data.coins))
+		check("an earned aura cannot be bought", Cosmetics.buy(poor, "aura_relaunch_1") == false)
+	end
+
+	-- every decoration owns exactly one corner, so buying one never asks where
+	do
+		local usedSlot: { [string]: string } = {}
+		for _, item in catalogue.list do
+			if item.family == "decor" then
+				check(item.id .. " has a slot", item.slot ~= nil and catalogue.slots[item.slot] ~= nil, tostring(item.slot))
+				if item.slot then
+					check("slot " .. item.slot .. " is used once", usedSlot[item.slot] == nil, tostring(usedSlot[item.slot]))
+					usedSlot[item.slot] = item.id
+				end
+				check(item.id .. " has a model builder", DecorModels.has(item.preset), item.preset)
+			elseif item.family == "skin" then
+				check(item.id .. " repaints the ground", item.palette ~= nil)
+			end
+		end
+		-- the free ground is free, so a city is never left unpainted
+		check("the standard ground costs nothing", catalogue.price(catalogue.byId.skin_default) == 0)
 	end
 
 	-- a forged save cannot dress the player in something they do not own
