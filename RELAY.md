@@ -48,6 +48,7 @@ with what is actually true. Nothing was lost; the work it described is done.
 
 | Commit | What |
 |---|---|
+| `92198ee` | **Auras** (cosmetics family 1): 9 auras, 6 earned one per region, 3 prestige that cannot be bought. Store gains a **Style** tab, now the first tab. Worn aura published as the Player attribute `Aura`; client renderer dims it during captures, obeys reduced motion/flashing, culls by distance. SelfTest 643, LiveTest 49. |
 | `9b1fcc1` | **Store panel** (Passes / Coins / Boosts / Eggs), sidebar button, HUD boost chip, Robux button on the Remote Collector row. Everything reads "Coming soon" until the dashboard ids exist. |
 | `4e422ba` | **Store remotes**: `PromptPurchase`, `HatchEgg`, `TestGrant` (Studio only) + `HatchResult`, rate-limit buckets, `Snapshot.store`. `Remotes.serverToClient` is now the one list of remote direction. |
 | `9562354` | Monetisation **Phase A** (see the block below). Store catalogue, PurchaseService, save schema, three chase tiers, egg roster, boosts wired, 127 new self-tests + 13 live checks. SelfTest 578, LiveTest 46. |
@@ -167,6 +168,13 @@ Server and data only. **No client Store panel yet** and **no remotes yet**: thos
 **What is left is the owner's:** publish the place, enable API Services, set Max Players to 6, create 4 passes and 11 developer products on the Creator Dashboard, and paste the ids into `Config/Store.luau`. Every row says "Coming soon" until then, and no receipt can resolve to a zero id by construction.
 
 **Testing without ids:** `game.ReplicatedStorage.Remotes.TestGrant:FireServer("<product id>")` from a Studio server context grants any product with no Robux (test-adapter profiles only), e.g. `egg_cosmic_100`, `boost_income_30m`, `coins_m`.
+
+## Cosmetics (2026-09-07, built)
+
+- `Config/Cosmetics.luau` is the catalogue for every family (auras now; decorations and plot skins reuse the shape). Each item carries a `source` and an `unlock` rule, and `Cosmetics.requirement(item, regionName)` turns that into the words on a locked row.
+- **Ownership is stored, never recomputed**: `data.cosmetics.owned`. A relaunch resets `data.regions`, so recomputing would take earned auras away. `CosmeticsService.refresh` only adds.
+- **The worn item is a Player attribute (`Aura`)**, not a remote: it replicates to every client for free, including late joiners. `AuraController` watches it on all players.
+- Free-vs-paid balance is deliberate: 6 region auras + 3 prestige are free, and prestige is asserted unbuyable by a self-test. Event auras are the paid ones, and are not built yet.
 
 ## Traps for probes (execute_luau)
 
