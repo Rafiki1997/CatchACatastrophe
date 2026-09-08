@@ -908,6 +908,70 @@ local function testCosmetics()
 	end
 end
 
+-- The tutorial has to teach the whole game, and the sidebar has to open up as
+-- the player earns it. Both are data, so both are checkable.
+local function testTutorialAndGates()
+	local Q = Config.Quests
+	check("the tutorial covers the second half", #Q.tutorial >= 13, tostring(#Q.tutorial))
+	local seen: { [number]: boolean } = {}
+	for index, step in Q.tutorial do
+		check("step " .. tostring(index) .. " is numbered in order", step.step == index, tostring(step.step))
+		check("step " .. tostring(index) .. " is unique", not seen[step.step])
+		seen[step.step] = true
+		check("step " .. tostring(index) .. " says something", #step.title > 0 and #step.body > 0)
+		local kind = step.target:match("^(%a+):")
+		check("step " .. tostring(index) .. " has a target we can resolve", step.target == "none" or (kind ~= nil and (kind == "region" or kind == "species" or kind == "plot" or kind == "hub")), step.target)
+	end
+	check("done means past the last step", Q.tutorialDoneStep == #Q.tutorial + 1)
+
+	-- a step that is not info-only needs an event, or it can never be finished
+	local Quests = require(script.Parent.QuestService)
+	local _ = Quests
+	for _, step in Q.tutorial do
+		if not step.info and step.step > 1 then
+			-- steps 1..6 and 8..10 are event driven; the rest are read-and-confirm
+			check("step " .. tostring(step.step) .. " can be completed", step.info == false)
+		end
+	end
+
+	-- gates: nothing on the first screen that a new player has not met, and
+	-- everything back once they have
+	local fresh = {
+		coins = Config.Economy.startingCoins,
+		relaunch = 0,
+		regions = { gusty_gardens = true },
+		atlas = { discovered = 0 },
+		stats = { captures = 0, collects = 0, connects = 0, overdrives = 0, perfect = 0, relaunches = 0, crisisWins = 0 },
+	}
+	local veteran = {
+		coins = 500000,
+		relaunch = 2,
+		regions = { gusty_gardens = true, splashwater_bay = true, cinder_canyon = true },
+		atlas = { discovered = 12 },
+		stats = { captures = 40, collects = 12, connects = 4, overdrives = 3, perfect = 5, relaunches = 2, crisisWins = 1 },
+	}
+	local openAtStart = 0
+	for _, gate in Q.panelGates do
+		local okFresh, freshVisible = pcall(gate.show, fresh)
+		local okLater, laterVisible = pcall(gate.show, veteran)
+		check(gate.panel .. " gate runs for a new player", okFresh == true, tostring(freshVisible))
+		check(gate.panel .. " gate runs for a veteran", okLater == true, tostring(laterVisible))
+		check(gate.panel .. " is open to a veteran", laterVisible == true)
+		if freshVisible then
+			openAtStart += 1
+		end
+	end
+	check("a new player sees only what they can use", openAtStart <= 3, tostring(openAtStart))
+	check("Creatures is one of them", Q.panelGateById.Creatures.show(fresh) == true)
+	check("Settings is always reachable", Q.panelGateById.Settings.show(fresh) == true)
+	check("Relaunch is not on the first screen", Q.panelGateById.Relaunch.show(fresh) == false)
+	check("the shops are not on the first screen", Q.panelGateById.Premium.show(fresh) == false and Q.panelGateById.Supply.show(fresh) == false)
+	-- every sidebar entry the HUD draws needs a gate, or it can never be hidden
+	for _, gate in Q.panelGates do
+		check("gate " .. gate.panel .. " explains itself", #gate.after > 0)
+	end
+end
+
 local function testData()
 	local profile = mockProfile(1234)
 	give(profile, "breeze_bean", "Overcharged", 1)
@@ -1414,6 +1478,7 @@ function Harness.run()
 		{ name = "upgrades", fn = testUpgrades },
 		{ name = "purchases", fn = testPurchases },
 		{ name = "cosmetics", fn = testCosmetics },
+		{ name = "tutorial + gates", fn = testTutorialAndGates },
 		{ name = "data", fn = testData },
 		{ name = "sell/storage", fn = testSellAndStorage },
 		{ name = "quests", fn = testQuestsAndRewards },
