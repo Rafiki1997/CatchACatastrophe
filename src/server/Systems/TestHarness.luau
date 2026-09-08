@@ -765,6 +765,7 @@ end
 local function testCosmetics()
 	local Cosmetics = require(script.Parent.CosmeticsService)
 	local DecorModels = require(ReplicatedStorage.Shared.Models.DecorModels)
+	local DecorSlots = require(ReplicatedStorage.Shared.Models.DecorSlots)
 	local catalogue = Config.Cosmetics
 
 	-- catalogue shape
@@ -843,7 +844,9 @@ local function testCosmetics()
 		check("a decoration can be bought with Coins", okBuy == true, tostring(whyBuy))
 		check("the Coins were taken", p.data.coins == before - price, tostring(p.data.coins))
 		check("it is owned", p.data.cosmetics.owned.decor_banner == true)
-		check("it went up by itself", p.data.cosmetics.equipped.decor_back_left == "decor_banner", tostring(p.data.cosmetics.equipped.decor_back_left))
+		check("it waits in the inventory to be placed", next(p.data.cosmetics.placed) == nil)
+		check("a decoration is never worn", p.data.cosmetics.equipped.decor == nil)
+		check("wearing a decoration is refused", Cosmetics.equip(p, "decor", "decor_banner") == false)
 		check("buying it twice is refused", Cosmetics.buy(p, "decor_banner") == false)
 
 		local poor = mockProfile(10)
@@ -853,21 +856,21 @@ local function testCosmetics()
 		check("an earned aura cannot be bought", Cosmetics.buy(poor, "aura_relaunch_1") == false)
 	end
 
-	-- every decoration owns exactly one corner, so buying one never asks where
+	-- decorations are placed by hand, so what matters is the model and the grid
 	do
 		local usedSlot: { [string]: string } = {}
+		local _ = usedSlot
 		for _, item in catalogue.list do
 			if item.family == "decor" then
-				check(item.id .. " has a slot", item.slot ~= nil and catalogue.slots[item.slot] ~= nil, tostring(item.slot))
-				if item.slot then
-					check("slot " .. item.slot .. " is used once", usedSlot[item.slot] == nil, tostring(usedSlot[item.slot]))
-					usedSlot[item.slot] = item.id
-				end
 				check(item.id .. " has a model builder", DecorModels.has(item.preset), item.preset)
 			elseif item.family == "skin" then
 				check(item.id .. " repaints the ground", item.palette ~= nil)
 			end
 		end
+		-- slot ids are derived from lattice coordinates, so they survive a save
+		check("a slot id round-trips", DecorSlots.idFor(-14, -20) == "s-14_-20", DecorSlots.idFor(-14, -20))
+		check("rotation is eighths of a turn", DecorSlots.rotationSteps == 8 and DecorSlots.angleOf(2) == 90, tostring(DecorSlots.angleOf(2)))
+		check("rotation wraps", DecorSlots.angleOf(8) == 0)
 		-- the free ground is free, so a city is never left unpainted
 		check("the standard ground costs nothing", catalogue.price(catalogue.byId.skin_default) == 0)
 	end
@@ -877,8 +880,28 @@ local function testCosmetics()
 		local p = mockProfile(0)
 		p.data.cosmetics.owned = { aura_wind = true, aura_invented = true } :: any
 		p.data.cosmetics.equipped = { aura = "aura_cosmic", hat = "aura_wind" } :: any
+		p.data.cosmetics.placed = {
+			["s-16_-24"] = { id = "decor_banner", rot = 3 },
+			["s-12_-24"] = { id = "decor_banner", rot = 0 },
+			["s-8_-24"] = { id = "decor_statue", rot = 99 },
+			["nonsense"] = { id = "decor_beacon", rot = 0 },
+			["s0_0"] = { id = "not_a_decoration", rot = 0 },
+		} :: any
+		p.data.cosmetics.owned.decor_banner = true
+		p.data.cosmetics.owned.decor_statue = true
 		local clean = Profiles.sanitize(DataService.roundTrip(p.data))
 		check("a real aura survives a save", clean.cosmetics.owned.aura_wind == true)
+		-- one of each: a save claiming the same banner in two places keeps one
+		local banners = 0
+		for _, entry in clean.cosmetics.placed do
+			if entry.id == "decor_banner" then
+				banners += 1
+			end
+		end
+		check("a decoration cannot be in two places", banners == 1, tostring(banners))
+		check("a rotation out of range is clamped", clean.cosmetics.placed["s-8_-24"] == nil or clean.cosmetics.placed["s-8_-24"].rot <= 7, tostring(clean.cosmetics.placed["s-8_-24"] and clean.cosmetics.placed["s-8_-24"].rot))
+		check("a slot id that is not a slot id is dropped", clean.cosmetics.placed.nonsense == nil)
+		check("an unowned decoration is not placed", clean.cosmetics.placed["s0_0"] == nil)
 		check("an invented aura is dropped", clean.cosmetics.owned.aura_invented == nil)
 		check("wearing an unowned aura is dropped", clean.cosmetics.equipped.aura == nil)
 		check("wearing it in the wrong family is dropped", clean.cosmetics.equipped.hat == nil)
@@ -1305,6 +1328,50 @@ function Harness.runLive(profile: any)
 			check("wearing an aura publishes it to every client", profile.player:GetAttribute("Aura") == "aura_wind", tostring(profile.player:GetAttribute("Aura")))
 			Cosmetics.equip(profile, "aura", "")
 			check("taking it off clears the attribute", profile.player:GetAttribute("Aura") == nil)
+		end
+	end
+
+	-- decorations, against the real plot: the grid comes from the city itself, so
+	-- this is the only place the slot ids can be trusted
+	do
+		local Cosmetics = S.Cosmetics
+		local DecorSlots = require(ReplicatedStorage.Shared.Models.DecorSlots)
+		if Cosmetics and plot.model then
+			local slots = DecorSlots.compute(plot.model)
+			check("the city offers somewhere to put things", #slots >= 6, tostring(#slots))
+			local ids: { [string]: boolean } = {}
+			for _, slot in slots do
+				check("slot " .. slot.id .. " is unique", not ids[slot.id])
+				ids[slot.id] = true
+			end
+			if #slots >= 2 then
+				profile.data.cosmetics.owned.decor_banner = true
+				-- away from home it must refuse, whatever the client sends
+				local wasVisiting = profile.visiting
+				profile.visiting = { index = 99 } :: any
+				local blocked = Cosmetics.place(profile, "decor_banner", slots[1].id, 0)
+				profile.visiting = wasVisiting
+				check("a decoration cannot be placed while visiting", blocked == false)
+
+				local okPlace, whyPlace = Cosmetics.place(profile, "decor_banner", slots[1].id, 3)
+				check("a decoration can be placed at home", okPlace == true, tostring(whyPlace))
+				check("it is recorded in the right slot", profile.data.cosmetics.placed[slots[1].id] ~= nil and profile.data.cosmetics.placed[slots[1].id].rot == 3)
+				local folder = plot.model:FindFirstChild("Decorations")
+				check("it is really in the city", folder ~= nil and folder:FindFirstChild(slots[1].id) ~= nil)
+
+				Cosmetics.place(profile, "decor_banner", slots[2].id, 0)
+				local count = 0
+				for _, entry in profile.data.cosmetics.placed do
+					if entry.id == "decor_banner" then
+						count += 1
+					end
+				end
+				check("moving it does not clone it", count == 1, tostring(count))
+
+				check("it can be put away", Cosmetics.unplace(profile, slots[2].id) == true)
+				check("and then it is gone from the city", (plot.model:FindFirstChild("Decorations") :: any):FindFirstChild(slots[2].id) == nil)
+				profile.data.cosmetics.owned.decor_banner = nil
+			end
 		end
 	end
 
