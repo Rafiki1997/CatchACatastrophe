@@ -14,6 +14,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config)
+local DecorModels = require(ReplicatedStorage.Shared.Models.DecorModels)
 
 local Notify = require(script.Parent.Notify)
 local Profiles = require(script.Parent.Profiles)
@@ -26,6 +27,7 @@ local CosmeticsService = {}
 
 local Cosmetics = Config.Cosmetics
 local AURA_ATTRIBUTE = "Aura"
+local DECOR_FOLDER = "Decorations"
 
 local function owned(profile: Profile, id: string): boolean
 	return profile.data.cosmetics.owned[id] == true
@@ -42,8 +44,69 @@ local function earned(profile: Profile, item: Config.Cosmetic): boolean
 		return d.relaunch >= unlock.count
 	elseif unlock.kind == "crisis" then
 		return d.stats.crisisWins >= unlock.wins
+	elseif unlock.kind == "coins" then
+		return unlock.price <= 0 -- the free default; the rest are bought
 	end
 	return false -- store items are granted by the purchase, not by playing
+end
+
+-- Repaints the ground and puts the bought decorations on their corners. Runs on
+-- the plot model itself, so a visitor standing in someone's city sees exactly
+-- what the owner sees.
+function CosmeticsService.applyCity(profile: Profile)
+	local plot = profile.plot
+	local model = plot and plot.model
+	if not model then
+		return
+	end
+	local equipped = profile.data.cosmetics.equipped
+
+	-- skin: repaint the slabs the city stands on
+	local skin = Cosmetics.byId[equipped.skin or ""]
+	local palette = if skin then skin.palette else nil
+	if palette then
+		for _, part in model:GetDescendants() do
+			if part:IsA("BasePart") then
+				if part.Name == "Platform" then
+					part.Color = palette.platform
+				elseif part.Name == "Apron" then
+					part.Color = palette.apron
+				elseif part.Name == "Kerb" then
+					part.Color = palette.kerb
+				end
+			end
+		end
+	end
+
+	-- decorations: one per corner, rebuilt only when the corner changed
+	local folder = model:FindFirstChild(DECOR_FOLDER)
+	if not folder then
+		local made = Instance.new("Model")
+		made.Name = DECOR_FOLDER
+		made.Parent = model
+		folder = made
+	end
+	for slot, offset in Cosmetics.slots do
+		local key = "decor_" .. slot
+		local wanted = equipped[key]
+		local item = if wanted then Cosmetics.byId[wanted] else nil
+		if item and not owned(profile, item.id) then
+			item = nil
+		end
+		local existing = folder:FindFirstChild(slot)
+		if existing and existing:GetAttribute("CosmeticId") ~= (if item then item.id else nil) then
+			existing:Destroy()
+			existing = nil
+		end
+		if item and not existing then
+			local built = DecorModels.build(item.preset, item.color, slot)
+			if built then
+				built:SetAttribute("CosmeticId", item.id)
+				built:PivotTo(model:GetPivot() * CFrame.new(offset + Vector3.new(0, 1, 0)))
+				built.Parent = folder
+			end
+		end
+	end
 end
 
 -- Publishes what the player is wearing. Called after every change and on spawn.
@@ -68,7 +131,7 @@ function CosmeticsService.grant(profile: Profile, id: string, quiet: boolean?): 
 	profile.data.cosmetics.owned[id] = true
 	profile.dirty = true
 	if not quiet and profile.player.Parent then
-		Notify.player(profile.player, "success", "New " .. item.family .. ": " .. item.name .. "! Wear it from the Store, under Style.", 7)
+		Notify.player(profile.player, "success", "New " .. item.family .. ": " .. item.name .. "! Put it on in the Supply Depot.", 7)
 	end
 	return true
 end
@@ -97,14 +160,16 @@ function CosmeticsService.equip(profile: Profile, family: any, id: any): (boolea
 		return false, "That is not something you can wear."
 	end
 	if id == "" then
+		-- an empty id clears the family, or one decoration corner by its key
 		profile.data.cosmetics.equipped[family] = nil
 		profile.dirty = true
 		CosmeticsService.apply(profile)
+		CosmeticsService.applyCity(profile)
 		Sync.push(profile)
 		return true, nil
 	end
 	local item = Cosmetics.byId[id]
-	if not item or item.family ~= family then
+	if not item or (item.family ~= family and Cosmetics.slotKeyOf[id] ~= family) then
 		return false, "That is not something you can wear."
 	end
 	if not owned(profile, id) then
@@ -113,10 +178,53 @@ function CosmeticsService.equip(profile: Profile, family: any, id: any): (boolea
 			return if region then region.name else regionId
 		end) .. "."
 	end
-	profile.data.cosmetics.equipped[family] = id
+	profile.data.cosmetics.equipped[Cosmetics.slotKeyOf[id] or family] = id
 	profile.dirty = true
 	CosmeticsService.apply(profile)
+	CosmeticsService.applyCity(profile)
 	Sync.push(profile)
+	return true, nil
+end
+
+-- Bought with Coins. Everything here is cosmetic, so the only failure worth a
+-- message is not having the money.
+function CosmeticsService.buy(profile: Profile, id: any): (boolean, string?)
+	if typeof(id) ~= "string" then
+		return false, "That is not something you can buy."
+	end
+	local item = Cosmetics.byId[id]
+	if not item then
+		return false, "That is not something you can buy."
+	end
+	local price = Cosmetics.price(item)
+	if not price then
+		return false, item.name .. " is not for sale: " .. Cosmetics.requirement(item, function(regionId)
+			local region = Config.Regions.byId[regionId]
+			return if region then region.name else regionId
+		end) .. "."
+	end
+	if owned(profile, id) then
+		return false, "You already own " .. item.name .. "."
+	end
+	if profile.busy then
+		return false, "Finish what you are doing first."
+	end
+	if price > 0 then
+		profile.busy = true
+		local paid = S.Economy ~= nil and S.Economy.spend(profile, price)
+		profile.busy = false
+		if not paid then
+			return false, "You need " .. tostring(price) .. " Coins for " .. item.name .. "."
+		end
+	end
+	profile.data.cosmetics.owned[id] = true
+	profile.dirty = true
+	-- a decoration nobody can see is a wasted purchase, so it goes up at once
+	CosmeticsService.equip(profile, item.family, id)
+	local placed = if item.family == "aura" then item.name .. " is yours, and you are wearing it."
+		elseif item.family == "skin" then item.name .. " is down. Your whole city is standing on it."
+		else item.name .. " is up in your city."
+	Notify.player(profile.player, "success", placed, 6)
 	return true, nil
 end
 
@@ -124,6 +232,7 @@ function CosmeticsService.onJoin(profile: Profile)
 	-- quiet: a returning player is being caught up, not congratulated
 	CosmeticsService.refresh(profile, true)
 	CosmeticsService.apply(profile)
+	CosmeticsService.applyCity(profile)
 end
 
 -- Called wherever progress moves: a region opened, a relaunch, a crisis won.

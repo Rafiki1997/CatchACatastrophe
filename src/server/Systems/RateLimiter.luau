@@ -44,6 +44,7 @@ local LIMITS: { [string]: { burst: number, refill: number } } = {
 	HatchEgg = { burst = 6, refill = 2 },
 	TestGrant = { burst = 4, refill = 1 },
 	EquipCosmetic = { burst = 6, refill = 3 },
+	BuyCosmetic = { burst = 3, refill = 1 },
 
 	-- workshop
 	BuyUpgrade = { burst = 6, refill = 3 },
