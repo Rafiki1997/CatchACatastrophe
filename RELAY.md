@@ -48,6 +48,7 @@ with what is actually true. Nothing was lost; the work it described is done.
 
 | Commit | What |
 |---|---|
+| `2aca2d4` | **Sign names desaturation guard** (`Waypoints.signColor`): every floating name is the destination colour at >= 0.55 saturation, <= 0.92 value; Frostbite Peaks read as white glare. Region colours elsewhere untouched. **Concurrent session warning (2026-09-08 00:05):** another agent was editing `CaptureController` (range ring dimmed to Neon 0.86, muted colours), `MapBuilder` (Frostbite snow/ice/ambience darker) and `Config/Regions` (Frostbite groundColor) uncommitted while this landed; this session layered a SmoothPlastic 0.78 ring on top in the working tree but did **not** commit it. Whoever commits `CaptureController` next: the two ring edits are both in the file, reconcile on purpose. |
 | `92198ee` | **Auras** (cosmetics family 1): 9 auras, 6 earned one per region, 3 prestige that cannot be bought. Store gains a **Style** tab, now the first tab. Worn aura published as the Player attribute `Aura`; client renderer dims it during captures, obeys reduced motion/flashing, culls by distance. SelfTest 643, LiveTest 49. |
 | `9b1fcc1` | **Store panel** (Passes / Coins / Boosts / Eggs), sidebar button, HUD boost chip, Robux button on the Remote Collector row. Everything reads "Coming soon" until the dashboard ids exist. |
 | `4e422ba` | **Store remotes**: `PromptPurchase`, `HatchEgg`, `TestGrant` (Studio only) + `HatchResult`, rate-limit buckets, `Snapshot.store`. `Remotes.serverToClient` is now the one list of remote direction. |
