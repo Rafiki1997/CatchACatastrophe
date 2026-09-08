@@ -589,6 +589,14 @@ end
 
 function CaptureController.onCaptureState(state: Types.CaptureState?)
 	captureState = state
+	-- auras fade while tethering so they never sit over a hazard telegraph
+	local auras = script.Parent:FindFirstChild("AuraController")
+	if auras then
+		local ok, module = pcall(require, auras)
+		if ok and typeof(module) == "table" and typeof(module.setCapturing) == "function" then
+			module.setCapturing(state ~= nil)
+		end
+	end
 	local h = hud()
 	if h and h.setState then
 		h.setState(state)

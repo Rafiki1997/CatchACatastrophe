@@ -71,6 +71,7 @@ local PadPrompts = safeRequire(Controllers.PadPrompts)
 local RouteLights = safeRequire(Controllers.RouteLights)
 local Waypoints = safeRequire(Controllers.Waypoints)
 local CameraGuard = safeRequire(Controllers.CameraGuard)
+local AuraController = safeRequire(Controllers.AuraController)
 
 -- init order: notifications first so anything else can complain out loud
 safeCall("Notifications.init", Notifications and Notifications.init)
@@ -91,6 +92,7 @@ safeCall("WorldAnimator.init", WorldAnimator and WorldAnimator.init)
 safeCall("RouteLights.init", RouteLights and RouteLights.init)
 safeCall("Waypoints.init", Waypoints and Waypoints.init)
 safeCall("CameraGuard.init", CameraGuard and CameraGuard.init)
+safeCall("AuraController.init", AuraController and AuraController.init)
 safeCall("CaptureController.init", CaptureController and CaptureController.init)
 safeCall("CircuitEditor.init", CircuitEditor and CircuitEditor.init)
 if RegionGates and RegionGates.init then

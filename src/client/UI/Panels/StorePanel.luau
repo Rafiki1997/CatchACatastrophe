@@ -29,7 +29,9 @@ local M = {}
 local Store = Config.Store
 local Rarities = Config.Rarities
 
-local TABS = { "Passes", "Coins", "Boosts", "Eggs" }
+-- Style first: most of what is in it is earned, not bought, so the Store
+-- opens on the free half rather than on a price list.
+local TABS = { "Style", "Passes", "Coins", "Boosts", "Eggs" }
 
 local built = false
 local gui: ScreenGui
@@ -38,6 +40,7 @@ local activeTab = "Passes"
 local scrolls: { [string]: ScrollingFrame } = {}
 local rows: { [string]: any } = {}
 local eggUi: any = nil
+local styleRows: { [string]: any } = {}
 local reveal: any = nil
 
 local function robuxText(entry: any): string
@@ -309,6 +312,97 @@ local function buildEggTab(parent: Instance)
 	eggUi = { pity = pityLabel, have = haveLabel, hatchOne = hatchOne, hatchMany = hatchMany }
 end
 
+-- ---------------------------------------------------------------- style tab
+
+local function regionName(regionId: string): string
+	local region = Config.Regions.byId[regionId]
+	return if region then region.name else regionId
+end
+
+local function buildStyleTab(parent: Instance)
+	W.label({
+		parent = W.card(parent, 44, 0),
+		text = "Auras follow you around. Most are earned by playing; the prestige ones cannot be bought at all.",
+		size = UDim2.new(1, -20, 1, -8),
+		position = UDim2.new(0, 10, 0, 4),
+		textSize = 13,
+		color = Theme.colors.textDim,
+		wrap = true,
+	})
+	for i, item in Config.Cosmetics.byFamily.aura or {} do
+		local card = W.card(parent, 70, i)
+		-- a dot in the aura's own colour stands in for the particle itself
+		W.label({
+			parent = card,
+			text = "●",
+			size = UDim2.new(0, 46, 0, 46),
+			position = UDim2.new(0, 10, 0.5, 0),
+			anchor = Vector2.new(0, 0.5),
+			textSize = 26,
+			xalign = Enum.TextXAlignment.Center,
+			color = item.color,
+			bg = Theme.colors.bgDeep,
+			radius = Theme.sizes.radiusSmall,
+		})
+		W.label({
+			parent = card,
+			text = item.name,
+			size = UDim2.new(1, -200, 0, 20),
+			position = UDim2.new(0, 66, 0, 10),
+			textSize = 16,
+			font = Theme.fonts.bold,
+			color = Theme.colors.text,
+		})
+		local detail = W.label({
+			parent = card,
+			text = item.desc,
+			size = UDim2.new(1, -200, 0, 32),
+			position = UDim2.new(0, 66, 0, 30),
+			textSize = 12,
+			color = Theme.colors.textDim,
+			wrap = true,
+		})
+		local button = W.button({
+			parent = card,
+			text = "Wear",
+			size = UDim2.new(0, 108, 0, 44),
+			position = UDim2.new(1, -12, 0.5, 0),
+			anchor = Vector2.new(1, 0.5),
+			color = Theme.colors.accentAlt,
+			textColor = Theme.colors.ink,
+			textSize = 15,
+			onClick = function()
+				local snap = State.get()
+				local wearing = snap and snap.cosmetics.equipped.aura
+				Net.fire("EquipCosmetic", "aura", if wearing == item.id then "" else item.id)
+			end,
+		})
+		styleRows[item.id] = { frame = card, button = button, detail = detail, item = item }
+	end
+end
+
+local function updateStyle(snap: Snapshot)
+	local wearing = snap.cosmetics.equipped.aura
+	for id, row in styleRows do
+		local owned = snap.cosmetics.owned[id] == true
+		if not owned then
+			-- locked rows say what to do, not just that they are locked
+			row.detail.Text = row.item.desc
+			row.button.Text = "Locked"
+			W.setEnabled(row.button, false)
+			W.tooltip(row.button :: GuiObject, Config.Cosmetics.requirement(row.item, regionName))
+		elseif wearing == id then
+			row.button.Text = "Wearing"
+			W.setEnabled(row.button, true)
+			W.setButtonColor(row.button, Theme.colors.success, Theme.colors.ink)
+		else
+			row.button.Text = "Wear"
+			W.setEnabled(row.button, true)
+			W.setButtonColor(row.button, Theme.colors.accentAlt, Theme.colors.ink)
+		end
+	end
+end
+
 -- ---------------------------------------------------------------- update
 
 local function updatePasses(snap: Snapshot)
@@ -367,7 +461,7 @@ function M.update(snap: Snapshot?)
 	-- showing an egg that refuses at the last step.
 	local eggsAllowed = snap.store.eggAllowed
 	if not eggsAllowed and activeTab == "Eggs" then
-		activeTab = "Passes"
+		activeTab = "Style"
 	end
 	for _, name in TABS do
 		local scroll = scrolls[name]
@@ -375,6 +469,7 @@ function M.update(snap: Snapshot?)
 			scroll.Visible = name == activeTab and (name ~= "Eggs" or eggsAllowed)
 		end
 	end
+	updateStyle(snap)
 	updatePasses(snap)
 	updateProducts(snap)
 	updateEggs(snap)
@@ -431,6 +526,7 @@ function M.init()
 		end)
 	end
 
+	buildStyleTab(scrolls.Style)
 	buildEggTab(scrolls.Eggs)
 	buildReveal(panel.frame)
 
@@ -442,7 +538,7 @@ function M.init()
 
 	built = true
 	panel.refresh = refresh
-	selectTab("Passes")
+	selectTab("Style")
 	refresh()
 end
 
