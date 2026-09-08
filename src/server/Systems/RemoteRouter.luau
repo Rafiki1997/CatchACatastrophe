@@ -172,6 +172,9 @@ function Router.init()
 	-- Studio only: the handler refuses anything but a test-adapter profile, so a
 	-- live client firing this gets nothing.
 	bind("TestGrant", isId, via("Purchase", "testGrantRemote"))
+	bind("EquipCosmetic", function(family, id)
+		return isId(family) and typeof(id) == "string" and #id <= 64
+	end, via("Cosmetics", "equip"))
 
 	-- workshop
 	bind("BuyUpgrade", isId, via("Workshop", "buyUpgrade"))

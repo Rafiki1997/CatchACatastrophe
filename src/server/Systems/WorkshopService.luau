@@ -100,6 +100,7 @@ function WorkshopService.unlockRegion(profile: Profile, regionId: any): (boolean
 	profile.busy = false
 	profile.dirty = true
 
+	safeCall("Cosmetics", "onProgress", profile) -- the region's aura
 	safeCall("Quests", "tutorialEvent", profile, "unlock:" .. regionId)
 	safeCall("Quests", "ensureDaily", profile)
 	Notify.player(profile.player, "success", def.name .. " is open! " .. def.desc, 6)

@@ -44,6 +44,7 @@ Remotes.eventNames = {
 	"PromptPurchase", -- (kind: "pass" | "product", id: string)  opens the Roblox purchase window
 	"HatchEgg", -- (eggId: string, count: number)  1 or Config.Store.hatchBatch
 	"TestGrant", -- (productId: string)  STUDIO ONLY: grants with no Robux, refused elsewhere
+	"EquipCosmetic", -- (family: string, id: string)  "" unequips
 
 	-- ===== Server -> Client =====
 	"State", -- (snapshot: Types.Snapshot)

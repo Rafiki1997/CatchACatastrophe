@@ -60,7 +60,6 @@ export type Data = {
 	purchases: {
 		ledger: { { id: string, productId: number, at: number } },
 		passes: { [string]: boolean },
-		cosmetics: { [string]: boolean },
 		coinsBought: number,
 		robuxSpent: number,
 		boostsBought: number,
@@ -70,6 +69,9 @@ export type Data = {
 	-- Unhatched eggs, and one pity counter per chase tier per egg: hatches since
 	-- that tier or better (see Config.Store.eggs.*.pity).
 	eggs: { counts: { [string]: number }, pity: { [string]: { [string]: number } } },
+	-- Looks. Kept across a relaunch on purpose: an aura earned by opening a
+	-- region must not vanish when the relaunch closes that region again.
+	cosmetics: { owned: { [string]: boolean }, equipped: { [string]: string } },
 	lastSaved: number, -- unix
 	sessionId: string?, -- owning server session (see DataService)
 	sessionAt: number?, -- unix when the session claimed the profile
@@ -129,9 +131,10 @@ function Profiles.defaultData(): Data
 		lastOnlineAt = 0,
 		settings = { music = 0.6, sfx = 0.8, reducedMotion = false, reducedFlashing = false, notifications = true },
 		stats = { captures = 0, perfect = 0, relaunches = 0, connects = 0, overdrives = 0, collects = 0, crisisWins = 0, earned = 0 },
-		purchases = { ledger = {}, passes = {}, cosmetics = {}, coinsBought = 0, robuxSpent = 0, boostsBought = 0, eggsOpened = 0 },
+		purchases = { ledger = {}, passes = {}, coinsBought = 0, robuxSpent = 0, boostsBought = 0, eggsOpened = 0 },
 		boosts = {},
 		eggs = { counts = {}, pity = {} },
+		cosmetics = { owned = {}, equipped = {} },
 		lastSaved = 0,
 		sessionId = nil,
 		sessionAt = nil,
@@ -322,7 +325,6 @@ function Profiles.sanitize(raw: any): Data
 		d.purchases.passes = boolMap(p.passes, function(id: string): boolean
 			return Config.Store.passById[id] ~= nil
 		end)
-		d.purchases.cosmetics = boolMap(p.cosmetics)
 		d.purchases.coinsBought = num(p.coinsBought, 0, 0, 1e15)
 		d.purchases.robuxSpent = num(p.robuxSpent, 0, 0, 1e12)
 		d.purchases.boostsBought = int(p.boostsBought, 0, 0, 1e9)
@@ -336,6 +338,20 @@ function Profiles.sanitize(raw: any): Data
 				local capped = math.min(num(expiresAt, 0, 0, 4e9), now + boost.maxStackSeconds)
 				if capped > now then
 					d.boosts[id] = capped
+				end
+			end
+		end
+	end
+	if typeof(raw.cosmetics) == "table" then
+		d.cosmetics.owned = boolMap(raw.cosmetics.owned, function(id: string): boolean
+			return Config.Cosmetics.byId[id] ~= nil
+		end)
+		if typeof(raw.cosmetics.equipped) == "table" then
+			for family, id in raw.cosmetics.equipped do
+				local item = if typeof(id) == "string" then Config.Cosmetics.byId[id] else nil
+				-- worn only if it exists, matches the family, and is actually owned
+				if item and item.family == family and d.cosmetics.owned[id] then
+					d.cosmetics.equipped[family] = id
 				end
 			end
 		end

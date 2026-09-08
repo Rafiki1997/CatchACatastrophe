@@ -87,7 +87,6 @@ function Sync.build(profile: Profile): Snapshot
 	end
 	local storeState = {
 		passes = table.clone(profile.passes),
-		cosmetics = table.clone(d.purchases.cosmetics),
 		eggAllowed = profile.eggAllowed,
 		boosts = storeBoosts,
 		eggs = { counts = table.clone(d.eggs.counts), pity = storePity },
@@ -170,6 +169,7 @@ function Sync.build(profile: Profile): Snapshot
 		regions = d.regions,
 		upgrades = d.upgrades,
 		remoteCollectReadyAt = profile.remoteCollectReadyAt,
+		cosmetics = { owned = table.clone(d.cosmetics.owned), equipped = table.clone(d.cosmetics.equipped) },
 		store = storeState,
 		derived = {
 			tetherRange = computed.tetherRange,

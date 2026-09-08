@@ -131,6 +131,12 @@ function RelaunchService.perform(profile: Profile, anchorUids: any, acknowledged
 	-- ---------------------------------------------------------------- advance
 	d.relaunch = level
 	d.stats.relaunches += 1
+	-- prestige auras are earned here, and survive the reset below
+	pcall(function()
+		if S.Cosmetics then
+			S.Cosmetics.onProgress(profile)
+		end
+	end)
 	-- Atlas, mastery, milestone claims, tutorial, daily records, settings and
 	-- lifetime coins are all deliberately untouched.
 

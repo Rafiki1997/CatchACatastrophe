@@ -221,6 +221,9 @@ local function finish(success: boolean)
 					S.Economy.addCoins(profile, reward, "crisis")
 				end
 				profile.data.stats.crisisWins += 1
+				if S.Cosmetics then
+					pcall(S.Cosmetics.onProgress, profile)
+				end
 				profile.dirty = true
 				paid += 1
 				Notify.player(profile.player, "success", "Crisis contained! +" .. Format.abbreviate(reward) .. " Coins for your work on the pylons.", 8)

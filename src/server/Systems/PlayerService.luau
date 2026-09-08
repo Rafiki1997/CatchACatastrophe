@@ -68,6 +68,7 @@ end
 
 local function onCharacterAdded(profile: Profile, character: Model)
 	applyCameraCap(profile.player)
+	try("Cosmetics", "apply", profile)
 	-- a fresh character means the old tether is gone
 	try("Capture", "onCharacterRemoved", profile)
 	task.defer(function()
@@ -110,6 +111,7 @@ function PlayerService.onJoin(player: Player)
 	try("Quests", "ensureDaily", profile)
 	try("City", "refreshAll", profile)
 	try("Circuits", "recalculate", profile)
+	try("Cosmetics", "onJoin", profile)
 	try("Tools", "give", profile)
 	-- Game pass ownership and the paid-random-items policy both yield on web
 	-- calls, so they run beside the join rather than holding it up.

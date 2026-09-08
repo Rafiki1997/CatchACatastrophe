@@ -16,6 +16,7 @@ local Config = {
 	Milestones = require(script.Milestones),
 	Sounds = require(script.Sounds),
 	Store = require(script.Store),
+	Cosmetics = require(script.Cosmetics),
 }
 
 Config.GameName = "Catch a Catastrophe!"

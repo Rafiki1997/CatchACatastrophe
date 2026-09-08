@@ -89,9 +89,11 @@ export type Snapshot = {
 	-- Robux. `boosts` expiry is SERVER time like everything else in the snapshot;
 	-- `eggAllowed` is false when the account's policy restricts paid random items,
 	-- and the Store hides its egg tab entirely in that case.
+	-- What this player owns and is wearing. `owned` is every family at once;
+	-- `equipped` is family -> id, and a family missing from it means nothing worn.
+	cosmetics: { owned: { [string]: boolean }, equipped: { [string]: string } },
 	store: {
 		passes: { [string]: boolean },
-		cosmetics: { [string]: boolean },
 		eggAllowed: boolean,
 		boosts: { [string]: { expiresAt: number, mult: number } },
 		eggs: { counts: { [string]: number }, pity: { [string]: { [string]: number } } },
