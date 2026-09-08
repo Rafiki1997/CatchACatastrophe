@@ -18,6 +18,9 @@ local StudioTester = {}
 
 local SPECIES = "the_big_whoops"
 local VARIANT = "Prismatic"
+-- one of each chase tier as well, so the tiers that only come out of an egg
+-- can be looked at without spending anything
+local SHOWCASE = { "comet_king", "galaxy_gobbler", "void_whoops" }
 local gifted: { [Player]: boolean } = {}
 -- The live suite deploys onto pads 1 and 2 a few seconds after the first join and
 -- checks what it finds there. Gift only once it reports done (Main.server sets
@@ -40,10 +43,17 @@ local function gift(profile: Profiles.Profile): boolean
 			break
 		end
 	end
+	-- Mythic, Celestial and Astral, deployed where they can be seen
+	for index, speciesId in SHOWCASE do
+		local showUid = S.City.grantCreature(profile, speciesId, "Normal", true)
+		if showUid then
+			S.City.deploy(profile, showUid, index + 1)
+		end
+	end
 	Sync.push(profile)
-	local text = "Studio tester: a Prismatic Big Whoops is in your storage."
+	local text = "Studio tester: a Prismatic Big Whoops and the three chase tiers are in your storage."
 	if placed then
-		text = "Studio tester: a Prismatic Big Whoops is already working for you (5,120 Coins/s)."
+		text = "Studio tester: a Prismatic Big Whoops plus a Mythic, a Celestial and an Astral are on your pads."
 	end
 	Notify.player(profile.player, "info", text, 7)
 	return true
