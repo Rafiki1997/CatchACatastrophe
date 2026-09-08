@@ -16,6 +16,7 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local Format = require(ReplicatedStorage.Shared.Util.Format)
 local Types = require(ReplicatedStorage.Shared.Types)
 local CreatureModels = require(ReplicatedStorage.Shared.Models.CreatureModels)
+local EggModels = require(ReplicatedStorage.Shared.Models.EggModels)
 
 local W = require(script.Parent.Parent.Widgets)
 local Theme = require(script.Parent.Parent.Theme)
@@ -29,9 +30,7 @@ local M = {}
 local Store = Config.Store
 local Rarities = Config.Rarities
 
--- Style first: most of what is in it is earned, not bought, so the Store
--- opens on the free half rather than on a price list.
-local TABS = { "Style", "Passes", "Coins", "Boosts", "Eggs" }
+local TABS = { "Passes", "Coins", "Boosts", "Eggs" }
 
 local built = false
 local gui: ScreenGui
@@ -40,7 +39,6 @@ local activeTab = "Passes"
 local scrolls: { [string]: ScrollingFrame } = {}
 local rows: { [string]: any } = {}
 local eggUi: any = nil
-local styleRows: { [string]: any } = {}
 local reveal: any = nil
 
 local function robuxText(entry: any): string
@@ -57,20 +55,30 @@ local function percentText(percent: number): string
 	return tostring(rounded) .. "%"
 end
 
--- One row per catalogue entry: icon, name, what it does, and the button.
+-- One row per catalogue entry: icon, name, what it does, and the button. Eggs
+-- show the actual egg instead of a glyph, since that is what is being sold.
 local function createRow(parent: Instance, entry: any, order: number, onBuy: () -> ()): any
 	local card = W.card(parent, 78, order)
-	W.label({
-		parent = card,
-		text = entry.icon,
-		size = UDim2.new(0, 46, 0, 46),
-		position = UDim2.new(0, 10, 0.5, 0),
-		anchor = Vector2.new(0, 0.5),
-		textSize = 24,
-		xalign = Enum.TextXAlignment.Center,
-		bg = Theme.colors.bgDeep,
-		radius = Theme.sizes.radiusSmall,
-	})
+	local eggId = if entry.grant and entry.grant.kind == "eggs" then entry.grant.eggId else nil
+	if eggId then
+		local vp = W.viewport(card, UDim2.new(0, 52, 0, 62), UDim2.new(0, 8, 0.5, -31), Theme.colors.bgDeep)
+		local ok, model = pcall(EggModels.build, eggId)
+		if ok then
+			vp.setModel(model)
+		end
+	else
+		W.label({
+			parent = card,
+			text = entry.icon,
+			size = UDim2.new(0, 46, 0, 46),
+			position = UDim2.new(0, 10, 0.5, 0),
+			anchor = Vector2.new(0, 0.5),
+			textSize = 24,
+			xalign = Enum.TextXAlignment.Center,
+			bg = Theme.colors.bgDeep,
+			radius = Theme.sizes.radiusSmall,
+		})
+	end
 	W.label({
 		parent = card,
 		text = entry.name,
@@ -241,10 +249,17 @@ end
 local function buildEggTab(parent: Instance)
 	local egg = Store.eggs.cosmic_egg
 	local odds = W.card(parent, 176, 1)
+	-- the egg itself, turning slowly, so the tab leads with the thing it sells
+	local hero = W.viewport(odds, UDim2.new(0, 108, 0, 150), UDim2.new(1, -14, 0.5, -75), Theme.colors.bgDeep)
+	hero.frame.AnchorPoint = Vector2.new(1, 0)
+	local okHero, heroModel = pcall(EggModels.build, "cosmic_egg")
+	if okHero then
+		hero.setModel(heroModel)
+	end
 	W.label({
 		parent = odds,
 		text = egg.name .. " odds",
-		size = UDim2.new(1, -20, 0, 20),
+		size = UDim2.new(1, -140, 0, 20),
 		position = UDim2.new(0, 10, 0, 8),
 		textSize = 16,
 		font = Theme.fonts.bold,
@@ -256,8 +271,8 @@ local function buildEggTab(parent: Instance)
 		W.label({
 			parent = odds,
 			text = Rarities.label(row.rarity) .. "   " .. percentText(row.percent),
-			size = UDim2.new(0.5, -16, 0, 18),
-			position = UDim2.new(0.5 * column, 10, 0, 32 + line * 20),
+			size = UDim2.new(0.36, -12, 0, 18),
+			position = UDim2.new(0.36 * column, 10, 0, 32 + line * 20),
 			textSize = 13,
 			color = Rarities.color(row.rarity),
 		})
@@ -265,7 +280,7 @@ local function buildEggTab(parent: Instance)
 	local pityLabel = W.label({
 		parent = odds,
 		text = "",
-		size = UDim2.new(1, -20, 0, 34),
+		size = UDim2.new(1, -140, 0, 34),
 		position = UDim2.new(0, 10, 1, -40),
 		textSize = 12,
 		color = Theme.colors.textDim,
@@ -310,97 +325,6 @@ local function buildEggTab(parent: Instance)
 		end,
 	})
 	eggUi = { pity = pityLabel, have = haveLabel, hatchOne = hatchOne, hatchMany = hatchMany }
-end
-
--- ---------------------------------------------------------------- style tab
-
-local function regionName(regionId: string): string
-	local region = Config.Regions.byId[regionId]
-	return if region then region.name else regionId
-end
-
-local function buildStyleTab(parent: Instance)
-	W.label({
-		parent = W.card(parent, 44, 0),
-		text = "Auras follow you around. Most are earned by playing; the prestige ones cannot be bought at all.",
-		size = UDim2.new(1, -20, 1, -8),
-		position = UDim2.new(0, 10, 0, 4),
-		textSize = 13,
-		color = Theme.colors.textDim,
-		wrap = true,
-	})
-	for i, item in Config.Cosmetics.byFamily.aura or {} do
-		local card = W.card(parent, 70, i)
-		-- a dot in the aura's own colour stands in for the particle itself
-		W.label({
-			parent = card,
-			text = "●",
-			size = UDim2.new(0, 46, 0, 46),
-			position = UDim2.new(0, 10, 0.5, 0),
-			anchor = Vector2.new(0, 0.5),
-			textSize = 26,
-			xalign = Enum.TextXAlignment.Center,
-			color = item.color,
-			bg = Theme.colors.bgDeep,
-			radius = Theme.sizes.radiusSmall,
-		})
-		W.label({
-			parent = card,
-			text = item.name,
-			size = UDim2.new(1, -200, 0, 20),
-			position = UDim2.new(0, 66, 0, 10),
-			textSize = 16,
-			font = Theme.fonts.bold,
-			color = Theme.colors.text,
-		})
-		local detail = W.label({
-			parent = card,
-			text = item.desc,
-			size = UDim2.new(1, -200, 0, 32),
-			position = UDim2.new(0, 66, 0, 30),
-			textSize = 12,
-			color = Theme.colors.textDim,
-			wrap = true,
-		})
-		local button = W.button({
-			parent = card,
-			text = "Wear",
-			size = UDim2.new(0, 108, 0, 44),
-			position = UDim2.new(1, -12, 0.5, 0),
-			anchor = Vector2.new(1, 0.5),
-			color = Theme.colors.accentAlt,
-			textColor = Theme.colors.ink,
-			textSize = 15,
-			onClick = function()
-				local snap = State.get()
-				local wearing = snap and snap.cosmetics.equipped.aura
-				Net.fire("EquipCosmetic", "aura", if wearing == item.id then "" else item.id)
-			end,
-		})
-		styleRows[item.id] = { frame = card, button = button, detail = detail, item = item }
-	end
-end
-
-local function updateStyle(snap: Snapshot)
-	local wearing = snap.cosmetics.equipped.aura
-	for id, row in styleRows do
-		local owned = snap.cosmetics.owned[id] == true
-		if not owned then
-			-- locked rows say what to do, not just that they are locked
-			row.detail.Text = row.item.desc
-			row.button.Text = "Locked"
-			W.setEnabled(row.button, false)
-			W.tooltip(row.button :: GuiObject, Config.Cosmetics.requirement(row.item, regionName))
-		elseif wearing == id then
-			row.button.Text = "Wearing"
-			W.setEnabled(row.button, true)
-			W.setButtonColor(row.button, Theme.colors.success, Theme.colors.ink)
-		else
-			row.button.Text = "Wear"
-			W.setEnabled(row.button, true)
-			W.setButtonColor(row.button, Theme.colors.accentAlt, Theme.colors.ink)
-		end
-	end
 end
 
 -- ---------------------------------------------------------------- update
@@ -461,7 +385,7 @@ function M.update(snap: Snapshot?)
 	-- showing an egg that refuses at the last step.
 	local eggsAllowed = snap.store.eggAllowed
 	if not eggsAllowed and activeTab == "Eggs" then
-		activeTab = "Style"
+		activeTab = "Passes"
 	end
 	for _, name in TABS do
 		local scroll = scrolls[name]
@@ -469,7 +393,6 @@ function M.update(snap: Snapshot?)
 			scroll.Visible = name == activeTab and (name ~= "Eggs" or eggsAllowed)
 		end
 	end
-	updateStyle(snap)
 	updatePasses(snap)
 	updateProducts(snap)
 	updateEggs(snap)
@@ -487,7 +410,7 @@ function M.init()
 	if not gui:FindFirstChildOfClass("UIScale") then
 		W.attachScale(gui)
 	end
-	panel = W.panel(gui, "Store", "Store", UDim2.new(0, 660, 0, 470))
+	panel = W.panel(gui, "Premium", "Premium Depot", UDim2.new(0, 660, 0, 470))
 	local body = panel.body
 
 	local _, selectTab = W.tabs(body, TABS, function(name)
@@ -526,7 +449,6 @@ function M.init()
 		end)
 	end
 
-	buildStyleTab(scrolls.Style)
 	buildEggTab(scrolls.Eggs)
 	buildReveal(panel.frame)
 
@@ -538,7 +460,7 @@ function M.init()
 
 	built = true
 	panel.refresh = refresh
-	selectTab("Style")
+	selectTab("Passes")
 	refresh()
 end
 
