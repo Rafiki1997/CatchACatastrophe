@@ -91,7 +91,11 @@ export type Snapshot = {
 	-- and the Store hides its egg tab entirely in that case.
 	-- What this player owns and is wearing. `owned` is every family at once;
 	-- `equipped` is family -> id, and a family missing from it means nothing worn.
-	cosmetics: { owned: { [string]: boolean }, equipped: { [string]: string } },
+	cosmetics: {
+		owned: { [string]: boolean },
+		equipped: { [string]: string }, -- family -> id (aura, skin)
+		placed: { [string]: { id: string, rot: number } }, -- decoration slot -> what stands there
+	},
 	store: {
 		passes: { [string]: boolean },
 		eggAllowed: boolean,

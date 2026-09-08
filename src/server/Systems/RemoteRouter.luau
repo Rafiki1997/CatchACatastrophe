@@ -176,6 +176,10 @@ function Router.init()
 		return isId(family) and typeof(id) == "string" and #id <= 64
 	end, via("Cosmetics", "equip"))
 	bind("BuyCosmetic", isId, via("Cosmetics", "buy"))
+	bind("PlaceDecor", function(id, slotId, rot)
+		return isId(id) and isId(slotId) and isFiniteNumber(rot)
+	end, via("Cosmetics", "place"))
+	bind("StoreDecor", isId, via("Cosmetics", "unplace"))
 
 	-- workshop
 	bind("BuyUpgrade", isId, via("Workshop", "buyUpgrade"))

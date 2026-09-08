@@ -46,6 +46,8 @@ Remotes.eventNames = {
 	"TestGrant", -- (productId: string)  STUDIO ONLY: grants with no Robux, refused elsewhere
 	"EquipCosmetic", -- (family: string, id: string)  "" unequips; family is "aura"/"skin" or "decor_<slot>"
 	"BuyCosmetic", -- (id: string)  Coins, not Robux
+	"PlaceDecor", -- (id: string, slotId: string, rot: number)  must be standing in your own city
+	"StoreDecor", -- (slotId: string)  takes it back into the inventory
 
 	-- ===== Server -> Client =====
 	"State", -- (snapshot: Types.Snapshot)

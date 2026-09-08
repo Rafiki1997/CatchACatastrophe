@@ -71,7 +71,14 @@ export type Data = {
 	eggs: { counts: { [string]: number }, pity: { [string]: { [string]: number } } },
 	-- Looks. Kept across a relaunch on purpose: an aura earned by opening a
 	-- region must not vanish when the relaunch closes that region again.
-	cosmetics: { owned: { [string]: boolean }, equipped: { [string]: string } },
+	-- `equipped` is family -> id for the one-at-a-time families (aura, skin).
+	-- `placed` is where decorations are: slot id -> what stands there and which
+	-- way it faces (rot is eighths of a turn).
+	cosmetics: {
+		owned: { [string]: boolean },
+		equipped: { [string]: string },
+		placed: { [string]: { id: string, rot: number } },
+	},
 	lastSaved: number, -- unix
 	sessionId: string?, -- owning server session (see DataService)
 	sessionAt: number?, -- unix when the session claimed the profile
@@ -134,7 +141,7 @@ function Profiles.defaultData(): Data
 		purchases = { ledger = {}, passes = {}, coinsBought = 0, robuxSpent = 0, boostsBought = 0, eggsOpened = 0 },
 		boosts = {},
 		eggs = { counts = {}, pity = {} },
-		cosmetics = { owned = {}, equipped = {} },
+		cosmetics = { owned = {}, equipped = {}, placed = {} },
 		lastSaved = 0,
 		sessionId = nil,
 		sessionAt = nil,
@@ -350,8 +357,22 @@ function Profiles.sanitize(raw: any): Data
 			for family, id in raw.cosmetics.equipped do
 				local item = if typeof(id) == "string" then Config.Cosmetics.byId[id] else nil
 				-- worn only if it exists, matches the family, and is actually owned
-				if item and item.family == family and d.cosmetics.owned[id] then
+				if item and item.family == family and item.family ~= "decor" and d.cosmetics.owned[id] then
 					d.cosmetics.equipped[family] = id
+				end
+			end
+		end
+		if typeof(raw.cosmetics.placed) == "table" then
+			local usedItem: { [string]: boolean } = {}
+			for slotId, entry in raw.cosmetics.placed do
+				local id = if typeof(entry) == "table" then entry.id else nil
+				local item = if typeof(id) == "string" then Config.Cosmetics.byId[id] else nil
+				-- one of each, only what is owned, only real decorations, and the
+				-- slot id has to look like a slot id
+				if item and item.family == "decor" and d.cosmetics.owned[id] and not usedItem[id]
+					and typeof(slotId) == "string" and #slotId <= 24 and slotId:match("^s%-?%d+_%-?%d+$") then
+					usedItem[id] = true
+					d.cosmetics.placed[slotId] = { id = id, rot = int(entry.rot, 0, 0, 7) }
 				end
 			end
 		end

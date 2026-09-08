@@ -328,7 +328,10 @@ local function serialize(profile: Profile): Data
 		copy.purchases.ledger[i] = table.clone(row)
 	end
 	copy.boosts = table.clone(d.boosts)
-	copy.cosmetics = { owned = table.clone(d.cosmetics.owned), equipped = table.clone(d.cosmetics.equipped) }
+	copy.cosmetics = { owned = table.clone(d.cosmetics.owned), equipped = table.clone(d.cosmetics.equipped), placed = {} }
+	for slotId, entry in d.cosmetics.placed do
+		copy.cosmetics.placed[slotId] = table.clone(entry)
+	end
 	copy.eggs = { counts = table.clone(d.eggs.counts), pity = {} }
 	for id, counters in d.eggs.pity do
 		copy.eggs.pity[id] = table.clone(counters)

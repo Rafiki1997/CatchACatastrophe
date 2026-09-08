@@ -15,6 +15,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config)
 local DecorModels = require(ReplicatedStorage.Shared.Models.DecorModels)
+local DecorSlots = require(ReplicatedStorage.Shared.Models.DecorSlots)
 
 local Notify = require(script.Parent.Notify)
 local Profiles = require(script.Parent.Profiles)
@@ -78,7 +79,9 @@ function CosmeticsService.applyCity(profile: Profile)
 		end
 	end
 
-	-- decorations: one per corner, rebuilt only when the corner changed
+	-- decorations: whatever the player put down, where they put it, facing the
+	-- way they turned it. Only what actually changed is rebuilt, so moving one
+	-- ornament does not flicker the rest.
 	local folder = model:FindFirstChild(DECOR_FOLDER)
 	if not folder then
 		local made = Instance.new("Model")
@@ -86,25 +89,31 @@ function CosmeticsService.applyCity(profile: Profile)
 		made.Parent = model
 		folder = made
 	end
-	for slot, offset in Cosmetics.slots do
-		local key = "decor_" .. slot
-		local wanted = equipped[key]
-		local item = if wanted then Cosmetics.byId[wanted] else nil
-		if item and not owned(profile, item.id) then
-			item = nil
-		end
-		local existing = folder:FindFirstChild(slot)
-		if existing and existing:GetAttribute("CosmeticId") ~= (if item then item.id else nil) then
-			existing:Destroy()
-			existing = nil
-		end
-		if item and not existing then
-			local built = DecorModels.build(item.preset, item.color, slot)
-			if built then
-				built:SetAttribute("CosmeticId", item.id)
-				built:PivotTo(model:GetPivot() * CFrame.new(offset + Vector3.new(0, 1, 0)))
-				built.Parent = folder
+	local wanted: { [string]: boolean } = {}
+	for slotId, entry in profile.data.cosmetics.placed do
+		local item = Cosmetics.byId[entry.id]
+		if item and item.family == "decor" and owned(profile, entry.id) then
+			wanted[slotId] = true
+			local existing = folder:FindFirstChild(slotId)
+			if existing and (existing:GetAttribute("CosmeticId") ~= entry.id or existing:GetAttribute("Rot") ~= entry.rot) then
+				existing:Destroy()
+				existing = nil
 			end
+			if not existing then
+				local slot = DecorSlots.find(model, slotId)
+				local built = if slot then DecorModels.build(item.preset, item.color, slotId) else nil
+				if built and slot then
+					built:SetAttribute("CosmeticId", entry.id)
+					built:SetAttribute("Rot", entry.rot)
+					built:PivotTo(model:GetPivot() * CFrame.new(slot.offset + Vector3.new(0, 1, 0)) * CFrame.Angles(0, math.rad(DecorSlots.angleOf(entry.rot)), 0))
+					built.Parent = folder
+				end
+			end
+		end
+	end
+	for _, child in folder:GetChildren() do
+		if not wanted[child.Name] then
+			child:Destroy()
 		end
 	end
 end
@@ -169,8 +178,11 @@ function CosmeticsService.equip(profile: Profile, family: any, id: any): (boolea
 		return true, nil
 	end
 	local item = Cosmetics.byId[id]
-	if not item or (item.family ~= family and Cosmetics.slotKeyOf[id] ~= family) then
+	if not item or item.family ~= family then
 		return false, "That is not something you can wear."
+	end
+	if item.family == "decor" then
+		return false, "Decorations are placed in your city, not worn."
 	end
 	if not owned(profile, id) then
 		return false, item.name .. " is not yours yet: " .. Cosmetics.requirement(item, function(regionId)
@@ -178,11 +190,104 @@ function CosmeticsService.equip(profile: Profile, family: any, id: any): (boolea
 			return if region then region.name else regionId
 		end) .. "."
 	end
-	profile.data.cosmetics.equipped[Cosmetics.slotKeyOf[id] or family] = id
+	profile.data.cosmetics.equipped[family] = id
 	profile.dirty = true
 	CosmeticsService.apply(profile)
 	CosmeticsService.applyCity(profile)
 	Sync.push(profile)
+	return true, nil
+end
+
+-- Decorating is something you do at home: the player has to be standing on
+-- their own plot, so nothing can be moved from across the map or while
+-- visiting someone else.
+local function atHome(profile: Profile): (boolean, string?)
+	local plot = profile.plot
+	local model = plot and plot.model
+	if not model then
+		return false, "Your city is still being built. Try again in a moment."
+	end
+	if profile.visiting then
+		return false, "You can only decorate your own city."
+	end
+	local character = profile.player.Character
+	local root = character and character:FindFirstChild("HumanoidRootPart")
+	if not root or not root:IsA("BasePart") then
+		return false, "Go to your city to decorate it."
+	end
+	local here = model:GetPivot():PointToObjectSpace(root.Position)
+	if math.abs(here.X) > 34 or math.abs(here.Z) > 34 then
+		return false, "Go to your city to decorate it."
+	end
+	return true, nil
+end
+
+-- Where a decoration currently stands, if anywhere.
+function CosmeticsService.slotOf(profile: Profile, id: string): string?
+	for slotId, entry in profile.data.cosmetics.placed do
+		if entry.id == id then
+			return slotId
+		end
+	end
+	return nil
+end
+
+-- Put one down, or move one that is already down. There is one of each, so
+-- placing a decoration that is already somewhere moves it rather than cloning it.
+function CosmeticsService.place(profile: Profile, id: any, slotId: any, rot: any): (boolean, string?)
+	if typeof(id) ~= "string" or typeof(slotId) ~= "string" or typeof(rot) ~= "number" then
+		return false, "That is not something you can place."
+	end
+	local item = Cosmetics.byId[id]
+	if not item or item.family ~= "decor" then
+		return false, "That is not something you can place."
+	end
+	if not owned(profile, id) then
+		return false, "You do not own " .. item.name .. " yet."
+	end
+	local ok, why = atHome(profile)
+	if not ok then
+		return false, why
+	end
+	local model = profile.plot.model
+	if not DecorSlots.find(model, slotId) then
+		return false, "That spot will not take a decoration."
+	end
+	local occupant = profile.data.cosmetics.placed[slotId]
+	if occupant and occupant.id ~= id then
+		local other = Cosmetics.byId[occupant.id]
+		return false, (if other then other.name else "Something") .. " is already there."
+	end
+	local previous = CosmeticsService.slotOf(profile, id)
+	if previous then
+		profile.data.cosmetics.placed[previous] = nil
+	end
+	profile.data.cosmetics.placed[slotId] = { id = id, rot = math.clamp(math.floor(rot), 0, DecorSlots.rotationSteps - 1) }
+	profile.dirty = true
+	CosmeticsService.applyCity(profile)
+	Sync.push(profile)
+	return true, nil
+end
+
+-- Back into the inventory. Still owned, just not out.
+function CosmeticsService.unplace(profile: Profile, slotId: any): (boolean, string?)
+	if typeof(slotId) ~= "string" then
+		return false, "That is not something you can pick up."
+	end
+	local entry = profile.data.cosmetics.placed[slotId]
+	if not entry then
+		return false, "There is nothing there."
+	end
+	local ok, why = atHome(profile)
+	if not ok then
+		return false, why
+	end
+	profile.data.cosmetics.placed[slotId] = nil
+	profile.dirty = true
+	CosmeticsService.applyCity(profile)
+	Sync.push(profile)
+	local item = Cosmetics.byId[entry.id]
+	Notify.player(profile.player, "info", (if item then item.name else "It") .. " is back in your inventory.", 4)
 	return true, nil
 end
 
@@ -219,12 +324,18 @@ function CosmeticsService.buy(profile: Profile, id: any): (boolean, string?)
 	end
 	profile.data.cosmetics.owned[id] = true
 	profile.dirty = true
-	-- a decoration nobody can see is a wasted purchase, so it goes up at once
-	CosmeticsService.equip(profile, item.family, id)
-	local placed = if item.family == "aura" then item.name .. " is yours, and you are wearing it."
-		elseif item.family == "skin" then item.name .. " is down. Your whole city is standing on it."
-		else item.name .. " is up in your city."
-	Notify.player(profile.player, "success", placed, 6)
+	local message
+	if item.family == "decor" then
+		-- a decoration is placed by hand, so it waits in the inventory rather
+		-- than appearing somewhere the player did not choose
+		message = item.name .. " is in your inventory. Stand in your city and press Place to put it down."
+		Sync.push(profile)
+	else
+		CosmeticsService.equip(profile, item.family, id)
+		message = if item.family == "aura" then item.name .. " is yours, and you are wearing it."
+			else item.name .. " is down. Your whole city is standing on it."
+	end
+	Notify.player(profile.player, "success", message, 7)
 	return true, nil
 end
 

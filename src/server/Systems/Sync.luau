@@ -85,6 +85,10 @@ function Sync.build(profile: Profile): Snapshot
 	for eggId, counters in d.eggs.pity do
 		storePity[eggId] = table.clone(counters)
 	end
+	local placedDecor: { [string]: { id: string, rot: number } } = {}
+	for slotId, entry in d.cosmetics.placed do
+		placedDecor[slotId] = table.clone(entry)
+	end
 	local storeState = {
 		passes = table.clone(profile.passes),
 		eggAllowed = profile.eggAllowed,
@@ -169,7 +173,7 @@ function Sync.build(profile: Profile): Snapshot
 		regions = d.regions,
 		upgrades = d.upgrades,
 		remoteCollectReadyAt = profile.remoteCollectReadyAt,
-		cosmetics = { owned = table.clone(d.cosmetics.owned), equipped = table.clone(d.cosmetics.equipped) },
+		cosmetics = { owned = table.clone(d.cosmetics.owned), equipped = table.clone(d.cosmetics.equipped), placed = placedDecor },
 		store = storeState,
 		derived = {
 			tetherRange = computed.tetherRange,

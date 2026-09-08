@@ -32,7 +32,7 @@ export type Cosmetic = {
 	rate: number, -- aura emitter rate; the renderer scales this, never the preset
 	source: string, -- "region" | "relaunch" | "crisis" | "coins" | "store"
 	unlock: Unlock,
-	slot: string?, -- decor: the one place on the plot it goes, so no picker is needed
+	footprint: number?, -- decor: how much deck it needs, for the placement grid
 	palette: { platform: Color3, apron: Color3, kerb: Color3 }?, -- skin: what it repaints
 }
 
@@ -43,16 +43,6 @@ end
 local Cosmetics = {}
 
 Cosmetics.families = { "aura", "decor", "skin" }
-
--- The four corners of the 60x60 platform, clear of the pad grid (pads reach
--- x +-15 and z -6..+34) and of the collection pad. Each decoration owns one
--- corner, so buying one never asks the player where to put it.
-Cosmetics.slots = {
-	front_left = Vector3.new(-24, 0, -24),
-	front_right = Vector3.new(24, 0, -24),
-	back_left = Vector3.new(-24, 0, 24),
-	back_right = Vector3.new(24, 0, 24),
-}
 
 -- Rendering rules the client obeys, kept here so design and code agree.
 Cosmetics.render = {
@@ -79,10 +69,10 @@ Cosmetics.list = {
 	-- ---------------------------------------------------------------- decorations
 	-- Bought with Coins, one per corner of your city, and visible to anyone who
 	-- visits you.
-	{ id = "decor_statue", family = "decor", name = "Creature Statue", desc = "A stone creature on a plinth, watching over the front of your city.", color = rgb(196, 192, 200), preset = "statue", rate = 0, source = "coins", unlock = { kind = "coins", price = 4000 }, slot = "front_left" },
-	{ id = "decor_fountain", family = "decor", name = "Containment Fountain", desc = "Water that never quite escapes. Very calming.", color = rgb(110, 190, 255), preset = "fountain", rate = 0, source = "coins", unlock = { kind = "coins", price = 12000 }, slot = "front_right" },
-	{ id = "decor_banner", family = "decor", name = "Company Banner", desc = "Fly the Catastrophe Containment Co. colours over your lot.", color = rgb(255, 184, 48), preset = "banner", rate = 0, source = "coins", unlock = { kind = "coins", price = 2500 }, slot = "back_left" },
-	{ id = "decor_beacon", family = "decor", name = "Signal Beacon", desc = "A slow turning light. Visitors can find you from the hub.", color = rgb(120, 235, 255), preset = "beacon", rate = 0, source = "coins", unlock = { kind = "coins", price = 30000 }, slot = "back_right" },
+	{ id = "decor_statue", family = "decor", name = "Creature Statue", desc = "A stone creature on a plinth, watching over the front of your city.", color = rgb(196, 192, 200), preset = "statue", rate = 0, source = "coins", unlock = { kind = "coins", price = 4000 } },
+	{ id = "decor_fountain", family = "decor", name = "Containment Fountain", desc = "Water that never quite escapes. Very calming.", color = rgb(110, 190, 255), preset = "fountain", rate = 0, source = "coins", unlock = { kind = "coins", price = 12000 } },
+	{ id = "decor_banner", family = "decor", name = "Company Banner", desc = "Fly the Catastrophe Containment Co. colours over your lot.", color = rgb(255, 184, 48), preset = "banner", rate = 0, source = "coins", unlock = { kind = "coins", price = 2500 } },
+	{ id = "decor_beacon", family = "decor", name = "Signal Beacon", desc = "A slow turning light. Visitors can find you from the hub.", color = rgb(120, 235, 255), preset = "beacon", rate = 0, source = "coins", unlock = { kind = "coins", price = 30000 } },
 
 	-- ---------------------------------------------------------------- plot skins
 	-- Repaints the ground your whole city stands on.
@@ -94,12 +84,12 @@ Cosmetics.list = {
 
 Cosmetics.byId = {} :: { [string]: Cosmetic }
 Cosmetics.byFamily = {} :: { [string]: { Cosmetic } }
--- Where a worn item is recorded. One slot per family, except decorations,
--- which own a corner each and so can all be out at once.
+-- Where a worn item is recorded. Auras and grounds are one at a time;
+-- decorations are not here at all, they live in `data.cosmetics.placed`.
 Cosmetics.slotKeyOf = {} :: { [string]: string }
 for _, item in Cosmetics.list do
 	Cosmetics.byId[item.id] = item
-	Cosmetics.slotKeyOf[item.id] = if item.family == "decor" and item.slot then "decor_" .. item.slot else item.family
+	Cosmetics.slotKeyOf[item.id] = item.family
 	Cosmetics.byFamily[item.family] = Cosmetics.byFamily[item.family] or {}
 	table.insert(Cosmetics.byFamily[item.family], item)
 end
