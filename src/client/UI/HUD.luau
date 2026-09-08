@@ -40,6 +40,8 @@ local titleLabel: TextLabel? = nil
 local bankLabel: TextLabel? = nil
 local bankBar: any = nil
 local bankWasFull = false
+local sidebarSeen: { [string]: boolean } = {}
+local navButtons: { [string]: TextButton } = {}
 local collectButton: TextButton? = nil
 local boostChip: TextLabel? = nil
 local remoteReadyAt = 0
@@ -193,7 +195,6 @@ function HUD.init()
 	sidebar.Parent = safe
 	W.padding(sidebar, { left = 3, right = 9, top = 3, bottom = 3 })
 	W.list(sidebar, Enum.FillDirection.Vertical, 8)
-	local navButtons: { [string]: TextButton } = {}
 	for i, entry in SIDEBAR do
 		local button = W.button({
 			parent = sidebar,
@@ -212,6 +213,8 @@ function HUD.init()
 		})
 		button.TextXAlignment = Enum.TextXAlignment.Left
 		W.padding(button, { left = 16, right = 12 })
+		-- hidden until it means something; HUD.refreshSidebar decides
+		button.Visible = Config.Quests.panelGateById[entry.panel] == nil
 		navButtons[entry.panel] = button
 	end
 	W.onPanelChanged(function(panelName: string?)
@@ -433,8 +436,27 @@ function HUD.refreshForecast()
 	end
 end
 
--- Button text and enabled state from the last snapshot: "Collect", or the
--- seconds left on the cooldown. Ticks once a second between snapshots.
+-- Panels appear the moment they start to matter, and say so when they do: a
+-- new button on a sidebar a player has stopped reading is easy to miss.
+function HUD.refreshSidebar(snap: Types.Snapshot)
+	for _, gate in Config.Quests.panelGates do
+		local button = navButtons[gate.panel]
+		if button then
+			local ok, visible = pcall(gate.show, snap)
+			visible = ok and visible == true
+			if visible and not button.Visible then
+				button.Visible = true
+				if sidebarSeen[gate.panel] == false then
+					W.pop(button, 1.12)
+				end
+			elseif not visible then
+				button.Visible = false
+			end
+			sidebarSeen[gate.panel] = visible
+		end
+	end
+end
+
 -- Ticks with the collect countdown so the chip counts down between snapshots.
 function HUD.refreshBoostChip()
 	if not boostChip then
@@ -461,6 +483,8 @@ function HUD.refreshBoostChip()
 	boostChip.Text = tostring(bestMult) .. "x  " .. Format.clock(bestLeft)
 end
 
+-- Button text and enabled state from the last snapshot: "Collect", or the
+-- seconds left on the cooldown. Ticks once a second between snapshots.
 function HUD.refreshCollectButton()
 	if not collectButton or not collectButton.Visible then
 		return
@@ -525,6 +549,7 @@ function HUD.update(snap: Types.Snapshot)
 		HUD.refreshCollectButton()
 	end
 	HUD.refreshBoostChip()
+	HUD.refreshSidebar(snap)
 
 	if offlineCard and offlineText then
 		if snap.offline then
