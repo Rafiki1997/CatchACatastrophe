@@ -759,6 +759,92 @@ local function testPurchases()
 	end
 end
 
+
+-- Cosmetics are free progress made visible, so the tests are about the promise
+-- that they are kept: earned once, kept forever, and never worn without owning.
+local function testCosmetics()
+	local Cosmetics = require(script.Parent.CosmeticsService)
+	local catalogue = Config.Cosmetics
+
+	-- catalogue shape
+	local seen: { [string]: boolean } = {}
+	for _, item in catalogue.list do
+		check("cosmetic " .. item.id .. " is unique", not seen[item.id])
+		seen[item.id] = true
+		check(item.id .. " belongs to a real family", table.find(catalogue.families, item.family) ~= nil, item.family)
+		check(item.id .. " says how to earn it", #catalogue.requirement(item) > 0)
+		if item.unlock.kind == "region" then
+			check(item.id .. " names a real region", Config.Regions.byId[item.unlock.regionId] ~= nil, item.unlock.regionId)
+		end
+	end
+	-- every region has exactly one aura, so opening the map is always rewarded
+	for _, region in Config.Regions.list do
+		local found = 0
+		for _, item in catalogue.list do
+			if item.unlock.kind == "region" and item.unlock.regionId == region.id then
+				found += 1
+			end
+		end
+		check(region.id .. " has one aura", found == 1, tostring(found))
+	end
+	-- prestige is not for sale
+	for _, item in catalogue.list do
+		if item.source == "relaunch" or item.source == "crisis" then
+			check(item.id .. " cannot be bought", Config.Store.productById[item.id] == nil and Config.Store.passById[item.id] == nil)
+		end
+	end
+
+	-- earning, wearing, and refusing
+	do
+		local p = mockProfile(0)
+		check("a new player owns nothing", next(p.data.cosmetics.owned) == nil)
+		local okWear, why = Cosmetics.equip(p, "aura", "aura_frost")
+		check("an unowned aura cannot be worn", okWear == false and why ~= nil and why:find("Frostbite") ~= nil, tostring(why))
+
+		-- the starting region is already open, so its aura is earned at once
+		Cosmetics.refresh(p, true)
+		check("the starting region grants its aura", p.data.cosmetics.owned.aura_wind == true)
+		check("a region that is shut grants nothing", p.data.cosmetics.owned.aura_frost == nil)
+
+		p.data.regions.frostbite_peaks = true
+		local granted = Cosmetics.refresh(p, true)
+		check("opening a region grants its aura", granted == 1 and p.data.cosmetics.owned.aura_frost == true, tostring(granted))
+		check("refreshing again grants nothing", Cosmetics.refresh(p, true) == 0)
+
+		local okEquip = Cosmetics.equip(p, "aura", "aura_frost")
+		check("an owned aura can be worn", okEquip == true and p.data.cosmetics.equipped.aura == "aura_frost")
+		check("wearing nothing is allowed", Cosmetics.equip(p, "aura", "") == true and p.data.cosmetics.equipped.aura == nil)
+		check("a made-up id is refused", Cosmetics.equip(p, "aura", "aura_not_real") == false)
+		check("the wrong family is refused", Cosmetics.equip(p, "decoration", "aura_frost") == false)
+
+		-- a relaunch shuts every region again; the aura has to stay
+		Cosmetics.equip(p, "aura", "aura_frost")
+		p.data.regions = { gusty_gardens = true }
+		check("a relaunch keeps the aura", p.data.cosmetics.owned.aura_frost == true)
+		check("a relaunch keeps it worn", p.data.cosmetics.equipped.aura == "aura_frost")
+		check("refresh never takes one away", Cosmetics.refresh(p, true) == 0 and p.data.cosmetics.owned.aura_frost == true)
+
+		-- prestige comes from the counters, not from regions
+		p.data.relaunch = 5
+		p.data.stats.crisisWins = 10
+		Cosmetics.refresh(p, true)
+		check("relaunching grants both prestige auras", p.data.cosmetics.owned.aura_relaunch_1 == true and p.data.cosmetics.owned.aura_relaunch_5 == true)
+		check("crisis wins grant their aura", p.data.cosmetics.owned.aura_crisis_10 == true)
+	end
+
+	-- a forged save cannot dress the player in something they do not own
+	do
+		local p = mockProfile(0)
+		p.data.cosmetics.owned = { aura_wind = true, aura_invented = true } :: any
+		p.data.cosmetics.equipped = { aura = "aura_cosmic", hat = "aura_wind" } :: any
+		local clean = Profiles.sanitize(DataService.roundTrip(p.data))
+		check("a real aura survives a save", clean.cosmetics.owned.aura_wind == true)
+		check("an invented aura is dropped", clean.cosmetics.owned.aura_invented == nil)
+		check("wearing an unowned aura is dropped", clean.cosmetics.equipped.aura == nil)
+		check("wearing it in the wrong family is dropped", clean.cosmetics.equipped.hat == nil)
+	end
+end
+
 local function testData()
 	local profile = mockProfile(1234)
 	give(profile, "breeze_bean", "Overcharged", 1)
@@ -1168,6 +1254,20 @@ function Harness.runLive(profile: any)
 		end
 	end
 
+	-- the aura is published as a Player attribute, which is what every other
+	-- client draws from; a probe cannot see this, the server can
+	do
+		local Cosmetics = S.Cosmetics
+		if Cosmetics then
+			Cosmetics.refresh(profile, true)
+			check("the starting region's aura is owned live", profile.data.cosmetics.owned.aura_wind == true)
+			Cosmetics.equip(profile, "aura", "aura_wind")
+			check("wearing an aura publishes it to every client", profile.player:GetAttribute("Aura") == "aura_wind", tostring(profile.player:GetAttribute("Aura")))
+			Cosmetics.equip(profile, "aura", "")
+			check("taking it off clears the attribute", profile.player:GetAttribute("Aura") == nil)
+		end
+	end
+
 	-- tidy up: remove what this suite added
 	if profile.data.creatures[stormUid] then
 		S.City.sell(profile, stormUid)
@@ -1206,6 +1306,7 @@ function Harness.run()
 		{ name = "income", fn = testIncome },
 		{ name = "upgrades", fn = testUpgrades },
 		{ name = "purchases", fn = testPurchases },
+		{ name = "cosmetics", fn = testCosmetics },
 		{ name = "data", fn = testData },
 		{ name = "sell/storage", fn = testSellAndStorage },
 		{ name = "quests", fn = testQuestsAndRewards },
