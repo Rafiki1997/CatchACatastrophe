@@ -55,6 +55,12 @@ local DETAIL_HEIGHT = 2.6
 -- swallowing the letters.
 local STROKE_RATIO = 0.07
 local STROKE_MIN, STROKE_MAX = 1, 4.5
+-- Sign text is fullbright (LightInfluence 0), so a pale region colour reads as
+-- white glare against the sky: Frostbite Peaks (170, 230, 255) did. Every name
+-- gets at least this much saturation and at most this much brightness; the
+-- region's own colour elsewhere (roads, gate board, HUD) is untouched.
+local MIN_SATURATION = 0.55
+local MAX_VALUE = 0.92
 local TICK = 0.25
 local player = Players.LocalPlayer
 
@@ -68,6 +74,11 @@ type Sign = {
 }
 local signs: { [BasePart]: Sign } = {}
 local cityPart: BasePart? = nil
+
+local function signColor(color: Color3): Color3
+	local h, s, v = color:ToHSV()
+	return Color3.fromHSV(h, math.max(s, MIN_SATURATION), math.min(v, MAX_VALUE))
+end
 
 local function outlined(parent: Instance, name: string, text: string, color: Color3, size: UDim2, pos: UDim2): (TextLabel, UIStroke)
 	local l = Instance.new("TextLabel")
@@ -104,7 +115,7 @@ local function build(part: BasePart, name: string, color: Color3, height: number
 
 	local total = TITLE_HEIGHT + DETAIL_HEIGHT
 	-- the destination's colour on the name itself, never as the only cue: the name is text
-	local title, titleStroke = outlined(gui, "Title", name, color, UDim2.fromScale(1, TITLE_HEIGHT / total), UDim2.fromScale(0, 0))
+	local title, titleStroke = outlined(gui, "Title", name, signColor(color), UDim2.fromScale(1, TITLE_HEIGHT / total), UDim2.fromScale(0, 0))
 	local detail, detailStroke = outlined(gui, "Detail", "", Theme.colors.gold, UDim2.fromScale(1, DETAIL_HEIGHT / total), UDim2.fromScale(0, TITLE_HEIGHT / total))
 	detail.Visible = false
 	return { gui = gui, title = title, detail = detail, strokes = { titleStroke, detailStroke }, regionId = regionId, locked = false }
