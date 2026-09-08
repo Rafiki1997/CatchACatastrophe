@@ -101,6 +101,7 @@ function CircuitService.connect(profile: Profile, padA: number, padB: number): (
 	profile.dirty = true
 	CircuitService.recalculate(profile)
 	safeCall("Quests", "bump", profile, "connects", 1)
+	safeCall("Quests", "tutorialEvent", profile, "connect")
 	if recipe then
 		safeCall("Atlas", "recordRecipe", profile, recipe.id)
 		Notify.player(profile.player, "success", recipe.name .. " online! Both creatures earn +" .. Format.percent(Stats.pairBonus(profile, key)) .. ".", 5)
@@ -198,6 +199,7 @@ function CircuitService.startOverdrive(profile: Profile, padA: number, padB: num
 	profile.dirty = true
 	CircuitService.applyMachineState(profile)
 	safeCall("Quests", "bump", profile, "overdrives", 1)
+	safeCall("Quests", "tutorialEvent", profile, "overdrive")
 	Notify.player(
 		profile.player,
 		"warn",

@@ -206,6 +206,10 @@ local STEP_EVENT: { [number]: string } = {
 	[4] = "collect",
 	[5] = "upgrade",
 	[6] = "unlock:splashwater_bay",
+	-- step 7 is a read-and-confirm, so it has no event
+	[8] = "connect",
+	[9] = "overdrive",
+	[10] = "cosmetic",
 }
 
 function QuestService.sendTutorial(profile: Profile)

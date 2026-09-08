@@ -192,6 +192,9 @@ function CosmeticsService.equip(profile: Profile, family: any, id: any): (boolea
 	end
 	profile.data.cosmetics.equipped[family] = id
 	profile.dirty = true
+	if S.Quests then
+		pcall(S.Quests.tutorialEvent, profile, "cosmetic")
+	end
 	CosmeticsService.apply(profile)
 	CosmeticsService.applyCity(profile)
 	Sync.push(profile)
@@ -264,6 +267,9 @@ function CosmeticsService.place(profile: Profile, id: any, slotId: any, rot: any
 	end
 	profile.data.cosmetics.placed[slotId] = { id = id, rot = math.clamp(math.floor(rot), 0, DecorSlots.rotationSteps - 1) }
 	profile.dirty = true
+	if S.Quests then
+		pcall(S.Quests.tutorialEvent, profile, "cosmetic")
+	end
 	CosmeticsService.applyCity(profile)
 	Sync.push(profile)
 	return true, nil

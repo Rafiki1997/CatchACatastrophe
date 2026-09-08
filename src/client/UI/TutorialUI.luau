@@ -355,7 +355,16 @@ local function targetPosition(): Vector3?
 			end
 		end
 	elseif kind == "hub" then
-		local hub = workspace:FindFirstChild("Map") and (workspace:FindFirstChild("Map") :: Instance):FindFirstChild("Hub")
+		local map = workspace:FindFirstChild("Map")
+		-- the arena is its own model beside the hub, not a kiosk inside it
+		if value == "arena" then
+			local arena = map and map:FindFirstChild("Arena")
+			local floor = arena and arena:FindFirstChild("Floor")
+			if floor and floor:IsA("BasePart") then
+				return floor.Position
+			end
+		end
+		local hub = map and (map :: Instance):FindFirstChild("Hub")
 		local building = hub and hub:FindFirstChild(if value == "workshop" then "Workshop" else "AtlasKiosk")
 		local terminal = building and building:FindFirstChild("Terminal")
 		if terminal and terminal:IsA("BasePart") then
