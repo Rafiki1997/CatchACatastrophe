@@ -93,17 +93,23 @@ end
 
 -- Drop shadow drawn as a sibling behind the target: under ZIndexBehavior.Sibling
 -- a child always draws above its parent, so it cannot be a child. It follows
--- the target's size, position, anchor and visibility, and dies with it.
+-- the target's size, position, anchor and visibility, and dies with it. It does
+-- not follow a re-parent, nor the target's own UIScale (W.pop), so a popping
+-- target briefly outgrows its shadow.
 function W.shadow(target: GuiObject, offset: number?): Frame
 	local o = offset or Theme.sizes.shadowOffset
 	local corner = target:FindFirstChildOfClass("UICorner")
+	-- the shadow must sit strictly below: a tie would draw it on top
+	if target.ZIndex - 1 < 1 then
+		target.ZIndex += 1
+	end
 	local shadow = W.frame({
 		parent = target.Parent,
 		name = target.Name .. "Shadow",
 		color = Theme.colors.ink,
 		transparency = Theme.sizes.shadowTransparency,
 		radius = if corner then corner.CornerRadius.Offset else 0,
-		zindex = math.max(target.ZIndex - 1, 1),
+		zindex = target.ZIndex - 1,
 	})
 	local function sync()
 		shadow.AnchorPoint = target.AnchorPoint
@@ -481,6 +487,19 @@ function W.iconTile(parent: Instance, panelName: string, caption: string, onClic
 		zindex = tile.ZIndex + 2,
 	})
 	return tile
+end
+
+-- Marks a W.iconTile as the open panel's: a white rim and a pop; unselected
+-- tiles keep the ink border.
+function W.setTileSelected(tile: TextButton, selected: boolean)
+	local border = tile:FindFirstChild("Border")
+	if border and border:IsA("UIStroke") then
+		border.Color = if selected then Theme.colors.text else Theme.colors.ink
+		border.Thickness = if selected then Theme.sizes.stroke + 1 else Theme.sizes.stroke
+	end
+	if selected then
+		W.pop(tile, 1.08)
+	end
 end
 
 -- Pill-shaped tag ("Rare", "Chrome", "x2")

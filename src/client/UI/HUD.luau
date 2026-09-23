@@ -183,7 +183,7 @@ function HUD.init()
 	-- Keep navigation below the wallet. Short viewports scroll instead of
 	-- overlapping the wallet or losing the last buttons below the screen.
 	local tile = Theme.sizes.sidebarTile
-	local gap = 10
+	local gap = 14
 	local sidebar = Instance.new("ScrollingFrame")
 	sidebar.Name = "Sidebar"
 	sidebar.Size = UDim2.new(0, tile * 2 + gap + 18, 1, -(Theme.hudSafeTop + 166))
@@ -196,8 +196,10 @@ function HUD.init()
 	sidebar.ScrollBarThickness = 3
 	sidebar.ScrollBarImageColor3 = Theme.colors.textDim
 	sidebar.Parent = safe
-	-- the bottom padding leaves room for the last row's overlapping captions
-	W.padding(sidebar, { left = 4, right = 12, top = 4, bottom = 12 })
+	-- tile Border strokes draw outside the box, so the gap and the left/top
+	-- padding leave room for them and the selection rim; the bottom padding
+	-- also fits the last row's overlapping captions
+	W.padding(sidebar, { left = 6, right = 12, top = 6, bottom = 14 })
 	W.grid(sidebar, UDim2.fromOffset(tile, tile), gap)
 	for i, entry in SIDEBAR do
 		local button = W.iconTile(sidebar, entry.panel, entry.caption, function()
@@ -210,15 +212,7 @@ function HUD.init()
 	-- the open panel's tile gets a white rim and a pop
 	W.onPanelChanged(function(panelName: string?)
 		for name, button in navButtons do
-			local selected = name == panelName
-			local border = button:FindFirstChild("Border")
-			if border and border:IsA("UIStroke") then
-				border.Color = if selected then Theme.colors.text else Theme.colors.ink
-				border.Thickness = if selected then Theme.sizes.stroke + 1 else Theme.sizes.stroke
-			end
-			if selected then
-				W.pop(button, 1.08)
-			end
+			W.setTileSelected(button, name == panelName)
 		end
 	end)
 
