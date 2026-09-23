@@ -262,7 +262,7 @@ function M.init()
 	})
 
 	-- reset / keep lists, straight from config so they cannot drift from the code
-	local listsFrame = W.frame({ parent = body, size = UDim2.new(1, 0, 0, 96), position = UDim2.new(0, 0, 0, 84), transparency = 1 })
+	local listsFrame = W.frame({ parent = body, size = UDim2.new(1, 0, 0, 100), position = UDim2.new(0, 0, 0, 84), transparency = 1 })
 	local resetText = "YOU LOSE\n"
 	for _, line in Config.Relaunch.resets do
 		resetText ..= "- " .. line .. "\n"
@@ -276,7 +276,7 @@ function M.init()
 		text = resetText,
 		size = UDim2.new(0.5, -6, 1, 0),
 		textSize = 11,
-		color = Theme.colors.danger,
+		color = Theme.colors.text,
 		xalign = Enum.TextXAlignment.Left,
 		yalign = Enum.TextYAlignment.Top,
 		wrap = true,
@@ -287,7 +287,7 @@ function M.init()
 		size = UDim2.new(0.5, -6, 1, 0),
 		position = UDim2.new(0.5, 6, 0, 0),
 		textSize = 11,
-		color = Theme.colors.success,
+		color = Theme.colors.text,
 		xalign = Enum.TextXAlignment.Left,
 		yalign = Enum.TextYAlignment.Top,
 		wrap = true,
@@ -310,7 +310,7 @@ function M.init()
 		size = UDim2.new(1, 0, 0, 30),
 		position = UDim2.new(0, 0, 0, 316),
 		textSize = 12,
-		color = Theme.colors.danger,
+		color = Theme.colors.accent,
 		xalign = Enum.TextXAlignment.Left,
 		yalign = Enum.TextYAlignment.Top,
 		wrap = true,
@@ -372,7 +372,7 @@ function M.init()
 		size = UDim2.new(1, 0, 0, 18),
 		position = UDim2.new(0, 0, 1, -56),
 		textSize = 12,
-		color = Theme.colors.warn,
+		color = Theme.colors.accent,
 		xalign = Enum.TextXAlignment.Left,
 		visible = false,
 	})

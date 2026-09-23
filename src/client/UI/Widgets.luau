@@ -223,6 +223,7 @@ export type LabelProps = {
 	strokeText: boolean?, -- heavier outline (HUD numbers, captions)
 	automatic: boolean?, -- AutomaticSize Y
 	outline: boolean?, -- dark text outline (default on; off for text in dark insets)
+	visible: boolean?,
 }
 
 function W.label(props: LabelProps): TextLabel
@@ -247,6 +248,9 @@ function W.label(props: LabelProps): TextLabel
 	l.LayoutOrder = props.order or 0
 	if props.automatic then
 		l.AutomaticSize = Enum.AutomaticSize.Y
+	end
+	if props.visible ~= nil then
+		l.Visible = props.visible
 	end
 	if props.outline ~= false then
 		W.outline(l, if props.strokeText then Theme.sizes.textOutlineLarge else nil)
