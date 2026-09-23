@@ -79,6 +79,12 @@ for _, name in names do
 			if typeof(c) == "Color3" then
 				local ratio = contrast(text, c)
 				check(ratio >= 3.0, ("%s.%s contrast %.2f < 3.0"):format(name, field, ratio))
+				-- secondary text and the yellow / sky highlights sit on the same
+				-- surfaces; they are outlined too, so a lower bar holds them
+				for _, key in { "textDim", "accent", "accentAlt" } do
+					local r = contrast(Theme.colors[key], c)
+					check(r >= 2.0, ("colors.%s on %s.%s contrast %.2f < 2.0"):format(key, name, field, r))
+				end
 			end
 		end
 	end
@@ -106,8 +112,17 @@ for _, key in { "top", "mid", "bottom" } do
 	check(typeof((Theme.gloss or {})[key]) == "Color3", "Theme.gloss." .. key .. " missing")
 end
 check(typeof(Theme.colors.disabled) == "Color3", "Theme.colors.disabled missing")
-for _, key in { "textOutline", "textOutlineLarge", "strokePanel", "sidebarTile", "shadowOffset", "shadowTransparency" } do
-	check(type(Theme.sizes[key]) == "number", "Theme.sizes." .. key .. " missing")
+local sizes = { textOutline = 2, textOutlineLarge = 3, strokePanel = 5, sidebarTile = 84, shadowOffset = 6, shadowTransparency = 0.55 }
+for key, value in sizes do
+	check(Theme.sizes[key] == value, ("Theme.sizes.%s is %s, expected %s"):format(key, tostring(Theme.sizes[key]), tostring(value)))
+end
+
+-- the live audit and Widgets.outline must agree on what counts as light text;
+-- %1 matches whatever the colour argument is called in each copy, and the
+-- frontiers stop a changed threshold such as 0.35 from matching
+local isLightPattern = "%f[%d]0%.2126 %* ([%a_][%w_]*)%.R %+ 0%.7152 %* %1%.G %+ 0%.0722 %* %1%.B > 0%.3%f[^%d]"
+for _, path in { "tools/ui_audit.luau", "src/client/UI/Widgets.luau" } do
+	check(string.find(fs.readFile(path), isLightPattern) ~= nil, path .. " lost the shared isLight expression")
 end
 -- legacy keys must survive so no call site breaks
 for _, key in { "bg", "bgAlt", "bgDeep", "ink", "text", "textDim", "accent", "accentAlt", "success", "warn", "danger", "gold", "coin", "stripe", "circuit", "overdrive", "silhouette", "token", "steal" } do
