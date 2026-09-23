@@ -7,7 +7,7 @@
 export type RarityInfo = {
 	rank: number,
 	label: string,
-	icon: string, -- text glyph so rarity never relies on colour alone
+	icon: string, -- text glyph so rarity never relies on colour alone; must draw in every UI font (tools/verify_theme.luau)
 	color: Color3,
 	weight: number,
 	mult: number,
@@ -39,10 +39,10 @@ Rarities.info = {
 	Common = { rank = 1, label = "Common", icon = "●", color = Color3.fromRGB(180, 186, 196), weight = 60, mult = 1, captureSeconds = 8, hazardSpeed = 1.0, attackInterval = 3.2, sellSeconds = 20, glow = 0, broadcast = false },
 	Uncommon = { rank = 2, label = "Uncommon", icon = "◆", color = Color3.fromRGB(96, 210, 120), weight = 28, mult = 2.5, captureSeconds = 10, hazardSpeed = 1.15, attackInterval = 2.8, sellSeconds = 25, glow = 0, broadcast = false },
 	Rare = { rank = 3, label = "Rare", icon = "★", color = Color3.fromRGB(90, 150, 255), weight = 10, mult = 7, captureSeconds = 13, hazardSpeed = 1.3, attackInterval = 2.4, sellSeconds = 30, glow = 1, broadcast = false },
-	Legendary = { rank = 4, label = "Legendary", icon = "♛", color = Color3.fromRGB(255, 200, 60), weight = 2, mult = 20, captureSeconds = 16, hazardSpeed = 1.5, attackInterval = 2.0, sellSeconds = 40, glow = 2, broadcast = true },
-	Mythic = { rank = 5, label = "Mythic", icon = "✦", color = Color3.fromRGB(255, 120, 200), weight = 0, mult = 50, captureSeconds = 16, hazardSpeed = 1.5, attackInterval = 2.0, sellSeconds = 60, glow = 3, broadcast = true },
-	Celestial = { rank = 6, label = "Celestial", icon = "✧", color = Color3.fromRGB(120, 235, 255), weight = 0, mult = 150, captureSeconds = 16, hazardSpeed = 1.5, attackInterval = 2.0, sellSeconds = 90, glow = 3, broadcast = true },
-	Astral = { rank = 7, label = "Astral", icon = "✵", color = Color3.fromRGB(255, 245, 190), weight = 0, mult = 400, captureSeconds = 16, hazardSpeed = 1.5, attackInterval = 2.0, sellSeconds = 120, glow = 3, broadcast = true },
+	Legendary = { rank = 4, label = "Legendary", icon = "❖", color = Color3.fromRGB(255, 200, 60), weight = 2, mult = 20, captureSeconds = 16, hazardSpeed = 1.5, attackInterval = 2.0, sellSeconds = 40, glow = 2, broadcast = true },
+	Mythic = { rank = 5, label = "Mythic", icon = "✿", color = Color3.fromRGB(255, 120, 200), weight = 0, mult = 50, captureSeconds = 16, hazardSpeed = 1.5, attackInterval = 2.0, sellSeconds = 60, glow = 3, broadcast = true },
+	Celestial = { rank = 6, label = "Celestial", icon = "◎", color = Color3.fromRGB(120, 235, 255), weight = 0, mult = 150, captureSeconds = 16, hazardSpeed = 1.5, attackInterval = 2.0, sellSeconds = 90, glow = 3, broadcast = true },
+	Astral = { rank = 7, label = "Astral", icon = "◉", color = Color3.fromRGB(255, 245, 190), weight = 0, mult = 400, captureSeconds = 16, hazardSpeed = 1.5, attackInterval = 2.0, sellSeconds = 120, glow = 3, broadcast = true },
 } :: { [string]: RarityInfo }
 
 -- Egg-only chase tiers never spawn in the wild and never count toward Atlas

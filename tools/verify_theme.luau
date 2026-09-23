@@ -129,5 +129,28 @@ for _, key in { "bg", "bgAlt", "bgDeep", "ink", "text", "textDim", "accent", "ac
 	check(typeof(Theme.colors[key]) == "Color3", "Theme.colors." .. key .. " missing")
 end
 
+-- Rarity and variant glyphs must draw in every Theme font. Gotham shows a box
+-- for a glyph it lacks and Fredoka drops it silently, so a new glyph has to be
+-- seen rendered in Studio (FredokaOne, GothamMedium, GothamBold) before it is
+-- added here. Seen rendering in all three on 2026-09-23.
+local SAFE_GLYPHS = {}
+for _, g in { "●", "◆", "★", "◈", "▲", "■", "◉", "◎", "♦", "♥", "♠", "♣", "✚", "❖", "☀", "✿", "▼", "◇" } do
+	SAFE_GLYPHS[g] = true
+end
+SAFE_GLYPHS["⚡"] = true -- emoji: every font falls back to the colour emoji
+SAFE_GLYPHS[""] = true -- the Normal variant has no glyph
+local configEnv = { Color3 = roblox.Color3, Enum = roblox.Enum }
+local Rarities = luau.load(fs.readFile("src/shared/Config/Rarities.luau"), { debugName = "Rarities", environment = configEnv })()
+local Variants = luau.load(fs.readFile("src/shared/Config/Variants.luau"), { debugName = "Variants", environment = configEnv })()
+local iconsSeen = {}
+for name, info in Rarities.info do
+	check(SAFE_GLYPHS[info.icon] == true, ("rarity %s icon %q is not a glyph every UI font draws"):format(name, info.icon))
+	check(iconsSeen[info.icon] == nil, ("rarity %s reuses the %s icon"):format(name, iconsSeen[info.icon] or ""))
+	iconsSeen[info.icon] = name
+end
+for name, info in Variants.info do
+	check(SAFE_GLYPHS[info.icon] == true, ("variant %s icon %q is not a glyph every UI font draws"):format(name, info.icon))
+end
+
 print(("verify_theme: %d passed, %d failed"):format(passed, failed))
 process.exit(if failed == 0 then 0 else 1)
