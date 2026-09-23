@@ -120,6 +120,7 @@ Theme.sizes = {
 	buttonHeight = 44, -- touch friendly
 	sidebarButton = 64,
 	sidebarTile = 84,
+	badgeHeight = 22, -- W.badge pills
 	shadowOffset = 6,
 	shadowTransparency = 0.55,
 	textSmall = 14,

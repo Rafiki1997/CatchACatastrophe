@@ -36,6 +36,10 @@ local activeTab = "Deployed" -- "Deployed" | "Stored" | "All"
 local sortMode = "Income" -- "Income" | "Rarity" | "Region" | "Newest" | "Favorites"
 local SORT_MODES = { "Income", "Rarity", "Region", "Newest", "Favorites" }
 
+local ROW_HEIGHT = 136
+local STAR_ON = "★" -- favourited
+local STAR_OFF = "☆" -- not favourited
+
 local rows: { [string]: any } = {}
 
 -- Model previews are built a few per frame so opening a full storage never
@@ -257,23 +261,25 @@ end
 -- its whole life and the handlers can capture `uid` once. They read the live
 -- entry from the snapshot at click time so a stale row never acts on stale data.
 local function createRow(uid: string): any
-	local card = W.card(listScroll, 108)
+	-- The text stack (name, pills, income, mastery) ends at y 90 and the button
+	-- row starts at y 92, so nothing is hidden behind the buttons.
+	local card = W.card(listScroll, ROW_HEIGHT)
 
 	local vp = W.viewport(card, UDim2.new(0, 60, 0, 60), UDim2.new(0, 4, 0, 4), Theme.colors.bgDeep)
 
 	local nameLabel = W.label({
 		parent = card,
-		size = UDim2.new(1, -240, 0, 20),
+		size = UDim2.new(1, -240, 0, 22),
 		position = UDim2.new(0, 70, 0, 4),
-		textSize = 16,
-		font = Theme.fonts.bold,
+		textSize = 17,
+		font = Theme.fonts.title,
 	})
 	nameLabel.TextTruncate = Enum.TextTruncate.AtEnd
 
 	local badgeRow = W.frame({
 		parent = card,
-		size = UDim2.new(1, -240, 0, 20),
-		position = UDim2.new(0, 70, 0, 26),
+		size = UDim2.new(1, -240, 0, Theme.sizes.badgeHeight),
+		position = UDim2.new(0, 70, 0, 29),
 		transparency = 1,
 	})
 	W.list(badgeRow, Enum.FillDirection.Horizontal, 4)
@@ -288,43 +294,50 @@ local function createRow(uid: string): any
 	local cpsLabel = W.label({
 		parent = card,
 		size = UDim2.new(1, -240, 0, 18),
-		position = UDim2.new(0, 70, 0, 48),
-		textSize = 13,
+		position = UDim2.new(0, 70, 0, 55),
+		textSize = 15,
+		font = Theme.fonts.title,
 		color = Theme.colors.coin,
 	})
 
 	local masteryLabel = W.label({
 		parent = card,
 		size = UDim2.new(1, -240, 0, 16),
-		position = UDim2.new(0, 70, 0, 68),
-		textSize = 12,
+		position = UDim2.new(0, 70, 0, 74),
+		textSize = 13,
+		font = Theme.fonts.title,
 		color = Theme.colors.textDim,
 	})
 
 	local statusLabel = W.label({
 		parent = card,
-		size = UDim2.new(0, 150, 0, 20),
+		size = UDim2.new(0, 150, 0, 22),
 		position = UDim2.new(1, -158, 0, 4),
-		textSize = 13,
-		color = Theme.colors.textDim,
+		textSize = 15,
+		font = Theme.fonts.title,
 		xalign = Enum.TextXAlignment.Right,
 	})
 
+	-- Button borders draw 4 px outside each button, so 12 px of padding leaves
+	-- a clear gutter between them; the row starts 6 px in for the same reason.
 	local buttonRow = W.frame({
 		parent = card,
-		size = UDim2.new(1, -8, 0, 40),
-		position = UDim2.new(0, 4, 1, -44),
+		size = UDim2.new(1, -12, 0, 40),
+		position = UDim2.new(0, 6, 1, -44),
 		transparency = 1,
 	})
-	W.list(buttonRow, Enum.FillDirection.Horizontal, 4)
+	W.list(buttonRow, Enum.FillDirection.Horizontal, 12)
 
 	local favButton = W.button({
 		parent = buttonRow,
-		text = "*",
+		text = STAR_OFF,
 		size = UDim2.new(0, 40, 0, 40),
 		color = Theme.colors.bgAlt,
+		textColor = Theme.colors.textDim,
+		textSize = 24,
 		order = 1,
 	})
+	W.tooltip(favButton :: GuiObject, "Favourite: a favourite can't be sold until you un-star it.")
 	local primaryButton = W.button({
 		parent = buttonRow,
 		text = "Deploy",
@@ -520,14 +533,17 @@ local function updateRow(row: any, uid: string, entry: CreatureEntry, snap: Snap
 	end
 
 	row.nameLabel.Text = def.name
-	row.rarityBadge.Text = Config.Rarities.label(def.rarity)
+	-- plain name: the pill's font can't draw every rarity glyph, and a pill
+	-- with a glyph next to one without reads as a mistake
+	local rarityInfo = Config.Rarities.info[def.rarity]
+	row.rarityBadge.Text = if rarityInfo then rarityInfo.label else def.rarity
 	row.rarityBadge.BackgroundColor3 = Config.Rarities.color(def.rarity)
 
 	local variantInfo = Config.Variants.info[entry.variant]
 	local showVariant = entry.variant ~= "Normal" and variantInfo ~= nil
 	row.variantBadge.Visible = showVariant
 	if showVariant and variantInfo then
-		row.variantBadge.Text = variantInfo.icon .. " " .. variantInfo.label
+		row.variantBadge.Text = variantInfo.label
 		row.variantBadge.BackgroundColor3 = variantInfo.color
 		row.variantBadge:SetAttribute("Variant", entry.variant)
 	end
@@ -547,8 +563,11 @@ local function updateRow(row: any, uid: string, entry: CreatureEntry, snap: Snap
 	row.masteryLabel.Visible = hasMastery and entry.variant ~= "Prismatic"
 	row.masteryLabel.Text = masteryText
 
-	W.setButtonColor(row.favButton, if entry.favorite then Theme.colors.gold else Theme.colors.bgAlt, Theme.colors.ink)
-	row.favButton.Text = if entry.favorite then "* Fav" else "* -"
+	-- off: a hollow pale star on the dark button; on: a filled white star on gold
+	local favFill = if entry.favorite then Theme.colors.gold else Theme.colors.bgAlt
+	local favStar = if entry.favorite then Theme.colors.text else Theme.colors.textDim
+	W.setButtonColor(row.favButton, favFill, favStar)
+	row.favButton.Text = if entry.favorite then STAR_ON else STAR_OFF
 
 	if entry.pad then
 		row.primaryButton.Text = "Store"

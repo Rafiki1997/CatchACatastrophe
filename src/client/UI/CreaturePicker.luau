@@ -102,15 +102,17 @@ local function creatureRow(parent: Instance, snap: Snapshot, entry: CreatureEntr
 	})
 	local badges = W.frame({
 		parent = card,
-		size = UDim2.new(1, -150, 0, 20),
+		size = UDim2.new(1, -150, 0, Theme.sizes.badgeHeight),
 		position = UDim2.new(0, 12, 0, 30),
 		transparency = 1,
 	})
 	W.list(badges, Enum.FillDirection.Horizontal, 4)
-	W.badge(badges, Config.Rarities.label(rarity), Config.Rarities.color(rarity), 1)
+	-- plain names: the pill font can't draw every rarity glyph
+	local rarityInfo = Config.Rarities.info[rarity]
+	W.badge(badges, if rarityInfo then rarityInfo.label else rarity, Config.Rarities.color(rarity), 1)
 	local variantInfo = Config.Variants.info[entry.variant]
 	if entry.variant ~= "Normal" and variantInfo then
-		local badge = W.badge(badges, variantInfo.icon .. " " .. variantInfo.label, variantInfo.color, 2)
+		local badge = W.badge(badges, variantInfo.label, variantInfo.color, 2)
 		W.tooltip(badge :: GuiObject, Config.Variants.describe(entry.variant))
 	end
 	W.badge(badges, Format.abbreviate(incomeEstimate(snap, entry)) .. "/s", Theme.colors.coin, 3)

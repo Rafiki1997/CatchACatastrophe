@@ -478,7 +478,9 @@ function W.iconTile(parent: Instance, panelName: string, caption: string, onClic
 		name = "Caption",
 		text = caption,
 		size = UDim2.new(1, 10, 0, 24),
-		position = UDim2.new(0.5, 0, 1, 6),
+		-- bottom-aligned with the tile, so the caption sits on its lower edge
+		-- rather than hanging below it
+		position = UDim2.new(0.5, 0, 1, 0),
 		anchor = Vector2.new(0.5, 1),
 		textSize = 16,
 		font = Theme.fonts.title,
@@ -503,21 +505,26 @@ function W.setTileSelected(tile: TextButton, selected: boolean)
 end
 
 -- Pill-shaped tag ("Rare", "Chrome", "x2")
+-- Glossy candy pill: outlined white Fredoka on the given colour, like the
+-- buttons. Fredoka cannot draw most rarity glyphs (it drops them silently), so
+-- callers pass plain names rather than Config.Rarities.label.
 function W.badge(parent: Instance, text: string, color: Color3, order: number?): TextLabel
 	local l = W.label({
 		parent = parent,
 		text = text,
-		size = UDim2.new(0, 0, 0, 20),
-		textSize = 12,
-		font = Theme.fonts.bold,
-		color = Theme.colors.ink,
+		size = UDim2.new(0, 0, 0, Theme.sizes.badgeHeight),
+		textSize = 13,
+		font = Theme.fonts.title,
+		color = Theme.colors.text,
 		bg = color,
-		radius = 10,
+		radius = Theme.sizes.badgeHeight // 2,
 		xalign = Enum.TextXAlignment.Center,
 		order = order,
 	})
 	l.AutomaticSize = Enum.AutomaticSize.X
 	W.padding(l, { left = 8, right = 8 })
+	W.stroke(l, Theme.colors.ink, 2)
+	W.gloss(l)
 	return l
 end
 
