@@ -96,6 +96,12 @@ Theme.gloss = {
 	bottom = Color3.fromRGB(196, 196, 196),
 }
 
+-- Lighting for the 3D creature previews in W.viewport.
+Theme.viewport = {
+	ambient = Color3.fromRGB(150, 150, 170),
+	light = Color3.fromRGB(255, 250, 240),
+}
+
 Theme.fonts = {
 	title = Enum.Font.FredokaOne,
 	body = Enum.Font.GothamMedium,

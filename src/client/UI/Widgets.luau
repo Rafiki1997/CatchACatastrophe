@@ -958,8 +958,8 @@ function W.viewport(parent: Instance, size: UDim2?, position: UDim2?, bg: Color3
 	vp.BackgroundColor3 = bg or Theme.colors.bgDeep
 	vp.BackgroundTransparency = if bg then 0 else 1
 	vp.BorderSizePixel = 0
-	vp.Ambient = Color3.fromRGB(150, 150, 170)
-	vp.LightColor = Color3.fromRGB(255, 250, 240)
+	vp.Ambient = Theme.viewport.ambient
+	vp.LightColor = Theme.viewport.light
 	vp.LightDirection = Vector3.new(-1, -2, -1.5)
 	vp.Parent = parent
 	local cam = Instance.new("Camera")
