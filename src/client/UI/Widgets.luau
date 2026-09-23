@@ -32,12 +32,93 @@ end
 
 function W.stroke(inst: GuiObject, color: Color3?, thickness: number?, transparency: number?): GuiObject
 	local s = Instance.new("UIStroke")
+	s.Name = "Border"
 	s.Color = color or Theme.colors.ink
 	s.Thickness = thickness or Theme.sizes.stroke
 	s.Transparency = transparency or 0
 	s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 	s.Parent = inst
 	return inst
+end
+
+-- Light text on a candy colour reads only with a heavy dark outline around the
+-- glyphs, the reference sample's look. Contextual mode strokes the text rather
+-- than the box, so it sits alongside a button's Border stroke. Dark text gets
+-- none: it already contrasts with the bright surfaces it is used on. The
+-- luminance here is the cheap gamma-space estimate; 0.3 keeps danger red
+-- outlined.
+local function isLight(color: Color3): boolean
+	return 0.2126 * color.R + 0.7152 * color.G + 0.0722 * color.B > 0.3
+end
+
+function W.outline(inst: TextLabel | TextButton, thickness: number?): UIStroke
+	local existing = inst:FindFirstChild("TextOutline")
+	local stroke: UIStroke
+	if existing and existing:IsA("UIStroke") then
+		stroke = existing
+	else
+		stroke = Instance.new("UIStroke")
+		stroke.Name = "TextOutline"
+		stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
+		stroke.Color = Theme.colors.ink
+		stroke.LineJoinMode = Enum.LineJoinMode.Round
+		stroke.Parent = inst
+		inst:GetPropertyChangedSignal("TextColor3"):Connect(function()
+			stroke.Enabled = isLight(inst.TextColor3)
+		end)
+	end
+	stroke.Thickness = thickness or Theme.sizes.textOutline
+	stroke.Enabled = isLight(inst.TextColor3)
+	return stroke
+end
+
+-- Top-lit gloss. The gradient multiplies BackgroundColor3, so hover and press
+-- recolouring through BaseColor keeps working underneath it.
+function W.gloss(inst: GuiObject): UIGradient
+	local existing = inst:FindFirstChild("Gloss")
+	if existing and existing:IsA("UIGradient") then
+		return existing
+	end
+	local g = Instance.new("UIGradient")
+	g.Name = "Gloss"
+	g.Rotation = 90
+	g.Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0, Theme.gloss.top),
+		ColorSequenceKeypoint.new(0.5, Theme.gloss.mid),
+		ColorSequenceKeypoint.new(1, Theme.gloss.bottom),
+	})
+	g.Parent = inst
+	return g
+end
+
+-- Drop shadow drawn as a sibling behind the target: under ZIndexBehavior.Sibling
+-- a child always draws above its parent, so it cannot be a child. It follows
+-- the target's size, position, anchor and visibility, and dies with it.
+function W.shadow(target: GuiObject, offset: number?): Frame
+	local o = offset or Theme.sizes.shadowOffset
+	local corner = target:FindFirstChildOfClass("UICorner")
+	local shadow = W.frame({
+		parent = target.Parent,
+		name = target.Name .. "Shadow",
+		color = Theme.colors.ink,
+		transparency = Theme.sizes.shadowTransparency,
+		radius = if corner then corner.CornerRadius.Offset else 0,
+		zindex = math.max(target.ZIndex - 1, 1),
+	})
+	local function sync()
+		shadow.AnchorPoint = target.AnchorPoint
+		shadow.Size = target.Size
+		shadow.Position = target.Position + UDim2.fromOffset(o, o)
+		shadow.Visible = target.Visible
+	end
+	sync()
+	for _, prop in { "AnchorPoint", "Size", "Position", "Visible" } do
+		target:GetPropertyChangedSignal(prop):Connect(sync)
+	end
+	target.Destroying:Connect(function()
+		shadow:Destroy()
+	end)
+	return shadow
 end
 
 function W.padding(inst: GuiObject, all: number | { top: number?, bottom: number?, left: number?, right: number? })
@@ -139,8 +220,9 @@ export type LabelProps = {
 	radius: number?,
 	zindex: number?,
 	order: number?,
-	strokeText: boolean?, -- dark outline on the text (HUD numbers)
+	strokeText: boolean?, -- heavier outline (HUD numbers, captions)
 	automatic: boolean?, -- AutomaticSize Y
+	outline: boolean?, -- dark text outline (default on; off for text in dark insets)
 }
 
 function W.label(props: LabelProps): TextLabel
@@ -166,9 +248,8 @@ function W.label(props: LabelProps): TextLabel
 	if props.automatic then
 		l.AutomaticSize = Enum.AutomaticSize.Y
 	end
-	if props.strokeText then
-		l.TextStrokeTransparency = 0.2
-		l.TextStrokeColor3 = Theme.colors.ink
+	if props.outline ~= false then
+		W.outline(l, if props.strokeText then Theme.sizes.textOutlineLarge else nil)
 	end
 	if props.radius and props.bg then
 		W.corner(l, props.radius)
@@ -197,6 +278,8 @@ export type ButtonProps = {
 	wrap: boolean?,
 	scaled: boolean?,
 	rich: boolean?,
+	outline: boolean?,
+	gloss: boolean?,
 }
 
 local function playClick()
@@ -223,7 +306,7 @@ function W.button(props: ButtonProps): TextButton
 	b.Position = props.position or UDim2.new(0, 0, 0, 0)
 	b.AnchorPoint = props.anchor or Vector2.new(0, 0)
 	b.BackgroundColor3 = props.color or Theme.colors.accent
-	b.TextColor3 = props.textColor or Theme.colors.ink
+	b.TextColor3 = props.textColor or Theme.colors.text
 	b.TextSize = props.textSize or Theme.sizes.text
 	b.Font = props.font or Theme.fonts.title
 	b.AutoButtonColor = false
@@ -235,6 +318,12 @@ function W.button(props: ButtonProps): TextButton
 	b.RichText = props.rich or false
 	W.corner(b, props.radius or Theme.sizes.radius)
 	W.stroke(b, props.stroke or Theme.colors.ink, Theme.sizes.stroke)
+	if props.gloss ~= false then
+		W.gloss(b)
+	end
+	if props.outline ~= false then
+		W.outline(b)
+	end
 	b:SetAttribute("BaseColor", b.BackgroundColor3)
 	local function base(): Color3
 		local c = b:GetAttribute("BaseColor")
@@ -294,7 +383,7 @@ function W.setEnabled(b: TextButton, enabled: boolean, disabledColor: Color3?)
 		end
 		b.TextTransparency = 0
 	else
-		b.BackgroundColor3 = disabledColor or Color3.fromRGB(96, 92, 112)
+		b.BackgroundColor3 = disabledColor or Theme.colors.disabled
 		b.TextTransparency = 0.35
 	end
 end
@@ -583,7 +672,7 @@ function W.tooltip(target: GuiObject, text: string | () -> string)
 			visible = false,
 			zindex = 60,
 		})
-		W.stroke(label, Theme.colors.ink, 2)
+		W.stroke(label, Theme.colors.ink, 3)
 		label.TextXAlignment = Enum.TextXAlignment.Center
 		tooltipGui = gui
 		tooltipLabel = label
@@ -656,45 +745,52 @@ local panelListeners: { (string?) -> () } = {}
 
 -- A centred window with a title bar and close button. Hidden until opened.
 function W.panel(gui: ScreenGui, name: string, title: string, size: UDim2?): Panel
+	local colors = Theme.panelColors(name)
 	local frame = W.frame({
 		parent = gui,
 		name = name .. "Panel",
 		size = size or UDim2.new(0, 640, 0, 440),
 		position = UDim2.new(0.5, 0, 0.5, 0),
 		anchor = Vector2.new(0.5, 0.5),
-		color = Theme.colors.bg,
+		color = colors.body,
 		radius = Theme.sizes.radius + 4,
 		stroke = Theme.colors.ink,
-		strokeThickness = 4,
+		strokeThickness = Theme.sizes.strokePanel,
 		zindex = 10,
 		visible = false,
 	})
+	W.shadow(frame)
+	-- the header is a glossy rounded banner inset in the window, in the
+	-- panel's deeper shade; it no longer needs its bottom corners squared off
 	local header = W.frame({
 		parent = frame,
 		name = "Header",
-		size = UDim2.new(1, 0, 0, 48),
-		color = Theme.colors.accent,
-		radius = Theme.sizes.radius + 4,
+		size = UDim2.new(1, -12, 0, 44),
+		position = UDim2.new(0, 6, 0, 6),
+		color = colors.header,
+		radius = Theme.sizes.radius,
+		stroke = Theme.colors.ink,
+		strokeThickness = 3,
 		zindex = 11,
 	})
-	-- square off the bottom corners of the header
-	W.frame({ parent = header, size = UDim2.new(1, 0, 0, 16), position = UDim2.new(0, 0, 1, -16), color = Theme.colors.accent, zindex = 11 })
+	W.gloss(header)
 	local titleLabel = W.label({
 		parent = header,
 		text = title,
 		size = UDim2.new(1, -110, 1, 0),
-		position = UDim2.new(0, 16, 0, 0),
+		position = UDim2.new(0, 14, 0, 0),
 		textSize = Theme.sizes.title,
 		font = Theme.fonts.title,
-		color = Theme.colors.ink,
+		color = Theme.colors.text,
+		strokeText = true,
 		zindex = 12,
 	})
 	local close = W.button({
 		parent = header,
 		name = "Close",
 		text = "X",
-		size = UDim2.new(0, 40, 0, 36),
-		position = UDim2.new(1, -8, 0.5, 0),
+		size = UDim2.new(0, 40, 0, 34),
+		position = UDim2.new(1, -6, 0.5, 0),
 		anchor = Vector2.new(1, 0.5),
 		color = Theme.colors.danger,
 		textColor = Theme.colors.text,
@@ -793,9 +889,10 @@ function W.confirm(gui: ScreenGui, title: string, body: string, confirmText: str
 		color = Theme.colors.bg,
 		radius = Theme.sizes.radius + 4,
 		stroke = Theme.colors.ink,
-		strokeThickness = 4,
+		strokeThickness = Theme.sizes.strokePanel,
 		zindex = 51,
 	})
+	W.shadow(box)
 	W.label({
 		parent = box,
 		text = title,
@@ -907,7 +1004,7 @@ function W.card(parent: Instance, height: number, order: number?, color: Color3?
 		color = color or Theme.colors.bgAlt,
 		radius = Theme.sizes.radiusSmall,
 		stroke = Theme.colors.ink,
-		strokeThickness = 2,
+		strokeThickness = 3,
 		order = order,
 	})
 end
