@@ -16,7 +16,7 @@ Theme.colors = {
 	text = Color3.fromRGB(255, 252, 245),
 	textDim = Color3.fromRGB(206, 226, 255), -- light pastel, still outlined
 	accent = Color3.fromRGB(255, 196, 40), -- sunshine yellow: primary buttons
-	accentAlt = Color3.fromRGB(60, 200, 255), -- bright sky: secondary buttons
+	accentAlt = Color3.fromRGB(60, 206, 255), -- bright sky: secondary buttons (>= 2:1 on every panel colour)
 	success = Color3.fromRGB(70, 200, 90),
 	warn = Color3.fromRGB(255, 170, 40),
 	danger = Color3.fromRGB(236, 64, 80),
