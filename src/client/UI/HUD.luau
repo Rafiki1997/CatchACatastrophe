@@ -20,17 +20,18 @@ local BuildInfo = require(ReplicatedStorage.Shared.Util.BuildInfo)
 
 local HUD = {}
 
+-- The icon for each entry lives in Theme.icons (Astra's art, or a glyph).
 local SIDEBAR = {
-	{ panel = "Creatures", icon = "C", caption = "Creatures" },
-	{ panel = "Atlas", icon = "A", caption = "Atlas" },
-	{ panel = "Recipes", icon = "R", caption = "Recipes" },
-	{ panel = "Workshop", icon = "W", caption = "Workshop" },
-	{ panel = "Supply", icon = "S", caption = "Supply" },
-	{ panel = "Premium", icon = "R", caption = "Premium" },
-	{ panel = "Quests", icon = "Q", caption = "Quests" },
-	{ panel = "Cities", icon = "V", caption = "Cities" },
-	{ panel = "Relaunch", icon = "L", caption = "Relaunch" },
-	{ panel = "Settings", icon = "S", caption = "Settings" },
+	{ panel = "Creatures", caption = "Creatures" },
+	{ panel = "Atlas", caption = "Atlas" },
+	{ panel = "Recipes", caption = "Recipes" },
+	{ panel = "Workshop", caption = "Workshop" },
+	{ panel = "Supply", caption = "Supply" },
+	{ panel = "Premium", caption = "Premium" },
+	{ panel = "Quests", caption = "Quests" },
+	{ panel = "Cities", caption = "Cities" },
+	{ panel = "Relaunch", caption = "Relaunch" },
+	{ panel = "Settings", caption = "Settings" },
 }
 
 local gui: ScreenGui? = nil
@@ -181,9 +182,11 @@ function HUD.init()
 	-- ---------------------------------------------------------------- sidebar
 	-- Keep navigation below the wallet. Short viewports scroll instead of
 	-- overlapping the wallet or losing the last buttons below the screen.
+	local tile = Theme.sizes.sidebarTile
+	local gap = 10
 	local sidebar = Instance.new("ScrollingFrame")
 	sidebar.Name = "Sidebar"
-	sidebar.Size = UDim2.new(0, 180, 1, -(Theme.hudSafeTop + 166))
+	sidebar.Size = UDim2.new(0, tile * 2 + gap + 18, 1, -(Theme.hudSafeTop + 166))
 	sidebar.Position = UDim2.new(0, 14, 0, Theme.hudSafeTop + 150)
 	sidebar.BackgroundTransparency = 1
 	sidebar.BorderSizePixel = 0
@@ -193,36 +196,29 @@ function HUD.init()
 	sidebar.ScrollBarThickness = 3
 	sidebar.ScrollBarImageColor3 = Theme.colors.textDim
 	sidebar.Parent = safe
-	W.padding(sidebar, { left = 3, right = 9, top = 3, bottom = 3 })
-	W.list(sidebar, Enum.FillDirection.Vertical, 8)
+	-- the bottom padding leaves room for the last row's overlapping captions
+	W.padding(sidebar, { left = 4, right = 12, top = 4, bottom = 12 })
+	W.grid(sidebar, UDim2.fromOffset(tile, tile), gap)
 	for i, entry in SIDEBAR do
-		local button = W.button({
-			parent = sidebar,
-			name = entry.panel,
-			text = entry.caption,
-			size = UDim2.new(1, 0, 0, 52),
-			color = Theme.colors.bgDeep,
-			textColor = Theme.colors.text,
-			textSize = 18,
-			font = Theme.fonts.bold,
-			stroke = Theme.colors.bgAlt,
-			order = i,
-			onClick = function()
-				W.togglePanel(entry.panel)
-			end,
-		})
-		button.TextXAlignment = Enum.TextXAlignment.Left
-		W.padding(button, { left = 16, right = 12 })
+		local button = W.iconTile(sidebar, entry.panel, entry.caption, function()
+			W.togglePanel(entry.panel)
+		end, i)
 		-- hidden until it means something; HUD.refreshSidebar decides
 		button.Visible = Config.Quests.panelGateById[entry.panel] == nil
 		navButtons[entry.panel] = button
 	end
+	-- the open panel's tile gets a white rim and a pop
 	W.onPanelChanged(function(panelName: string?)
 		for name, button in navButtons do
 			local selected = name == panelName
-			local background = if selected then Theme.colors.accent else Theme.colors.bgDeep
-			local foreground = if selected then Theme.colors.ink else Theme.colors.text
-			W.setButtonColor(button, background, foreground)
+			local border = button:FindFirstChild("Border")
+			if border and border:IsA("UIStroke") then
+				border.Color = if selected then Theme.colors.text else Theme.colors.ink
+				border.Thickness = if selected then Theme.sizes.stroke + 1 else Theme.sizes.stroke
+			end
+			if selected then
+				W.pop(button, 1.08)
+			end
 		end
 	end)
 

@@ -424,6 +424,61 @@ function W.iconButton(parent: Instance, icon: string, caption: string, color: Co
 	return b
 end
 
+-- Sidebar tile in the reference sample's style: a glossy square in the panel's
+-- candy colour, a big icon (Astra's painted art once uploaded, a glyph until
+-- then) and the caption in outlined text overlapping the bottom edge.
+function W.iconTile(parent: Instance, panelName: string, caption: string, onClick: () -> (), order: number?): TextButton
+	local colors = Theme.panelColors(panelName)
+	local slot = Theme.icons[panelName]
+	local tile = W.button({
+		parent = parent,
+		name = panelName,
+		text = "",
+		size = UDim2.fromOffset(Theme.sizes.sidebarTile, Theme.sizes.sidebarTile),
+		color = colors.tile,
+		order = order,
+		onClick = onClick,
+	})
+	if slot and slot.image ~= "" then
+		local image = Instance.new("ImageLabel")
+		image.Name = "Icon"
+		image.BackgroundTransparency = 1
+		image.Image = slot.image
+		image.ScaleType = Enum.ScaleType.Fit
+		image.Size = UDim2.fromScale(0.86, 0.72)
+		image.Position = UDim2.fromScale(0.5, 0.04)
+		image.AnchorPoint = Vector2.new(0.5, 0)
+		image.ZIndex = tile.ZIndex + 1
+		image.Parent = tile
+	else
+		W.label({
+			parent = tile,
+			name = "Icon",
+			text = if slot then slot.glyph else string.sub(caption, 1, 1),
+			size = UDim2.fromScale(1, 0.66),
+			position = UDim2.fromScale(0, 0.04),
+			textSize = 38,
+			font = Theme.fonts.title,
+			xalign = Enum.TextXAlignment.Center,
+			zindex = tile.ZIndex + 1,
+		})
+	end
+	W.label({
+		parent = tile,
+		name = "Caption",
+		text = caption,
+		size = UDim2.new(1, 10, 0, 24),
+		position = UDim2.new(0.5, 0, 1, 6),
+		anchor = Vector2.new(0.5, 1),
+		textSize = 16,
+		font = Theme.fonts.title,
+		xalign = Enum.TextXAlignment.Center,
+		strokeText = true,
+		zindex = tile.ZIndex + 2,
+	})
+	return tile
+end
+
 -- Pill-shaped tag ("Rare", "Chrome", "x2")
 function W.badge(parent: Instance, text: string, color: Color3, order: number?): TextLabel
 	local l = W.label({
