@@ -46,19 +46,25 @@ local function show()
 	folder:ClearAllChildren()
 	local region = Config.Regions.list[index]
 	local variant = variants[variantIndex]
+	local defs = table.clone(Config.Species.byRegion[region.id] or {})
+	if region.id == "orbit_outpost" then
+		for _, def in Config.Species.eggList do
+			table.insert(defs, def)
+		end
+	end
 	title.Text = region.name .. " / " .. variant
 	gui:SetAttribute("RegionId", region.id)
 	gui:SetAttribute("Appearance", variant)
-	for i, def in Config.Species.byRegion[region.id] do
+	for i, def in defs do
 		-- Camera looks along +Z, so decreasing world X reads left to right.
-		local x = (2.5 - i) * 7
+		local x = ((#defs + 1) / 2 - i) * 5.4
 		local plinth = Instance.new("Part")
 		plinth.Name = "ReviewPlinth"
 		plinth.Anchored = true
 		plinth.CanCollide = false
 		plinth.CanTouch = false
 		plinth.CanQuery = false
-		plinth.Size = Vector3.new(6.5, 0.35, 7)
+		plinth.Size = Vector3.new(5.1, 0.35, 7)
 		plinth.Position = Vector3.new(x, 99.825, 0)
 		plinth.Color = Color3.fromRGB(76, 89, 95)
 		plinth.Parent = folder
@@ -77,7 +83,7 @@ local function show()
 		text.TextColor3 = Color3.fromRGB(247, 248, 239)
 		text.Font = Enum.Font.FredokaOne
 		text.TextSize = 15
-		text.Text = def.name
+		text.Text = def.name .. " / " .. def.rarity
 		text.Parent = tag
 	end
 	camera.CameraType = Enum.CameraType.Scriptable

@@ -71,7 +71,7 @@ function M.update(snap: Snapshot?)
 	lastResetsAt = quests.daily.resetsAt
 
 	-- tutorial
-	if quests.tutorialDone then
+	if quests.tutorialDone or snap.settings.tutorial == false then
 		tutorialCard.Visible = false
 	else
 		tutorialCard.Visible = true

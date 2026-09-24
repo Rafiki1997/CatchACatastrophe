@@ -51,6 +51,16 @@ end
 -- An open gate is gone, not dimmed: the pane fades out the moment the region
 -- unlocks and stays invisible, leaving the posts and lintel as an archway.
 -- Walking through a faint glowing wall read as "still blocked".
+-- The padlock badge hangs off the barrier as its children, so whatever the
+-- barrier's transparency becomes, they follow it.
+local function setDressing(gate: BasePart, transparency: number)
+	for _, child in gate:GetChildren() do
+		if child:IsA("BasePart") then
+			child.Transparency = transparency
+		end
+	end
+end
+
 local function applyGate(gate: BasePart, unlocked: boolean)
 	gate.CanCollide = not unlocked
 	local before = wasOpen[gate]
@@ -59,11 +69,18 @@ local function applyGate(gate: BasePart, unlocked: boolean)
 		if before == false then
 			-- this player just opened it: let them watch it dissolve
 			TweenService:Create(gate, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Transparency = 1 }):Play()
+			for _, child in gate:GetChildren() do
+				if child:IsA("BasePart") then
+					TweenService:Create(child, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Transparency = 1 }):Play()
+				end
+			end
 		else
 			gate.Transparency = 1
+			setDressing(gate, 1)
 		end
 	else
 		gate.Transparency = LOCKED_TRANSPARENCY
+		setDressing(gate, 0)
 	end
 	local prompt = gate:FindFirstChild(PROMPT)
 	if prompt and prompt:IsA("ProximityPrompt") then
@@ -103,12 +120,25 @@ local function refreshForecast()
 			local labels = signOf(gate)
 			if labels and labels.forecast then
 				if entry and now < entry.surgeUntil then
-					labels.forecast.Text = "SURGE! Perfect catches can be Overcharged (" .. Format.clock(math.max(0, entry.surgeUntil - now)) .. ")"
+					local clock = Format.clock(math.max(0, entry.surgeUntil - now))
+					if labels.forecast.RichText then
+						-- Every board built from concept art gives SURGE its own weight
+						-- over the explanation beneath it. MapBuilder turns RichText on
+						-- for exactly those boards, so it is the signal to use here
+						-- rather than a second list of region ids to keep in step.
+						labels.forecast.TextScaled = false
+						labels.forecast.Text = '<font size="27">SURGE! ' .. clock
+							.. '</font>\n<font size="16">Perfect catches can be Overcharged</font>'
+					else
+						labels.forecast.Text = "SURGE! " .. clock .. "\nPerfect catches can be Overcharged"
+					end
 					labels.forecast.TextColor3 = Color3.fromRGB(255, 220, 120)
 				elseif entry then
+					labels.forecast.TextScaled = true
 					labels.forecast.Text = "Legendary forecast: " .. Format.clock(math.max(0, entry.nextLegendaryAt - now))
 					labels.forecast.TextColor3 = Color3.fromRGB(200, 230, 255)
 				else
+					labels.forecast.TextScaled = true
 					labels.forecast.Text = "Legendary forecast: --"
 				end
 			end

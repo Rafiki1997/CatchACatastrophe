@@ -94,26 +94,21 @@ Species.list = {
 	def("boltjaw_behemoth", "Boltjaw Behemoth", "thunderworks", "Legendary", "A four-legged storm beast with lightning antlers. The sky follows it around.", "a large four-legged beast with jagged antlers", rgb(50, 50, 80), rgb(140, 150, 200), rgb(255, 240, 100), "sway", 0.8, 5.8),
 
 	-- Orbit Outpost / Cosmic
-	def("orbit_orb", "Orbit Orb", "orbit_outpost", "Common", "A tiny moon with feet and a satellite ring. It beeps politely.", "a small round moon with a ring and little feet", rgb(200, 200, 215), rgb(140, 140, 165), rgb(120, 220, 255), "orbit", 1.0, 2.6),
-	def("comet_cat", "Comet Cat", "orbit_outpost", "Uncommon", "A cat with a luminous comet tail. It naps in zero gravity.", "a cat with a long glowing tail", rgb(60, 50, 90), rgb(200, 130, 255), rgb(255, 240, 160), "drift", 1.0, 2.6),
-	def("gravity_gobbler", "Gravity Gobbler", "orbit_outpost", "Rare", "A round creature with orbiting stones and a starry mouth. It swallows loose change.", "a round body with stones circling it", rgb(80, 60, 120), rgb(30, 25, 50), rgb(255, 200, 255), "orbit", 0.8, 3.6),
-	def("the_big_whoops", "The Big Whoops", "orbit_outpost", "Legendary", "A miniature black hole wearing gloves, escorted by its own orbiting warning sign. Oops.", "a dark sphere with two gloves and a floating sign", rgb(20, 15, 35), rgb(150, 90, 255), rgb(255, 200, 60), "orbit", 1.2, 4.8),
+	def("rubble_runt", "Rubble Runt", "orbit_outpost", "Common", "A lopsided asteroid cluster that learned to walk by magnetism. It collects every loose pebble.", "an asymmetrical asteroid cluster with magnetic feet", rgb(112, 96, 84), rgb(170, 150, 125), rgb(100, 220, 255), "bob", 1.1, 2.6),
+	def("lagrange_loper", "Lagrange Loper", "orbit_outpost", "Uncommon", "Two celestial lobes share one orbit and never agree which way to turn.", "two unequal celestial lobes joined by a narrow bridge with two moons", rgb(90, 110, 150), rgb(170, 125, 80), rgb(140, 230, 255), "drift", 0.9, 3.5, { scale = 1.35 }),
+	def("pulsar_prickle", "Pulsar Prickle", "orbit_outpost", "Rare", "A dense little star that flashes its magnetic poles whenever it gets excited.", "a flattened star with polar caps and four beam fins", rgb(70, 60, 90), rgb(255, 130, 80), rgb(120, 220, 255), "pulse", 1.0, 3.4),
+	def("rochebreaker", "Rochebreaker", "orbit_outpost", "Legendary", "A tiny world caught past the Roche limit, proudly turning its own breakup into a parade.", "a stretched core pulling a separate mass through a curved fragment stream", rgb(85, 50, 100), rgb(160, 100, 180), rgb(255, 200, 80), "sway", 0.8, 5.0, { scale = 1.5 }),
 } :: { SpeciesDef }
 
 Species.byId = {} :: { [string]: SpeciesDef }
 -- ---------------------------------------------------------------- egg-only roster
--- Ascended creatures, hatched from the Cosmic Egg and nowhere else. They reuse an
--- existing builder with a new palette and a larger scale, so a new tier costs a
--- config entry rather than a new model. They are NOT in `Species.list`: that list
+-- Showcase creatures, hatched from the Cosmic Egg and nowhere else. They may use
+-- their own builders or borrow an existing builder. They are NOT in `Species.list`: that list
 -- is the wild roster the Atlas counts, the spawner draws from and Relaunch
 -- measures. `Species.byId` and `Species.all` include them.
 Species.eggList = {
-	def("comet_king", "Comet King", "orbit_outpost", "Mythic", "A comet cat crowned in its own tail. It naps in low orbit and wakes up somewhere else.", "a long cat trailing a bright tail", rgb(255, 150, 220), rgb(120, 60, 160), rgb(255, 245, 190), "orbit", 1.1, 3.2, { eggOnly = true, builder = "comet_cat", scale = 1.35 }),
-	def("pulsar_pup", "Pulsar Pup", "orbit_outpost", "Mythic", "A pup that beats like a tiny lighthouse. Every wag sends out a ring of light.", "a round pup ringed with light", rgb(255, 130, 200), rgb(80, 40, 120), rgb(255, 255, 220), "pulse", 1.3, 2.6, { eggOnly = true, builder = "puddle_pug", scale = 1.35 }),
-	def("galaxy_gobbler", "Galaxy Gobbler", "orbit_outpost", "Celestial", "It ate a small galaxy once and has been humming ever since. Do not let it near the buffet.", "a wide mouth full of stars", rgb(120, 235, 255), rgb(40, 60, 130), rgb(255, 255, 255), "hover", 0.8, 4.2, { eggOnly = true, builder = "gravity_gobbler", scale = 1.5 }),
-	def("solar_sovereign", "Solar Sovereign", "orbit_outpost", "Celestial", "A spinner that carries its own sunrise. Standing near it feels like a warm afternoon.", "a spinning shape haloed in light", rgb(140, 240, 255), rgb(255, 220, 120), rgb(255, 255, 255), "spin", 1.0, 4.4, { eggOnly = true, builder = "sir_spins_a_lot", scale = 1.5 }),
-	def("void_whoops", "The Void Whoops", "orbit_outpost", "Astral", "The Big Whoops, but the part of it you can see is only the beginning.", "an enormous shape rimmed in starlight", rgb(255, 245, 190), rgb(30, 25, 55), rgb(200, 150, 255), "drift", 0.6, 6.4, { eggOnly = true, builder = "the_big_whoops", scale = 1.6 }),
-	def("astral_arbiter", "Astral Arbiter", "orbit_outpost", "Astral", "It settles arguments between constellations. Nobody has ever won one.", "a crowned giant wreathed in cold light", rgb(255, 250, 210), rgb(90, 130, 200), rgb(255, 255, 255), "bob", 0.5, 6.0, { eggOnly = true, builder = "king_coldsnout", scale = 1.6 }),
+	def("nebula_noodle", "Nebula Noodle", "orbit_outpost", "Epic", "A living filament of nebula gas curls around an empty core and tickles anyone who gets too close.", "a chunky curled cloud filament wrapped around a dark core", rgb(90, 50, 140), rgb(220, 120, 180), rgb(110, 240, 255), "drift", 0.7, 4.2, { eggOnly = true, scale = 1.45 }),
+	def("universe_seed", "Universe Seed", "orbit_outpost", "Mythic", "A seed-shaped pocket universe opens just enough to wave from inside.", "a faceted cosmic seed split by a seam and wrapped in orbital bands", rgb(35, 25, 60), rgb(150, 100, 220), rgb(255, 240, 150), "hover", 0.6, 5.4, { eggOnly = true, scale = 1.25 }),
 } :: { SpeciesDef }
 
 -- Wild roster plus egg roster. Use this to build models or look up any creature;

@@ -12,6 +12,7 @@ local CollectionService = game:GetService("CollectionService")
 
 local Config = require(ReplicatedStorage.Shared.Config)
 local Format = require(ReplicatedStorage.Shared.Util.Format)
+local CreatureLabel = require(ReplicatedStorage.Shared.Util.CreatureLabel)
 local CreatureModels = require(ReplicatedStorage.Shared.Models.CreatureModels)
 
 local Profiles = require(script.Parent.Profiles)
@@ -288,32 +289,6 @@ end
 
 -- ---------------------------------------------------------------- visuals
 
-local function padLabel(model: Model, text: string)
-	local billboard = model:FindFirstChild("PadLabel") :: BillboardGui?
-	if not billboard then
-		billboard = Instance.new("BillboardGui")
-		billboard.Name = "PadLabel"
-		billboard.Size = UDim2.fromScale(10, 2.2)
-		billboard.StudsOffsetWorldSpace = Vector3.new(0, 4.2, 0)
-		billboard.MaxDistance = 120
-		billboard.Parent = model
-		local label = Instance.new("TextLabel")
-		label.Name = "Text"
-		label.BackgroundTransparency = 1
-		label.Size = UDim2.fromScale(1, 1)
-		label.Font = Enum.Font.GothamBold
-		label.TextScaled = true
-		label.TextColor3 = Color3.fromRGB(255, 252, 245)
-		label.TextStrokeTransparency = 0.25
-		label.TextStrokeColor3 = Color3.fromRGB(20, 20, 30)
-		label.Parent = billboard
-	end
-	local text_ = billboard:FindFirstChild("Text")
-	if text_ and text_:IsA("TextLabel") then
-		text_.Text = text
-	end
-end
-
 -- Rebuild one pad: the creature model, its station, and the label.
 function CityService.refreshPad(profile: Profile, pad: number)
 	local plot = profile.plot
@@ -330,6 +305,10 @@ function CityService.refreshPad(profile: Profile, pad: number)
 	if stationFolder then
 		stationFolder:ClearAllChildren()
 	end
+	-- the strip along the pad's front edge only glows while a creature stands here
+	if typeof(PlotTemplate.setPadElement) == "function" then
+		PlotTemplate.setPadElement(plot, pad, nil)
+	end
 	if not uid then
 		return
 	end
@@ -338,6 +317,9 @@ function CityService.refreshPad(profile: Profile, pad: number)
 	local def = Config.Species.byId[entry.id]
 	if not def then
 		return
+	end
+	if typeof(PlotTemplate.setPadElement) == "function" then
+		PlotTemplate.setPadElement(plot, pad, Config.Regions.elementColor(def.element))
 	end
 
 	-- creature
@@ -354,16 +336,9 @@ function CityService.refreshPad(profile: Profile, pad: number)
 		m.Parent = stationFolder or plot.model
 
 		local income = Stats.income(profile, workspace:GetServerTimeNow())
-		local variantInfo = Config.Variants.info[entry.variant]
-		local text = def.name
-			.. "  "
-			.. Config.Rarities.label(def.rarity)
-			.. (if entry.variant ~= "Normal" then "  " .. variantInfo.icon .. " " .. variantInfo.label else "")
-			.. (if entry.favorite then "  *" else "")
-			.. "\n"
-			.. Format.abbreviate(income.perCreature[uid] or 0)
-			.. "/s"
-		padLabel(m, text)
+		local label = CreatureLabel.create(m, "PadLabel")
+		CreatureLabel.setIdentity(label, entry.id, entry.variant, entry.favorite)
+		CreatureLabel.setDetail(label, Format.abbreviate(income.perCreature[uid] or 0) .. " Coins/s")
 		profile.padModels[tostring(pad)] = m
 	else
 		warn("[City] creature model failed: " .. tostring(entry.id) .. " " .. tostring(model))
@@ -427,10 +402,9 @@ function CityService.refreshLabels(profile: Profile)
 			local uid = Stats.padOccupant(profile, pad)
 			if uid then
 				local billboard = model:FindFirstChild("PadLabel")
-				local label = billboard and billboard:FindFirstChild("Text")
+				local label = billboard and billboard:FindFirstChild("Detail")
 				if label and label:IsA("TextLabel") then
-					local head = string.split(label.Text, "\n")[1]
-					label.Text = head .. "\n" .. Format.abbreviate(income.perCreature[uid] or 0) .. "/s"
+					label.Text = Format.abbreviate(income.perCreature[uid] or 0) .. " Coins/s"
 				end
 			end
 		end

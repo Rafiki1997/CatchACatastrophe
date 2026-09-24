@@ -29,8 +29,8 @@ local DecorSlots = {}
 -- only ever adds new slots.
 DecorSlots.spacing = 4
 DecorSlots.minX, DecorSlots.maxX = -26, 26
-DecorSlots.minZ, DecorSlots.maxZ = -27, 26
-DecorSlots.clearance = 3.5 -- studs of empty deck a decoration needs around it
+DecorSlots.minZ, DecorSlots.maxZ = -29, 26
+DecorSlots.clearance = 2.75 -- studs of empty deck a decoration needs around it
 
 -- Parts that are the ground or fly over it: standing next to them is fine.
 local IGNORED = {
@@ -43,6 +43,18 @@ local IGNORED = {
 	CraneHook = true,
 	CraneRailL = true,
 	CraneRailR = true,
+	-- Pocket Power Town ground details, flush enough to stand on
+	Threshold = true,
+	Plaza = true,
+	PlazaStep = true,
+	PlazaLight = true,
+	Strip = true,
+	-- fence infill: the brick posts already reserve the boundary
+	Picket = true,
+	RailTop = true,
+	RailMid = true,
+	-- bunting hangs over the fence, well above anyone's head
+	Flag = true,
 }
 
 local DECOR_FOLDER = "Decorations"
@@ -56,7 +68,14 @@ local function obstacles(model: Model): { { x: number, z: number, hx: number, hz
 		if part:IsA("BasePart") and not IGNORED[part.Name] and not (decor and part:IsDescendantOf(decor)) then
 			local local_ = base:PointToObjectSpace(part.Position)
 			if local_.Y < MAX_HEIGHT then
-				table.insert(list, { x = local_.X, z = local_.Z, hx = part.Size.X / 2, hz = part.Size.Z / 2 })
+				-- The footprint has to be the part's ROTATED extent. Reading
+				-- Size.X for a part turned ninety degrees measures the wrong
+				-- axis, which used to hide free ground behind thin panels.
+				local cf = base:ToObjectSpace(part.CFrame)
+				local half = part.Size / 2
+				local hx = math.abs(cf.RightVector.X) * half.X + math.abs(cf.UpVector.X) * half.Y + math.abs(cf.LookVector.X) * half.Z
+				local hz = math.abs(cf.RightVector.Z) * half.X + math.abs(cf.UpVector.Z) * half.Y + math.abs(cf.LookVector.Z) * half.Z
+				table.insert(list, { x = local_.X, z = local_.Z, hx = hx, hz = hz })
 			end
 		end
 	end

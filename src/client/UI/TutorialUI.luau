@@ -284,6 +284,13 @@ local function showRoute(points: { Vector3 })
 	end
 end
 
+-- Settings can switch the whole guide off. The server keeps counting steps, so
+-- switching it back on picks up wherever the player has got to.
+local function guideEnabled(): boolean
+	local snap = State.get()
+	return not snap or snap.settings.tutorial ~= false
+end
+
 local function ownPlot(): Model?
 	local plots = workspace:FindFirstChild("Plots")
 	if not plots then
@@ -444,7 +451,7 @@ function TutorialUI.init()
 			return
 		end
 		accumulator = 0
-		if done or #segments == 0 then
+		if done or #segments == 0 or not guideEnabled() then
 			hideRoute()
 			return
 		end
@@ -467,7 +474,7 @@ function TutorialUI.setStep(step: number, isDone: boolean)
 	if not card then
 		return
 	end
-	if done then
+	if done or not guideEnabled() then
 		card.Visible = false
 		hideRoute()
 		return

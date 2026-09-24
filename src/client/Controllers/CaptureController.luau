@@ -16,6 +16,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config)
 local Types = require(ReplicatedStorage.Shared.Types)
+local CreatureLabel = require(ReplicatedStorage.Shared.Util.CreatureLabel)
 
 local Net = require(script.Parent.Parent.Net)
 local State = require(script.Parent.Parent.State)
@@ -40,6 +41,7 @@ local LABEL_RANGE = 90
 
 local fxFolder: Folder? = nil
 local labels: { [Model]: BillboardGui } = {}
+local cityLabels: { BillboardGui } = {}
 local activeHazards: { { event: Types.HazardEvent, parts: { BasePart }, cleaned: boolean } } = {}
 local currentTarget: Model? = nil
 local rangeRing: BasePart? = nil
@@ -81,7 +83,7 @@ local function settings()
 	if snap then
 		return snap.settings
 	end
-	return { music = 0.6, sfx = 0.8, reducedMotion = false, reducedFlashing = false, notifications = true }
+	return { music = 0.6, sfx = 0.8, reducedMotion = false, reducedFlashing = false, notifications = true, tutorial = true }
 end
 
 local function rootPart(): BasePart?
@@ -116,81 +118,44 @@ end
 
 -- ---------------------------------------------------------------- encounter labels
 
-local function labelFor(model: Model): BillboardGui
-	local existing = labels[model]
-	if existing and existing.Parent then
-		return existing
-	end
-	local billboard = Instance.new("BillboardGui")
-	billboard.Name = "EncounterLabel"
-	-- Fixed pixel size: sized in studs this ballooned to fill the screen exactly
-	-- when you were close enough to read it, and ran off the edge.
-	billboard.Size = UDim2.fromOffset(230, 66)
-	billboard.StudsOffsetWorldSpace = Vector3.new(0, (model:GetAttribute("Height") :: number? or 3) + 2.2, 0)
-	billboard.MaxDistance = LABEL_RANGE
-	billboard.Parent = model
-
-	local text = Instance.new("TextLabel")
-	text.Name = "Text"
-	text.BackgroundTransparency = 1
-	text.Size = UDim2.fromScale(1, 1)
-	text.Font = Enum.Font.GothamBold
-	text.TextScaled = true
-	text.TextColor3 = Color3.fromRGB(255, 252, 245)
-	text.TextStrokeTransparency = 0.2
-	text.TextStrokeColor3 = Color3.fromRGB(20, 20, 30)
-	text.Parent = billboard
-
-	labels[model] = billboard
-	return billboard
-end
-
-local function describe(model: Model): string
-	local speciesId = model:GetAttribute("SpeciesId")
-	local def = if typeof(speciesId) == "string" then Config.Species.byId[speciesId] else nil
-	if not def then
-		return "?"
-	end
-	local difficulty = (model:GetAttribute("Difficulty") :: number?) or 1
-	local stars = string.rep("*", difficulty) .. string.rep("-", math.max(0, 5 - difficulty))
-	local claimedBy = model:GetAttribute("ClaimedBy")
-	local claimed = ""
-	if typeof(claimedBy) == "number" and claimedBy ~= 0 then
-		if claimedBy == player.UserId then
-			claimed = "\nYou are catching this"
-		else
-			local other = Players:GetPlayerByUserId(claimedBy)
-			claimed = "\nBeing caught by " .. (if other then other.DisplayName else "someone")
-		end
-	end
-	return def.name .. "\n" .. Config.Rarities.label(def.rarity) .. "  " .. def.element .. "  " .. stars .. claimed
-end
-
 local function refreshLabels()
 	local hrp = rootPart()
 	for _, model in CollectionService:GetTagged("Wild") do
-		if model:IsA("Model") then
-			local pivot = model:GetPivot().Position
-			local near = hrp ~= nil and (pivot - hrp.Position).Magnitude <= LABEL_RANGE
-			if near then
-				local billboard = labelFor(model)
-				local text = billboard:FindFirstChild("Text")
-				if text and text:IsA("TextLabel") then
-					text.Text = describe(model)
-					local speciesId = model:GetAttribute("SpeciesId")
-					local def = if typeof(speciesId) == "string" then Config.Species.byId[speciesId] else nil
-					text.TextColor3 = if def then Config.Rarities.color(def.rarity) else Color3.fromRGB(255, 255, 255)
-				end
-			elseif labels[model] then
-				labels[model]:Destroy()
-				labels[model] = nil
+		if not model:IsA("Model") then continue end
+		local near = hrp ~= nil and model.PrimaryPart ~= nil and (model:GetPivot().Position - hrp.Position).Magnitude <= LABEL_RANGE
+		if near then
+			local billboard = labels[model]
+			if not billboard or not billboard.Parent then
+				billboard = CreatureLabel.create(model, "EncounterLabel")
+				labels[model] = billboard
 			end
+			CreatureLabel.setIdentity(billboard, model:GetAttribute("SpeciesId") :: string)
+			local difficulty = math.clamp(model:GetAttribute("Difficulty") :: number? or 1, 1, 5)
+			local claimedBy = model:GetAttribute("ClaimedBy")
+			local status: string? = nil
+			if typeof(claimedBy) == "number" and claimedBy ~= 0 then
+				local other = Players:GetPlayerByUserId(claimedBy)
+				status = if claimedBy == player.UserId then "You are catching this" else "Catching: " .. (if other then other.DisplayName else "another player")
+			end
+			CreatureLabel.setDetail(billboard, "Difficulty " .. tostring(difficulty) .. "/5", status)
+		elseif labels[model] then
+			labels[model]:Destroy()
+			labels[model] = nil
 		end
 	end
 	for model, billboard in labels do
-		if not model.Parent then
+		if not model.Parent or not CollectionService:HasTag(model, "Wild") then
 			billboard:Destroy()
 			labels[model] = nil
+		end
+	end
+	-- City labels keep server-owned income text; only their presentation scales
+	-- locally. Rebuild this short list at 4 Hz, never scan descendants each frame.
+	table.clear(cityLabels)
+	for _, model in CollectionService:GetTagged("Animated") do
+		local billboard = model:FindFirstChild("PadLabel")
+		if billboard and billboard:IsA("BillboardGui") and billboard:FindFirstChild("Title") then
+			table.insert(cityLabels, billboard)
 		end
 	end
 end
@@ -341,7 +306,12 @@ local function ensureRangeRing(): BasePart
 	if rangeRing and rangeRing.Parent then
 		return rangeRing
 	end
-	local ring = makePart("RangeRing", Vector3.new(0.2, 1, 1), CFrame.new(), Color3.fromRGB(120, 230, 255), 0.75, Enum.PartType.Cylinder)
+	-- A capture circle is a readable boundary, not a light source competing
+	-- with the hazard telegraphs drawn on top of it. Neon glows through any
+	-- Transparency (0.86 still read as a bright disc on the grass), so the
+	-- ring alone is plain plastic: a tinted patch of ground, lit like the ground.
+	local ring = makePart("RangeRing", Vector3.new(0.2, 1, 1), CFrame.new(), Color3.fromRGB(78, 148, 164), 0.78, Enum.PartType.Cylinder)
+	ring.Material = Enum.Material.SmoothPlastic
 	rangeRing = ring
 	return ring
 end
@@ -753,6 +723,14 @@ function CaptureController.init()
 			end
 		end
 
+		local cam = camera()
+		for _, billboard in labels do
+			if billboard.Parent then CreatureLabel.resize(billboard, cam) end
+		end
+		for _, billboard in cityLabels do
+			if billboard.Parent then CreatureLabel.resize(billboard, cam) end
+		end
+
 		stepHazards(now)
 		applyPull(dt)
 
@@ -769,7 +747,7 @@ function CaptureController.init()
 				local pivot = model:GetPivot().Position
 				ring.Size = Vector3.new(0.2, range * 2, range * 2)
 				ring.CFrame = CFrame.new(pivot.X, 0.35, pivot.Z) * CFrame.Angles(0, 0, math.rad(90))
-				ring.Color = if captureState.inRange then Color3.fromRGB(120, 230, 160) else Color3.fromRGB(255, 130, 120)
+				ring.Color = if captureState.inRange then Color3.fromRGB(52, 132, 86) else Color3.fromRGB(150, 64, 60)
 
 				local tether = ensureTether()
 				if tether then

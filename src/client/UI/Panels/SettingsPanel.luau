@@ -211,9 +211,10 @@ function M.init()
 	makeToggle(scroll, "reducedMotion", "Reduced motion", "Fewer particles, no screen push, gentler pull from gravity zones.", 3)
 	makeToggle(scroll, "reducedFlashing", "Reduced flashing", "Hazard warnings stop strobing and stay a steady colour.", 4)
 	makeToggle(scroll, "notifications", "Pop-up messages", "Turn off the small messages in the corner.", 5)
+	makeToggle(scroll, "tutorial", "Tutorial", "The step card and the glowing path to where you go next.", 6)
 
 	local controls = W.card(scroll, 148)
-	controls.LayoutOrder = 6
+	controls.LayoutOrder = 7
 	W.label({
 		parent = controls,
 		text = "Controls",

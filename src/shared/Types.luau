@@ -135,6 +135,7 @@ export type Snapshot = {
 		reducedMotion: boolean,
 		reducedFlashing: boolean,
 		notifications: boolean,
+		tutorial: boolean, -- false hides the step card, the route guide and the step pop-ups
 	},
 
 	build: {

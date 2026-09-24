@@ -52,7 +52,7 @@ export type Data = {
 	offlinePending: number, -- Coins awaiting the once-only offline claim (0 = none)
 	offlinePendingSeconds: number,
 	lastOnlineAt: number, -- unix, written on every save while online
-	settings: { music: number, sfx: number, reducedMotion: boolean, reducedFlashing: boolean, notifications: boolean },
+	settings: { music: number, sfx: number, reducedMotion: boolean, reducedFlashing: boolean, notifications: boolean, tutorial: boolean },
 	stats: { captures: number, perfect: number, relaunches: number, connects: number, overdrives: number, collects: number, crisisWins: number, earned: number },
 	-- Robux. `ledger` is the receipt history that makes ProcessReceipt idempotent
 	-- (newest last, oldest dropped past Config.Store.ledgerMax); `passes` is the
@@ -136,7 +136,7 @@ function Profiles.defaultData(): Data
 		offlinePending = 0,
 		offlinePendingSeconds = 0,
 		lastOnlineAt = 0,
-		settings = { music = 0.6, sfx = 0.8, reducedMotion = false, reducedFlashing = false, notifications = true },
+		settings = { music = 0.6, sfx = 0.8, reducedMotion = false, reducedFlashing = false, notifications = true, tutorial = true },
 		stats = { captures = 0, perfect = 0, relaunches = 0, connects = 0, overdrives = 0, collects = 0, crisisWins = 0, earned = 0 },
 		purchases = { ledger = {}, passes = {}, coinsBought = 0, robuxSpent = 0, boostsBought = 0, eggsOpened = 0 },
 		boosts = {},
@@ -308,6 +308,7 @@ function Profiles.sanitize(raw: any): Data
 		d.settings.reducedMotion = bool(raw.settings.reducedMotion, false)
 		d.settings.reducedFlashing = bool(raw.settings.reducedFlashing, false)
 		d.settings.notifications = bool(raw.settings.notifications, true)
+		d.settings.tutorial = bool(raw.settings.tutorial, true)
 	end
 	if typeof(raw.stats) == "table" then
 		for k, _ in d.stats do

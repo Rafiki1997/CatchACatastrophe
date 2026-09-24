@@ -257,6 +257,42 @@ end
 
 -- ------------------------------------------------------------ rows
 
+local function closeCreatureView()
+	local view = panel.frame:FindFirstChild("CreatureView")
+	if view then
+		view:Destroy()
+	end
+end
+
+local function openCreatureView(entry: CreatureEntry)
+	closeCreatureView()
+	local def = Config.Species.byId[entry.id]
+	if not def then
+		return
+	end
+	local box = W.frame({ parent = panel.frame, name = "CreatureView", size = UDim2.fromScale(1, 1), color = Theme.colors.bg, radius = Theme.sizes.radius, zindex = 60 })
+	box.Active = true
+	W.label({ parent = box, text = def.name, position = UDim2.fromOffset(16, 12), size = UDim2.new(1, -130, 0, 32), font = Theme.fonts.title, textSize = 24, zindex = 62 })
+	W.label({ parent = box, text = Config.Rarities.label(def.rarity) .. " / " .. entry.variant, position = UDim2.fromOffset(16, 48), size = UDim2.new(1, -32, 0, 24), color = Config.Rarities.color(def.rarity), textSize = 16, zindex = 62 })
+	W.button({ parent = box, name = "CloseView", text = "Back", size = UDim2.fromOffset(88, 44), position = UDim2.new(1, -104, 0, 12), zindex = 63, onClick = closeCreatureView })
+	local vp = W.viewport(box, UDim2.new(1, -32, 1, -144), UDim2.fromOffset(16, 80), Theme.colors.bgDeep)
+	vp.frame.ZIndex = 61
+	local model = CreatureModels.build(entry.id, entry.variant, false)
+	vp.setModel(model)
+	local camera = vp.frame.CurrentCamera
+	local centre = model:GetBoundingBox().Position
+	local offset = if camera then camera.CFrame.Position - centre else Vector3.new(0, 3, -10)
+	local angle = 0
+	local function rotate(delta: number)
+		angle += delta
+		if camera then
+			camera.CFrame = CFrame.lookAt(centre + CFrame.Angles(0, angle, 0):VectorToWorldSpace(offset), centre)
+		end
+	end
+	W.button({ parent = box, name = "RotateLeft", text = "Rotate left", position = UDim2.new(0.5, -154, 1, -56), size = UDim2.fromOffset(148, 44), zindex = 62, onClick = function() rotate(-math.pi / 4) end })
+	W.button({ parent = box, name = "RotateRight", text = "Rotate right", position = UDim2.new(0.5, 6, 1, -56), size = UDim2.fromOffset(148, 44), zindex = 62, onClick = function() rotate(math.pi / 4) end })
+end
+
 -- Rows are pooled per uid (see M.update), so a row belongs to one creature for
 -- its whole life and the handlers can capture `uid` once. They read the live
 -- entry from the snapshot at click time so a stale row never acts on stale data.
@@ -376,6 +412,22 @@ local function createRow(uid: string): any
 		local snap = State.get()
 		return if snap then snap.creatures[uid] else nil
 	end
+
+	W.button({
+		parent = buttonRow,
+		name = "ViewCreature",
+		text = "View",
+		size = UDim2.fromOffset(72, 40),
+		color = Theme.colors.accent,
+		textSize = 14,
+		order = 0,
+		onClick = function()
+			local entry = currentEntry()
+			if entry then
+				openCreatureView(entry)
+			end
+		end,
+	})
 
 	favButton.Activated:Connect(function()
 		local entry = currentEntry()
@@ -642,6 +694,11 @@ function M.init()
 		W.attachScale(gui)
 	end
 	panel = W.panel(gui, "Creatures", "Creatures", UDim2.new(0, 640, 0, 440))
+	panel.frame:GetPropertyChangedSignal("Visible"):Connect(function()
+		if not panel.frame.Visible then
+			closeCreatureView()
+		end
+	end)
 	local body = panel.body
 
 	headerLabel = W.label({

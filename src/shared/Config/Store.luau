@@ -89,27 +89,26 @@ Store.tetherSpeedCap = 2.0
 -- Weights are percentages and must sum to 100 (a self-test pins this), so the
 -- number on the panel is the number in the table.
 --
--- Pity: three independent counters, one per chase tier. Each counts hatches
+-- Pity: two independent counters, one per chase tier. Each counts hatches
 -- since the player last got that tier OR BETTER; hitting the threshold raises
 -- the next hatch to that tier. One shared counter cannot do this job: the
--- Mythic guarantee would fire constantly and reset the higher ones, so the top
--- tiers would never arrive. Natural expectation is 40 / 250 / 1000 hatches, so
--- 50 / 200 / 500 sits just past luck for Mythic and well inside it above.
+-- Epic guarantee would fire constantly and reset the higher one, so the Mythic
+-- tier would never arrive. Natural expectation is 40 / 200 hatches, so 50 / 200
+-- gives both tiers a clear safety net.
 Store.eggs = {
 	cosmic_egg = {
 		id = "cosmic_egg",
 		name = "Cosmic Egg",
-		desc = "Hatches a creature from anywhere in the known universe. Mythic, Celestial and Astral creatures come from here and nowhere else.",
+		desc = "Hatches a creature from anywhere in the known universe. Epic and Mythic creatures come from here and nowhere else.",
 		odds = {
 			{ rarity = "Common", weight = 40 },
 			{ rarity = "Uncommon", weight = 30 },
 			{ rarity = "Rare", weight = 18 },
 			{ rarity = "Legendary", weight = 9 },
-			{ rarity = "Mythic", weight = 2.5 },
-			{ rarity = "Celestial", weight = 0.4 },
-			{ rarity = "Astral", weight = 0.1 },
+			{ rarity = "Epic", weight = 2.5 },
+			{ rarity = "Mythic", weight = 0.5 },
 		},
-		pity = { Mythic = 50, Celestial = 200, Astral = 500 },
+		pity = { Epic = 50, Mythic = 200 },
 	},
 } :: { [string]: Egg }
 
@@ -178,8 +177,8 @@ function Store.eggOdds(eggId: string): { { rarity: string, percent: number } }
 	return out
 end
 
--- Hatches remaining before each chase tier is guaranteed, given the player's
--- counters. Drives the "Mythic guaranteed in 12 hatches" line.
+-- Hatches remaining before each active chase tier is guaranteed, given the
+-- player's counters. Drives the guarantee lines in the store panel.
 function Store.pityRemaining(eggId: string, counters: { [string]: number }?): { { rarity: string, remaining: number } }
 	local egg = Store.eggs[eggId]
 	local out = {}

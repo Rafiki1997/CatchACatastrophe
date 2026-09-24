@@ -45,7 +45,7 @@ local function settings()
 	if snap then
 		return snap.settings
 	end
-	return { music = 0.6, sfx = 0.8, reducedMotion = false, reducedFlashing = false, notifications = true }
+	return { music = 0.6, sfx = 0.8, reducedMotion = false, reducedFlashing = false, notifications = true, tutorial = true }
 end
 
 function Effects.sound(name: string, position: Vector3?)

@@ -21,11 +21,15 @@ local Regions = {}
 
 Regions.list = {
 	{ id = "gusty_gardens", name = "Gusty Gardens", element = "Wind", index = 1, baseIncome = 4, unlockCost = 0, color = Color3.fromRGB(150, 230, 170), groundColor = Color3.fromRGB(120, 190, 100), desc = "Breezy meadows where little gusts play in the grass.", hazard = "Wind" },
-	{ id = "splashwater_bay", name = "Splashwater Bay", element = "Water", index = 2, baseIncome = 8, unlockCost = 2500, color = Color3.fromRGB(90, 180, 255), groundColor = Color3.fromRGB(230, 210, 150), desc = "A sunny bay full of puddles, ducks and rolling waves.", hazard = "Water" },
-	{ id = "cinder_canyon", name = "Cinder Canyon", element = "Heat", index = 3, baseIncome = 16, unlockCost = 15000, color = Color3.fromRGB(255, 120, 60), groundColor = Color3.fromRGB(120, 70, 50), desc = "Cracked red rock where the ground itself likes to sizzle.", hazard = "Heat" },
-	{ id = "frostbite_peaks", name = "Frostbite Peaks", element = "Frost", index = 4, baseIncome = 32, unlockCost = 75000, color = Color3.fromRGB(170, 230, 255), groundColor = Color3.fromRGB(225, 240, 250), desc = "Snowy slopes and ice arches that never quite stop sliding.", hazard = "Frost" },
-	{ id = "thunderworks", name = "Thunderworks", element = "Storm", index = 5, baseIncome = 64, unlockCost = 300000, color = Color3.fromRGB(255, 230, 90), groundColor = Color3.fromRGB(70, 70, 95), desc = "An old power yard where storm critters charge everything they touch.", hazard = "Storm" },
-	{ id = "orbit_outpost", name = "Orbit Outpost", element = "Cosmic", index = 6, baseIncome = 128, unlockCost = 1000000, color = Color3.fromRGB(200, 130, 255), groundColor = Color3.fromRGB(45, 40, 70), desc = "A floating space station where gravity is more of a suggestion.", hazard = "Cosmic" },
+	{ id = "splashwater_bay", name = "Splashwater Bay", element = "Water", index = 2, baseIncome = 8, unlockCost = 2500, color = Color3.fromRGB(90, 180, 255), groundColor = Color3.fromRGB(246, 214, 152), desc = "A sunny bay full of puddles, ducks and rolling waves.", hazard = "Water" },
+	{ id = "cinder_canyon", name = "Cinder Canyon", element = "Heat", index = 3, baseIncome = 16, unlockCost = 15000, color = Color3.fromRGB(255, 120, 60), groundColor = Color3.fromRGB(238, 134, 86), desc = "Cracked red rock where the ground itself likes to sizzle.", hazard = "Heat" },
+	{ id = "frostbite_peaks", name = "Frostbite Peaks", element = "Frost", index = 4, baseIncome = 32, unlockCost = 75000, color = Color3.fromRGB(170, 230, 255), groundColor = Color3.fromRGB(210, 219, 233), desc = "Snowy slopes and ice arches that never quite stop sliding.", hazard = "Frost" },
+	{ id = "thunderworks", name = "Thunderworks", element = "Storm", index = 5, baseIncome = 64, unlockCost = 300000, color = Color3.fromRGB(255, 230, 90), groundColor = Color3.fromRGB(78, 84, 99), desc = "An old power yard where storm critters charge everything they touch.", hazard = "Storm" },
+	-- `groundColor` is read in exactly one place, the region's floor disc. Orbit
+	-- Outpost's is violet-grey lunar soil: light enough to read as the concept's
+	-- regolith, far enough down in value and saturation that the Gravity Pulse
+	-- telegraph (210, 150, 255) drawn on it stays the brightest thing in view.
+	{ id = "orbit_outpost", name = "Orbit Outpost", element = "Cosmic", index = 6, baseIncome = 128, unlockCost = 1000000, color = Color3.fromRGB(200, 130, 255), groundColor = Color3.fromRGB(118, 109, 132), desc = "A floating space station where gravity is more of a suggestion.", hazard = "Cosmic" },
 } :: { RegionDef }
 
 Regions.byId = {} :: { [string]: RegionDef }

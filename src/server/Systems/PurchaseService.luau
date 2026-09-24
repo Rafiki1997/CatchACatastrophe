@@ -166,8 +166,8 @@ end
 
 -- The rarity of one hatch. Pity first: each chase tier counts hatches since the
 -- player last got that tier or better, and reaching a threshold forces the
--- result up. Three counters, not one, so the Mythic guarantee cannot keep
--- resetting the Celestial and Astral ones and hide them forever.
+-- result up. Two counters, not one, so the Epic guarantee cannot keep resetting
+-- the Mythic one and hide it forever.
 local function rollRarity(profile: Profile, egg: Egg): string
 	local counters = profile.data.eggs.pity[egg.id]
 	local forced: string? = nil

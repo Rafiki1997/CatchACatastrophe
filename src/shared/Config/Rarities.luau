@@ -21,16 +21,16 @@ export type RarityInfo = {
 
 local Rarities = {}
 
--- Ranks 5-7 are the Cosmic Egg chase tiers. They have `weight = 0`, so they can
+-- Ranks 5-8 are the Cosmic Egg showcase tiers. They have `weight = 0`, so they can
 -- never appear in a wild spawn (Weighted.pick skips non-positive weights) and
 -- only hatch from an egg; a future event may spawn them deliberately. Their
 -- capture fields are copied from Legendary and are unused until then; note that
 -- Capture.rarityRangeMult / rarityKnockbackMult clamp to their own length, so a
 -- rank above 4 inherits Legendary tuning rather than erroring.
-Rarities.order = { "Common", "Uncommon", "Rare", "Legendary", "Mythic", "Celestial", "Astral" }
+Rarities.order = { "Common", "Uncommon", "Rare", "Legendary", "Epic", "Mythic", "Celestial", "Astral" }
 
 -- Egg-only tiers, in order. `Rarities.isEggTier(r)` is the one place that knows.
-Rarities.eggTiers = { "Mythic", "Celestial", "Astral" }
+Rarities.eggTiers = { "Epic", "Mythic" }
 
 -- The tiers that exist in the wild: one species per region per entry.
 Rarities.wildOrder = { "Common", "Uncommon", "Rare", "Legendary" }
@@ -40,9 +40,10 @@ Rarities.info = {
 	Uncommon = { rank = 2, label = "Uncommon", icon = "◆", color = Color3.fromRGB(96, 210, 120), weight = 28, mult = 2.5, captureSeconds = 10, hazardSpeed = 1.15, attackInterval = 2.8, sellSeconds = 25, glow = 0, broadcast = false },
 	Rare = { rank = 3, label = "Rare", icon = "★", color = Color3.fromRGB(90, 150, 255), weight = 10, mult = 7, captureSeconds = 13, hazardSpeed = 1.3, attackInterval = 2.4, sellSeconds = 30, glow = 1, broadcast = false },
 	Legendary = { rank = 4, label = "Legendary", icon = "❖", color = Color3.fromRGB(255, 200, 60), weight = 2, mult = 20, captureSeconds = 16, hazardSpeed = 1.5, attackInterval = 2.0, sellSeconds = 40, glow = 2, broadcast = true },
-	Mythic = { rank = 5, label = "Mythic", icon = "✿", color = Color3.fromRGB(255, 120, 200), weight = 0, mult = 50, captureSeconds = 16, hazardSpeed = 1.5, attackInterval = 2.0, sellSeconds = 60, glow = 3, broadcast = true },
-	Celestial = { rank = 6, label = "Celestial", icon = "◎", color = Color3.fromRGB(120, 235, 255), weight = 0, mult = 150, captureSeconds = 16, hazardSpeed = 1.5, attackInterval = 2.0, sellSeconds = 90, glow = 3, broadcast = true },
-	Astral = { rank = 7, label = "Astral", icon = "◉", color = Color3.fromRGB(255, 245, 190), weight = 0, mult = 400, captureSeconds = 16, hazardSpeed = 1.5, attackInterval = 2.0, sellSeconds = 120, glow = 3, broadcast = true },
+	Epic = { rank = 5, label = "Epic", icon = "☀", color = Color3.fromRGB(210, 120, 255), weight = 0, mult = 30, captureSeconds = 16, hazardSpeed = 1.5, attackInterval = 2.0, sellSeconds = 50, glow = 2, broadcast = true },
+	Mythic = { rank = 6, label = "Mythic", icon = "✿", color = Color3.fromRGB(255, 120, 200), weight = 0, mult = 50, captureSeconds = 16, hazardSpeed = 1.5, attackInterval = 2.0, sellSeconds = 60, glow = 3, broadcast = true },
+	Celestial = { rank = 7, label = "Celestial", icon = "◎", color = Color3.fromRGB(120, 235, 255), weight = 0, mult = 150, captureSeconds = 16, hazardSpeed = 1.5, attackInterval = 2.0, sellSeconds = 90, glow = 3, broadcast = true },
+	Astral = { rank = 8, label = "Astral", icon = "◉", color = Color3.fromRGB(255, 245, 190), weight = 0, mult = 400, captureSeconds = 16, hazardSpeed = 1.5, attackInterval = 2.0, sellSeconds = 120, glow = 3, broadcast = true },
 } :: { [string]: RarityInfo }
 
 -- Egg-only chase tiers never spawn in the wild and never count toward Atlas

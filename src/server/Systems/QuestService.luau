@@ -221,6 +221,11 @@ local function advanceTo(profile: Profile, step: number)
 	profile.data.quests.tutorialStep = math.clamp(step, 1, Q.tutorialDoneStep)
 	profile.dirty = true
 	QuestService.sendTutorial(profile)
+	-- With the tutorial switched off in Settings the step still advances (so
+	-- switching it back on resumes in the right place), it just says nothing.
+	if profile.data.settings.tutorial == false then
+		return
+	end
 	local def = Q.tutorial[profile.data.quests.tutorialStep]
 	if def then
 		Notify.player(profile.player, "info", def.title .. ": " .. def.body, 8)
@@ -304,6 +309,7 @@ end
 -- Eight players against six region centres once a second is cheaper than
 -- maintaining touch parts, and it cannot be defeated by jumping the fence.
 local function pollRegions()
+	local regionsFolder = workspace:FindFirstChild("Regions")
 	for _, player in Players:GetPlayers() do
 		local profile = Profiles.get(player)
 		if profile and profile.loaded and profile.data.quests.tutorialStep < Q.tutorialDoneStep then
@@ -311,8 +317,13 @@ local function pollRegions()
 			local hrp = character and character:FindFirstChild("HumanoidRootPart")
 			if hrp and hrp:IsA("BasePart") then
 				for _, def in Config.Regions.list do
-					local centre = Vector3.new(math.cos(math.rad(90 + 60 * (def.index - 1))) * 280, 0, math.sin(math.rad(90 + 60 * (def.index - 1))) * 280)
-					if (Vector3.new(hrp.Position.X, 0, hrp.Position.Z) - centre).Magnitude <= REGION_RADIUS then
+					-- Ask the region where it is. This used to recompute the old
+					-- radial ring position and silently stopped matching the world
+					-- the day the regions moved onto a straight chain.
+					local model = regionsFolder and regionsFolder:FindFirstChild(def.id)
+					local centre = model and model:GetAttribute("Centre")
+					if typeof(centre) == "Vector3" and profile.data.regions[def.id] == true
+						and (Vector3.new(hrp.Position.X, 0, hrp.Position.Z) - Vector3.new(centre.X, 0, centre.Z)).Magnitude <= REGION_RADIUS then
 						QuestService.tutorialEvent(profile, "enter_region:" .. def.id)
 					end
 				end

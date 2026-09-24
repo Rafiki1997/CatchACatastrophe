@@ -60,7 +60,7 @@ function CreatureModels.build(id: string, variant: string?, silhouette: boolean?
 	model:SetAttribute("Rarity", def.rarity)
 	model:SetAttribute("Element", def.element)
 	model:SetAttribute("Variant", variant or "Normal")
-	-- Egg-only species borrow another species' builder and repaint it.
+	-- Egg-only species may have their own builder or borrow another species' builder.
 	local builder = builders[def.builder or id] or builders[id] or fallback
 	local ok, err = pcall(builder, model, root, def.palette, def)
 	if not ok then

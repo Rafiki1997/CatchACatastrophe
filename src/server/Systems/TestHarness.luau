@@ -100,9 +100,41 @@ end
 
 -- ---------------------------------------------------------------- tests
 
+local COSMIC_WILD_IDS = { "rubble_runt", "lagrange_loper", "pulsar_prickle", "rochebreaker" }
+local COSMIC_EGG_IDS = { "nebula_noodle", "universe_seed" }
+
+local function idsMatch(defs: { any }, expected: { string }): boolean
+	if #defs ~= #expected then
+		return false
+	end
+	for index, id in expected do
+		if defs[index].id ~= id then
+			return false
+		end
+	end
+	return true
+end
+
+local function stringsMatch(values: { string }, expected: { string }): boolean
+	if #values ~= #expected then
+		return false
+	end
+	for index, value in expected do
+		if values[index] ~= value then
+			return false
+		end
+	end
+	return true
+end
+
 local function testConfig()
 	check("24 species", #Config.Species.list == 24, tostring(#Config.Species.list))
 	check("species count constant matches", Config.Species.count == 24)
+	local cosmicWild = Config.Species.byRegion.orbit_outpost or {}
+	check("Cosmic wild roster", idsMatch(cosmicWild, COSMIC_WILD_IDS), table.concat(COSMIC_WILD_IDS, ", "))
+	check("Epic rarity exists", Config.Rarities.info.Epic ~= nil)
+	check("Cosmic Egg tiers", stringsMatch(Config.Rarities.eggTiers, { "Epic", "Mythic" }))
+	check("Cosmic egg roster", idsMatch(Config.Species.eggList, COSMIC_EGG_IDS), table.concat(COSMIC_EGG_IDS, ", "))
 
 	local weightSum = 0
 	for _, rarity in Config.Rarities.order do
@@ -201,7 +233,11 @@ end
 
 local function testModels()
 	local built = 0
-	for _, def in Config.Species.list do
+	local allDefs = table.clone(Config.Species.list)
+	for _, def in Config.Species.eggList do
+		table.insert(allDefs, def)
+	end
+	for _, def in allDefs do
 		local ok, model = pcall(CreatureModels.build, def.id, "Normal")
 		if ok and typeof(model) == "Instance" then
 			built += 1
@@ -219,11 +255,11 @@ local function testModels()
 			check(def.id .. " builds", false, tostring(model))
 		end
 	end
-	check("all 24 creature models build", built == 24, tostring(built) .. "/24")
+	check("all creature models build", built == #allDefs, tostring(built) .. "/" .. tostring(#allDefs))
 
 	-- Effects accumulate across builder, variant, and rarity passes. Check the
 	-- finished combinations, including silhouettes used by the collection UI.
-	for _, def in Config.Species.list do
+	for _, def in allDefs do
 		for _, appearance in { "Normal", "Overcharged", "Prismatic", "Silhouette" } do
 			local silhouette = appearance == "Silhouette"
 			local ok, model = pcall(CreatureModels.build, def.id, if silhouette then "Normal" else appearance, silhouette)
@@ -356,11 +392,29 @@ local function testAnimateTrack()
 end
 
 -- A built plot carries the pad-management prompt on every pad, disabled, and
--- short enough in range that only the pad you stand at can show one.
+-- short enough in range that only the pad you stand at can show one; and the
+-- Pocket Power Town rebuild keeps every part, position and envelope the rest
+-- of the game reads (docs/CONTRACTS.md, "Plot local frame").
 local function testPlot()
 	local PlotTemplate = require(script.Parent.Parent.Map.PlotTemplate)
-	local plot = PlotTemplate.build(CFrame.new(0, -1000, 0), 99)
-	local prompts, disabled, ranged = 0, 0, 0
+	local PlotProps = require(script.Parent.Parent.Map.PlotProps)
+	local PlotAssetSpec = require(script.Parent.Parent.Map.PlotAssetSpec) :: any
+	local DecorSlots = require(ReplicatedStorage.Shared.Models.DecorSlots)
+	local origin = CFrame.new(0, -1000, 0)
+	local plot = PlotTemplate.build(origin, 99)
+	local model = plot.model
+	local function localOf(p: BasePart): Vector3
+		return origin:PointToObjectSpace(p.Position)
+	end
+	local function near(v: Vector3, x: number, y: number, z: number): boolean
+		return approx(v.X, x, 0.01) and approx(v.Y, y, 0.01) and approx(v.Z, z, 0.01)
+	end
+	local function padXZ(pad: number): (number, number)
+		local col, row = Config.Circuits.padCoords(pad)
+		return -20 + 8 * (col - 1), -6 + 8 * (row - 1)
+	end
+
+	local prompts, disabled, ranged, strips, padsPlaced = 0, 0, 0, 0, 0
 	for pad = 1, Config.Circuits.maxPads do
 		local p = plot.pads[pad]
 		local prompt = p and p:FindFirstChild("ManagePrompt")
@@ -373,10 +427,180 @@ local function testPlot()
 				ranged += 1
 			end
 		end
+		if p and p:FindFirstChild("Strip") then
+			strips += 1
+		end
+		if p then
+			local x, z = padXZ(pad)
+			local l = localOf(p)
+			if p.Size == Vector3.new(5.4, 0.6, 5.4) and near(l + Vector3.new(0, p.Size.Y / 2, 0), x, 1.1, z) then
+				padsPlaced += 1
+			end
+		end
 	end
 	check("every pad carries a ManagePrompt", prompts == Config.Circuits.maxPads, tostring(prompts) .. "/" .. tostring(Config.Circuits.maxPads))
 	check("pad prompts start disabled (the owner's client enables them)", disabled == prompts, tostring(disabled))
 	check("pad prompt range is under the 8-stud pad spacing", ranged == prompts, tostring(ranged))
+	check("every pad carries an element strip", strips == Config.Circuits.maxPads, tostring(strips))
+	check("every pad is 5.4 x 0.6 x 5.4 with its top at y 1.1 on the documented grid", padsPlaced == Config.Circuits.maxPads, tostring(padsPlaced))
+
+	-- the parts other systems read, where they read them
+	local platform = model:FindFirstChild("Platform")
+	check("Platform is 60 x 1 x 60 at the origin", platform ~= nil and platform:IsA("BasePart") and platform.Size == Vector3.new(60, 1, 60) and near(localOf(platform), 0, 0, 0))
+	local apron = model:FindFirstChild("Apron")
+	check("Apron is 22 x 1 x 14 at (0, 0, -36) for the driveway rule", apron ~= nil and apron:IsA("BasePart") and apron.Size == Vector3.new(22, 1, 14) and near(localOf(apron), 0, 0, -36))
+	local kerbs = 0
+	for _, d in model:GetChildren() do
+		if d.Name == "Kerb" and d:IsA("BasePart") then
+			kerbs += 1
+		end
+	end
+	check("the kerb still exists for the skin palette", kerbs >= 4, tostring(kerbs))
+	local collect = plot.collectPad
+	check("CollectPad is 8 x 0.4 x 8 at (0, 0.7, -23) with Touch = Collect", collect.Name == "CollectPad" and collect.Size == Vector3.new(8, 0.4, 8) and near(localOf(collect), 0, 0.7, -23) and collect:GetAttribute("Touch") == "Collect" and collect:FindFirstChild("Label") ~= nil)
+	check("VentButton offers the vent prompt from the booth", plot.booth.ventButton.Name == "VentButton" and plot.booth.ventButton:GetAttribute("Prompt") == "Vent" and plot.booth.ventButton:IsDescendantOf(plot.booth.model))
+	local consoleGui = plot.booth.console.Parent
+	check("booth console text sits in a SurfaceGui named Gui on the Console", consoleGui ~= nil and consoleGui.Name == "Gui" and consoleGui:IsA("SurfaceGui") and consoleGui.Parent ~= nil and (consoleGui.Parent :: Instance).Name == "Console")
+	local board = model:FindFirstChild("Billboard")
+	local boardGui = board and board:FindFirstChild("Gui")
+	check("Billboard carries Title and Earnings", boardGui ~= nil and boardGui:FindFirstChild("Title") == plot.billboardTitle and boardGui:FindFirstChild("Earnings") == plot.billboardEarnings)
+	PlotTemplate.setOwner(plot, 5, "Astra")
+	check("the sign shows the owner", plot.billboardTitle.Text == "Astra" and model:GetAttribute("OwnerName") == "Astra")
+	PlotTemplate.setOwner(plot, 0, "")
+	check("the sign reads Vacant Lot again", plot.billboardTitle.Text == "Vacant Lot")
+	check("SpawnPoint waits at (0, 0.5, -34), disabled", plot.spawnPoint.Name == "SpawnPoint" and near(localOf(plot.spawnPoint), 0, 0.5, -34) and plot.spawnPoint.Enabled == false)
+	check("VisitorSpot is invisible", plot.visitorSpot.Name == "VisitorSpot" and plot.visitorSpot.Transparency == 1)
+	for _, name in { "Pads", "Stations", "Machines", "Rewards", "Garden", "Booth", "PropSites", "Tier_1", "Tier_2", "Tier_3" } do
+		check("plot has " .. name, model:FindFirstChild(name) ~= nil)
+	end
+
+	-- nothing rises into the boxes stations and circuit machines are placed in,
+	-- and no two visible parts share a top plane (z-fighting)
+	local envelopes: { { x0: number, x1: number, z0: number, z1: number, y1: number } } = {}
+	for pad = 1, Config.Circuits.maxPads do
+		local x, z = padXZ(pad)
+		table.insert(envelopes, { x0 = x - 1.5, x1 = x + 1.5, z0 = z + 2.1, z1 = z + 4.7, y1 = 5.6 })
+	end
+	for a = 1, Config.Circuits.maxPads do
+		for b = a + 1, Config.Circuits.maxPads do
+			if Config.Circuits.areAdjacent(a, b) then
+				local ax, az = padXZ(a)
+				local bx, bz = padXZ(b)
+				local mx, mz = (ax + bx) / 2, (az + bz) / 2
+				table.insert(envelopes, { x0 = mx - 2.6, x1 = mx + 2.6, z0 = mz - 2.6, z1 = mz + 2.6, y1 = 7.2 })
+			end
+		end
+	end
+	local padsFolder = model:FindFirstChild("Pads")
+	local intrusions, partCount, coplanar = 0, 0, 0
+	local tops: { { y: number, x0: number, x1: number, z0: number, z1: number, name: string } } = {}
+	for _, d in model:GetDescendants() do
+		if d:IsA("BasePart") then
+			partCount += 1
+			local l = localOf(d)
+			local cf = origin:ToObjectSpace(d.CFrame)
+			local hx = math.abs(cf.RightVector.X) * d.Size.X / 2 + math.abs(cf.UpVector.X) * d.Size.Y / 2 + math.abs(cf.LookVector.X) * d.Size.Z / 2
+			local hy = math.abs(cf.RightVector.Y) * d.Size.X / 2 + math.abs(cf.UpVector.Y) * d.Size.Y / 2 + math.abs(cf.LookVector.Y) * d.Size.Z / 2
+			local hz = math.abs(cf.RightVector.Z) * d.Size.X / 2 + math.abs(cf.UpVector.Z) * d.Size.Y / 2 + math.abs(cf.LookVector.Z) * d.Size.Z / 2
+			local top = l.Y + hy
+			local inPads = padsFolder ~= nil and d:IsDescendantOf(padsFolder)
+			if top > 1.05 and not inPads and d.Name ~= "Frame" and d.Name ~= "Platform" then
+				for _, e in envelopes do
+					if l.Y - hy < e.y1 and l.X + hx > e.x0 and l.X - hx < e.x1 and l.Z + hz > e.z0 and l.Z - hz < e.z1 then
+						intrusions += 1
+						break
+					end
+				end
+			end
+			if d.Transparency < 1 then
+				table.insert(tops, { y = top, x0 = l.X - hx, x1 = l.X + hx, z0 = l.Z - hz, z1 = l.Z + hz, name = d.Name })
+			end
+		end
+	end
+	for i = 1, #tops do
+		local a = tops[i]
+		for j = i + 1, #tops do
+			local b = tops[j]
+			if math.abs(a.y - b.y) < 0.004 and math.min(a.x1, b.x1) - math.max(a.x0, b.x0) > 0.02 and math.min(a.z1, b.z1) - math.max(a.z0, b.z0) > 0.02 then
+				-- the platform and apron overlap by design; the threshold covers the seam
+				local ground = (a.name == "Platform" or a.name == "Apron") and (b.name == "Platform" or b.name == "Apron")
+				if not ground then
+					coplanar += 1
+				end
+			end
+		end
+	end
+	check("nothing intrudes into a station or machine envelope", intrusions == 0, tostring(intrusions))
+	check("no two visible plot parts share a top plane", coplanar == 0, tostring(coplanar))
+	check("plot part budget", partCount <= 980, tostring(partCount))
+
+	-- asset sites for Astra's kit, and the props module's refusal without it
+	local sites = model:FindFirstChild("PropSites")
+	local siteCount, siteOk = 0, 0
+	if sites then
+		for _, s in sites:GetChildren() do
+			siteCount += 1
+			local name = s:GetAttribute("AssetName")
+			local size = s:GetAttribute("AssetSize")
+			local art = s:FindFirstChild("PlaceholderArt")
+			local solidArt = false
+			if art then
+				for _, d in art:GetDescendants() do
+					if d:IsA("BasePart") and (d.CanCollide or d.CanQuery or d.CanTouch) then
+						solidArt = true
+					end
+				end
+			end
+			local role = s:GetAttribute("PlacementRole")
+			if s:IsA("Model") and typeof(name) == "string" and PlotAssetSpec[name] ~= nil and typeof(size) == "Vector3" and size == PlotAssetSpec[name]
+				and typeof(s:GetAttribute("GroundCF")) == "CFrame" and s:GetAttribute("PivotMode") == "BottomCenter" and s:GetAttribute("CollisionRole") == "none"
+				and (role == "Grounded" or role == "Stacked") and art ~= nil and not solidArt then
+				siteOk += 1
+			end
+		end
+	end
+	check("PropSites count matches AssetCount", sites ~= nil and siteCount > 0 and sites:GetAttribute("AssetCount") == siteCount, tostring(siteCount))
+	check("every prop site is well formed with inert placeholder art", siteOk == siteCount, tostring(siteOk) .. "/" .. tostring(siteCount))
+	local mapFolder = script.Parent.Parent.Map
+	if mapFolder:FindFirstChild("PlotPropTemplates") then
+		check("native plot art applied at build", model:GetAttribute("PlotArt") == "native" and model:FindFirstChild("BlenderProps") ~= nil)
+	else
+		check("PlotProps refuses to apply without the PlotPropTemplates library", PlotProps.apply(model, origin) == false and model:GetAttribute("PlotArt") == "placeholder")
+	end
+	check("a repeat apply never duplicates art", PlotProps.apply(model, origin) == false)
+
+	-- the strip follows the creature; tiers hide and show their authored look
+	PlotTemplate.setPadElement(plot, 1, Color3.fromRGB(255, 0, 0))
+	local strip1 = plot.pads[1]:FindFirstChild("Strip")
+	check("a deployed creature lights its pad strip", strip1 ~= nil and strip1:IsA("BasePart") and strip1.Material == Enum.Material.Neon and strip1.Color == Color3.fromRGB(255, 0, 0))
+	PlotTemplate.setPadElement(plot, 1, nil)
+	check("an empty pad's strip goes dark", strip1 ~= nil and strip1:IsA("BasePart") and strip1.Material == Enum.Material.SmoothPlastic)
+	PlotTemplate.setDecorationTier(plot, 3)
+	local shownOk, hiddenOk = true, true
+	for tier = 1, 3 do
+		for _, d in plot.decorTiers[tier]:GetDescendants() do
+			if d:IsA("BasePart") and d.Transparency ~= d:GetAttribute("AuthoredTransparency") then
+				shownOk = false
+			end
+		end
+	end
+	PlotTemplate.setDecorationTier(plot, 0)
+	for tier = 1, 3 do
+		for _, d in plot.decorTiers[tier]:GetDescendants() do
+			if d:IsA("BasePart") and (d.Transparency ~= 1 or d.CanCollide) then
+				hiddenOk = false
+			end
+			if (d:IsA("Light") or d:IsA("ParticleEmitter")) and d.Enabled then
+				hiddenOk = false
+			end
+		end
+	end
+	check("decoration tiers show with their authored look", shownOk)
+	check("decoration tiers hide completely at tier 0", hiddenOk)
+
+	-- the forecourt still offers somewhere to put cosmetics
+	local slots = DecorSlots.compute(model)
+	check("the rebuilt plot still offers decor slots", #slots >= 6, tostring(#slots))
 	plot.model:Destroy()
 end
 
@@ -601,7 +825,7 @@ local function testPurchases()
 			lastRank = rank
 		end
 	end
-	-- the three chase tiers exist, never spawn wild, and climb in value
+	-- The active Cosmic Egg tiers exist, never spawn wild, and climb in value.
 	local previous = Config.Rarities.info.Legendary.mult
 	for _, tier in Config.Rarities.eggTiers do
 		local info = Config.Rarities.info[tier]
@@ -615,7 +839,7 @@ local function testPurchases()
 	check("egg species stay out of the Atlas count", Config.Species.count == #Config.Species.list)
 	for _, def in Config.Species.eggList do
 		check(def.id .. " is egg only", def.eggOnly == true)
-		check(def.id .. " borrows a real builder", def.builder ~= nil and Config.Species.byId[def.builder] ~= nil, tostring(def.builder))
+		check(def.id .. " has a valid builder path", def.builder == nil or Config.Species.byId[def.builder] ~= nil, tostring(def.builder))
 		check(def.id .. " is not in a region roster", Config.Species.find(def.region, def.rarity) == nil or Config.Species.find(def.region, def.rarity).id ~= def.id)
 	end
 
@@ -631,7 +855,7 @@ local function testPurchases()
 	do
 		local p = mockProfile(0)
 		local remaining = Store.pityRemaining("cosmic_egg", p.data.eggs.pity.cosmic_egg)
-		check("a fresh player sees the full pity distance", #remaining == 3 and remaining[1].remaining == Store.eggs.cosmic_egg.pity.Mythic, tostring(remaining[1] and remaining[1].remaining))
+		check("a fresh player sees the full pity distance", #remaining == 2 and remaining[1].rarity == "Epic" and remaining[1].remaining == Store.eggs.cosmic_egg.pity.Epic, tostring(remaining[1] and remaining[1].remaining))
 	end
 
 	-- boosts extend, never stack, and never bank more than their cap
@@ -738,10 +962,10 @@ local function testPurchases()
 	end
 	do
 		local p = mockProfile(0)
-		local counters = { Mythic = Store.eggs.cosmic_egg.pity.Mythic - 1, Celestial = 0, Astral = 0 }
+		local counters = { Epic = 0, Mythic = Store.eggs.cosmic_egg.pity.Mythic - 1 }
 		p.data.eggs.pity.cosmic_egg = counters
 		local remaining = Store.pityRemaining("cosmic_egg", counters)
-		check("pity counts down to the next Mythic", remaining[1].rarity == "Mythic" and remaining[1].remaining == 1, tostring(remaining[1].remaining))
+		check("pity counts down to the next Mythic", remaining[2].rarity == "Mythic" and remaining[2].remaining == 1, tostring(remaining[2] and remaining[2].remaining))
 	end
 
 	-- a forged save grants nothing
@@ -934,6 +1158,20 @@ local function testTutorialAndGates()
 		end
 	end
 
+	-- Settings can switch the tutorial off. It is on for a new player, a save
+	-- from before the setting existed keeps it on, and switching it off only
+	-- silences it: the steps still advance underneath.
+	check("the tutorial is on for a new player", Profiles.defaultData().settings.tutorial == true)
+	check("an old save keeps the tutorial on", Profiles.sanitize({ settings = { music = 0.5 } }).settings.tutorial == true)
+	local off = Profiles.defaultData()
+	off.settings.tutorial = false
+	check("switching the tutorial off survives a save", Profiles.sanitize(DataService.roundTrip(off)).settings.tutorial == false)
+	local quiet = mockProfile(0)
+	quiet.data.settings.tutorial = false
+	quiet.data.quests.tutorialStep = 3
+	Quests.tutorialEvent(quiet, "deploy")
+	check("a switched-off tutorial still advances", quiet.data.quests.tutorialStep == 4, tostring(quiet.data.quests.tutorialStep))
+
 	-- gates: nothing on the first screen that a new player has not met, and
 	-- everything back once they have
 	local fresh = {
@@ -1052,7 +1290,7 @@ local function testQuestsAndRewards()
 	-- a huge city hits the maximum instead
 	profile.data.relaunch = 10
 	for pad = 2, 20 do
-		give(profile, "the_big_whoops", "Prismatic", pad)
+		give(profile, "rochebreaker", "Prismatic", pad)
 	end
 	local big = Stats.scaledReward(profile, 90, 150, 5000)
 	check("reward respects the maximum", big == 5000, tostring(big))
@@ -1358,20 +1596,20 @@ function Harness.runLive(profile: any)
 
 			Purchase.testGrant(profile, "egg_cosmic_10")
 			check("eggs land in the inventory", (profile.data.eggs.counts.cosmic_egg or 0) >= 10, tostring(profile.data.eggs.counts.cosmic_egg))
-			-- pity is one hatch from a guaranteed Astral, so this proves the whole
+			-- pity is one hatch from a guaranteed Mythic, so this proves the whole
 			-- chain: forced tier, egg-only species, a real creature in the city
-			profile.data.eggs.pity.cosmic_egg = { Mythic = 49, Celestial = 199, Astral = 499 }
+			profile.data.eggs.pity.cosmic_egg = { Epic = 49, Mythic = 199 }
 			local okHatch, reason, results = Purchase.hatch(profile, "cosmic_egg", 1)
 			check("an egg hatches", okHatch == true, tostring(reason))
 			if results and results[1] then
 				local result = results[1]
 				table.insert(hatched, result.uid)
-				check("pity forces the top tier", result.rarity == "Astral", result.rarity)
+				check("pity forces the top tier", result.rarity == "Mythic", result.rarity)
 				local def = Config.Species.byId[result.speciesId]
 				check("the hatch is an egg-only species", def ~= nil and def.eggOnly == true, result.speciesId)
 				check("the creature is really in the city", profile.data.creatures[result.uid] ~= nil)
 				local counters = profile.data.eggs.pity.cosmic_egg
-				check("an Astral resets every pity counter", counters.Mythic == 0 and counters.Celestial == 0 and counters.Astral == 0, tostring(counters.Mythic) .. "/" .. tostring(counters.Celestial) .. "/" .. tostring(counters.Astral))
+				check("a Mythic resets every pity counter", counters.Epic == 0 and counters.Mythic == 0, tostring(counters.Epic) .. "/" .. tostring(counters.Mythic))
 				check("its model builds", CreatureModels.build(result.speciesId) ~= nil)
 			end
 			-- nothing is for sale yet, so a prompt must refuse rather than open a
@@ -1459,6 +1697,751 @@ function Harness.runLive(profile: any)
 	return passed, failed, failures
 end
 
+-- Regions whose scenery has been hand-built from concept art, and the version
+-- each of those builders stamps on its region Model. Everything else is 2.
+local SCENERY_VERSION: { [string]: number } = { Wind = 3, Water = 3, Heat = 4, Frost = 4, Storm = 3, Cosmic = 3 }
+
+-- The Thunderworks kit Codex exports, from assets/thunderworks/props-v1/manifest.json.
+-- Every PropSites child has to name one of these and carry its exact bounds.
+local THUNDERWORKS_KIT: { [string]: Vector3 } = {
+	TW_Transformer = Vector3.new(5.8, 6.2, 4.6),
+	TW_Ceramic_Insulator = Vector3.new(1.8, 3.0, 1.8),
+	TW_Cable_Reel = Vector3.new(4.0, 4.4, 3.0),
+	TW_Capacitor_Bank = Vector3.new(3.4, 4.8, 3.4),
+	TW_Switch_Cabinet = Vector3.new(3.2, 4.6, 1.8),
+	TW_Vent_Housing = Vector3.new(4.0, 2.4, 3.4),
+	TW_Conduit_Elbow = Vector3.new(3.0, 2.5, 2.2),
+	TW_Storm_Bollard = Vector3.new(1.2, 3.0, 1.2),
+}
+
+-- The Orbit Outpost kit Codex exports, from assets/orbit-outpost/props-v1/manifest.json.
+local ORBIT_KIT: { [string]: Vector3 } = {
+	OO_Gravity_Cradle = Vector3.new(16, 22, 16),
+	OO_Gravity_Meteor = Vector3.new(6, 11, 6),
+	OO_Orbit_Stone = Vector3.new(2.8, 2.4, 2.6),
+	OO_Lunar_Boulder = Vector3.new(8, 4, 6),
+	OO_Crystal_Cluster = Vector3.new(4, 5, 4),
+	OO_Alien_Mushroom_Tall = Vector3.new(6, 7, 5),
+	OO_Alien_Mushroom_Cluster = Vector3.new(4, 3, 3),
+	OO_Alien_Fern = Vector3.new(4, 3, 4),
+	OO_Star_Bloom_Tuft = Vector3.new(3, 1.2, 3),
+	OO_Survey_Drone = Vector3.new(3.2, 2.8, 3.2),
+	OO_Drone_Dock = Vector3.new(5, 1.5, 5),
+	OO_Sample_Pod = Vector3.new(3, 4, 3),
+	OO_Cosmic_Beacon = Vector3.new(1.2, 3, 1.2),
+	OO_Field_Lab_Base = Vector3.new(16, 5, 16),
+	OO_Field_Lab_Dome_Frame = Vector3.new(16, 6.5, 16),
+}
+
+local function testRegionAccess()
+	local S = require(script.Parent.Services)
+	local Access = S.RegionAccess
+	local Encounters = S.Encounters
+	local folders = workspace:FindFirstChild("Regions") :: Folder
+	check("region access service is registered", Access ~= nil)
+	if not Access then return end
+	check("hub is outside protected regions", Access.findLocked(Vector3.zero, {}) == nil)
+	for _, def in Config.Regions.list do
+		local model = folders:FindFirstChild(def.id) :: Model
+		local centre = model:GetAttribute("Centre") :: Vector3
+		local radius = model:GetAttribute("SpawnRadius") :: number
+		local expectedScenery = SCENERY_VERSION[def.element] or 2
+		check(def.id .. " has remodeled scenery", model:GetAttribute("SceneryVersion") == expectedScenery)
+		if def.element == "Wind" or def.element == "Water" then
+			local props = model:FindFirstChild("BlenderProps")
+			check(def.id .. " Blender kit loaded", props ~= nil and model:GetAttribute("BlenderPropsVersion") == 1)
+			local valid, finite = true, true
+			local variants: { [string]: boolean } = {}
+			for _, p in (if props then props:GetChildren() else {}) do
+				if not p:IsA("MeshPart") then valid = false continue end
+				valid = valid and p.MeshId ~= "" and p.TextureID ~= "" and p.MeshSize.Magnitude > 0
+					and p.Anchored and not p.CanCollide and not p.CanQuery and not p.CanTouch
+					and p.Size.Magnitude < 35
+				local asset = p:GetAttribute("BlenderAsset")
+				if typeof(asset) == "string" then variants[asset] = true end
+			end
+			for _, p in model:GetDescendants() do
+				if p:IsA("BasePart") then
+					for _, value in { p.CFrame:GetComponents() } do
+						finite = finite and value == value and math.abs(value) < math.huge
+					end
+				end
+			end
+			local count = 0
+			for _ in variants do count += 1 end
+			check(def.id .. " meshes retain safe scale and decoration flags", props ~= nil and valid)
+			check(def.id .. " uses all eight Blender assets", count == 8)
+			check(def.id .. " scenery frames are finite", finite)
+		end
+		if def.element == "Wind" then
+			local boundary = model:FindFirstChild("Boundary")
+			local sites = if boundary then boundary:FindFirstChild("BroadleafSites") else nil
+			local spec = require(script.Parent.Parent.Map.GustyBroadleafSpec)
+			check("Gusty broadleaf has all 35 root sites", sites ~= nil and #sites:GetChildren() == spec.siteCount)
+			local trees = model:FindFirstChild("BroadleafTrees")
+			if script.Parent.Parent.Map:FindFirstChild(spec.library) then
+				check("Gusty native broadleaf kit applied", trees ~= nil and model:GetAttribute("BroadleafCount") == 35
+					and model:GetAttribute("BroadleafPartCount") == 105)
+			end
+			local valid = true
+			for _, site in (if sites then sites:GetChildren() else {}) do
+				local trunk = site:FindFirstChild("MeadowTreeTrunk")
+				valid = valid and trunk ~= nil and trunk:IsA("BasePart") and trunk.CanCollide and not trunk.CanQuery
+				if trees then
+					valid = valid and not site:FindFirstChild("PlaceholderArt") and trunk ~= nil and (trunk :: BasePart).Transparency == 1
+				else
+					local art = site:FindFirstChild("PlaceholderArt")
+					valid = valid and art ~= nil and #art:GetChildren() == 6
+				end
+			end
+			check("Gusty broadleaf preserves proxies and complete art", valid)
+		end
+		if def.element == "Frost" then
+			-- Alpine Outpost: the complete blockout or the complete native kit, the
+			-- permanent split, the site contract, the flush meadow and both stairs.
+			-- The props-v1 library is no longer read by this layout.
+			local boundary = model:FindFirstChild("Boundary")
+			local walkways = model:FindFirstChild("Walkways")
+			local landmarks = model:FindFirstChild("Landmarks")
+			check("Frostbite splits boundary, walkways and landmarks",
+				boundary ~= nil and walkways ~= nil and landmarks ~= nil)
+			local AlpineSpec = require(script.Parent.Parent.Map.FrostbiteAlpineAssetSpec)
+			local PowderSpec = require(script.Parent.Parent.Map.FrostbitePowderSpec)
+			local PowderProps = require(script.Parent.Parent.Map.FrostbitePowderProps)
+			local powderFirs = model:FindFirstChild("PowderFirs")
+			if script.Parent.Parent.Map:FindFirstChild(PowderSpec.library) then
+				check("Frostbite Powder Fir kit loaded", powderFirs ~= nil and model:GetAttribute("PowderFirVersion") == 1)
+			end
+			local blenderProps = model:FindFirstChild("BlenderProps")
+			if script.Parent.Parent.Map:FindFirstChild(AlpineSpec.library) then
+				check("Frostbite Alpine kit loaded", blenderProps ~= nil and model:GetAttribute("BlenderPropsVersion") == 1)
+			end
+			local sites = if landmarks then landmarks:FindFirstChild("PropSites") else nil
+			local frame = CFrame.lookAt(centre, Vector3.new(0, centre.Y, 0))
+			local contract, siteCount, grounded, art = true, 0, true, true
+			local kinds: { [string]: boolean } = {}
+			local down = RaycastParams.new()
+			down.FilterType = Enum.RaycastFilterType.Include
+			down.FilterDescendantsInstances = { model }
+			for _, site in (if sites then sites:GetChildren() else {}) do
+				siteCount += 1
+				local asset = site:GetAttribute("AssetName")
+				local size = site:GetAttribute("AssetSize")
+				local scale = site:GetAttribute("AssetScale")
+				local ground = site:GetAttribute("GroundCF")
+				local role = site:GetAttribute("PlacementRole")
+				local want = if typeof(asset) == "string" then AlpineSpec.alpine[asset] else nil
+				contract = contract and want ~= nil and typeof(size) == "Vector3" and typeof(scale) == "number"
+					and typeof(ground) == "CFrame" and site:GetAttribute("CollisionRole") == "none"
+					and site:GetAttribute("PivotMode") == "BottomCenter" and site:GetAttribute("SizeLock") == "Uniform"
+					and typeof(site:GetAttribute("SupportPath")) == "string"
+					and (role == "Grounded" or role == "Stacked")
+				if want and typeof(size) == "Vector3" and typeof(scale) == "number" then
+					contract = contract and ((size :: Vector3) - want * (scale :: number)).Magnitude < 0.01
+				end
+				if typeof(asset) == "string" then kinds[asset] = true end
+				local holder = site:FindFirstChild("PlaceholderArt")
+				local powderVariant = site:GetAttribute("PowderFirVariant")
+				if typeof(powderVariant) == "string" then
+					local tree = if powderFirs then powderFirs:FindFirstChild(site.Name) else nil
+					local variant = nil
+					for _, candidate in PowderSpec.variants do
+						if candidate.id == powderVariant then variant = candidate end
+					end
+					art = art and holder == nil and site:GetAttribute("AssetPlaced") == true and tree ~= nil and variant ~= nil
+					if tree and variant then
+						local base, factor = PowderProps.placement(site, variant)
+						art = art and base ~= nil and factor ~= nil and #tree:GetChildren() == #variant.parts
+						if base and factor then
+							for _, name in variant.parts do
+								local p = tree:FindFirstChild(name)
+								local partSpec = PowderSpec.parts[name]
+								art = art and p ~= nil and p:IsA("MeshPart")
+								if p and p:IsA("MeshPart") then
+									local cf = frame * base * CFrame.new(partSpec.center * factor)
+									art = art and (p.Size - partSpec.size * factor).Magnitude < 0.005
+										and (p.Position - cf.Position).Magnitude < 0.005 and p.CFrame.LookVector:Dot(cf.LookVector) > 0.9999
+										and p.Anchored and not p.CanCollide and not p.CanTouch and not p.CanQuery
+										and p:GetAttribute("BlenderAsset") == name
+								end
+							end
+						end
+					end
+				elseif blenderProps then
+					local mesh = blenderProps:FindFirstChild(site.Name)
+					art = art and holder == nil and site:GetAttribute("AssetPlaced") == true and mesh ~= nil and mesh:IsA("MeshPart")
+					if mesh and mesh:IsA("MeshPart") and typeof(size) == "Vector3" and typeof(ground) == "CFrame" then
+						local wantCF = frame * ground * CFrame.new(0, size.Y / 2, 0)
+						art = art and (mesh.Size - size).Magnitude < 0.005
+							and (mesh.Position - wantCF.Position).Magnitude < 0.005
+							and mesh.CFrame.LookVector:Dot(wantCF.LookVector) > 0.9999
+							and mesh.Anchored and not mesh.CanCollide and not mesh.CanTouch and not mesh.CanQuery
+							and mesh:GetAttribute("BlenderAsset") == asset
+					end
+				else
+					art = art and holder ~= nil
+				end
+				for _, child in site:GetChildren() do
+					art = art and child == holder
+				end
+				-- Grounded sites inside the cell stand on the region's own floor.
+				if role == "Grounded" and typeof(ground) == "CFrame" and not site:GetAttribute("OutsideCell") then
+					local at = (frame * (ground :: CFrame)).Position
+					local hit = workspace:Raycast(at + Vector3.new(0, 1.5, 0), Vector3.new(0, -3, 0), down)
+					grounded = grounded and hit ~= nil and math.abs(hit.Position.Y - at.Y) < 0.05
+				end
+			end
+			local kindCount = 0
+			for _ in kinds do kindCount += 1 end
+			local specCount = 0
+			for _ in AlpineSpec.alpine do specCount += 1 end
+			check("Frostbite prop sites carry the full kit contract", contract and siteCount > 0, tostring(siteCount) .. " sites")
+			check("Frostbite uses every Alpine kit asset", kindCount == specCount, tostring(kindCount))
+			check("Frostbite AssetCount matches its site count", sites ~= nil and sites:GetAttribute("AssetCount") == siteCount)
+			check("Frostbite grounded props stand on the region floor", grounded)
+			check("Frostbite has complete placeholders or correctly placed native art", art)
+			-- The meadow is the region's own floor: flush detail only, nothing standing
+			-- in the 24-stud route, and a light budget. MapBuilder's Trail slab and the
+			-- gate barrier at either end are the route's own parts, not scenery.
+			local proud, onRoute, lights = 0, 0, 0
+			for _, host in { boundary, walkways, landmarks, blenderProps, powderFirs } do
+				for _, p in (if host then host:GetDescendants() else {}) do
+					if p:IsA("PointLight") then lights += 1 end
+					if not p:IsA("BasePart") then continue end
+					local l = frame:ToObjectSpace(p.CFrame)
+					local ex = math.abs(l.RightVector.X) * p.Size.X / 2 + math.abs(l.UpVector.X) * p.Size.Y / 2 + math.abs(l.LookVector.X) * p.Size.Z / 2
+					local ey = math.abs(l.RightVector.Y) * p.Size.X / 2 + math.abs(l.UpVector.Y) * p.Size.Y / 2 + math.abs(l.LookVector.Y) * p.Size.Z / 2
+					local ez = math.abs(l.RightVector.Z) * p.Size.X / 2 + math.abs(l.UpVector.Z) * p.Size.Y / 2 + math.abs(l.LookVector.Z) * p.Size.Z / 2
+					local top = l.Position.Y + ey
+					if p.Parent and p.Parent.Name == "FloorDetail" and top > 0.36 then
+						proud += 1
+					end
+					if math.abs(l.Position.X) - ex < 12 and math.abs(l.Position.Z) - ez < 96 and top > 0.36 then
+						onRoute += 1
+					end
+				end
+			end
+			check("Frostbite meadow detail stays flush with the floor", proud == 0, tostring(proud))
+			check("Frostbite keeps the 24-stud route clear", onRoute == 0, tostring(onRoute))
+			check("Frostbite stays inside its light budget", lights <= 8, tostring(lights))
+			-- Both stairs: every riser within a stride, the counts the layout fixes.
+			for _, spec in { { "TerraceStep", 8 }, { "ShelfStep", 13 } } do
+				local treads = {}
+				for _, p in (if walkways then walkways:GetChildren() else {}) do
+					if p:IsA("BasePart") and p.Name == spec[1] then
+						table.insert(treads, p.Position.Y - centre.Y + p.Size.Y / 2)
+					end
+				end
+				table.sort(treads)
+				local climb, previous = 0, 0.30
+				for _, t in treads do
+					climb = math.max(climb, t - previous)
+					previous = t
+				end
+				check("Frostbite " .. spec[1] .. " flight is complete", #treads == spec[2], tostring(#treads))
+				check("Frostbite " .. spec[1] .. " risers stay within a stride", climb <= 0.7 and climb > 0, tostring(climb))
+			end
+		end
+		if def.element == "Heat" then
+			local props = model:FindFirstChild("BlenderProps")
+			check("Cinder Blender props loaded", props ~= nil and model:GetAttribute("BlenderPropsVersion") == 1)
+			local valid, rubble, variants = true, 0, {} :: { [string]: boolean }
+			for _, p in (if props then props:GetChildren() else {}) do
+				if not p:IsA("MeshPart") then valid = false continue end
+				valid = valid and p.MeshId ~= "" and p.TextureID ~= "" and p.MeshSize.Magnitude > 0
+					and p.Anchored and not p.CanCollide and not p.CanQuery and not p.CanTouch
+					and p.Size.Magnitude < 25
+				local asset = p:GetAttribute("BlenderAsset")
+				if typeof(asset) == "string" then variants[asset] = true end
+				if asset == "CC_Sandstone_Rubble" then
+					rubble += 1
+					valid = valid and p.Size.Y <= 0.401 and p.Material ~= Enum.Material.Neon
+				end
+			end
+			local count = 0
+			for _ in variants do count += 1 end
+			check("Cinder meshes retain import bounds and safe dimensions", props ~= nil and valid)
+			check("Cinder uses all nine Blender assets", count == 9)
+			check("Cinder field has seven flush rubble groups", rubble == 7)
+		end
+		if def.element == "Storm" then
+			-- Validate native placements alongside the permanent region geometry.
+			local boundary = model:FindFirstChild("Boundary")
+			local walkways = model:FindFirstChild("Walkways")
+			local landmarks = model:FindFirstChild("Landmarks")
+			check("Thunderworks splits boundary, walkways and landmarks",
+				boundary ~= nil and walkways ~= nil and landmarks ~= nil)
+			local sites = if landmarks then landmarks:FindFirstChild("PropSites") else nil
+			local frame = CFrame.lookAt(centre, Vector3.new(0, centre.Y, 0))
+			local contract, siteCount, grounded = true, 0, true
+			local kinds: { [string]: boolean } = {}
+			local down = RaycastParams.new()
+			down.FilterType = Enum.RaycastFilterType.Include
+			down.FilterDescendantsInstances = { model }
+			for _, site in (if sites then sites:GetChildren() else {}) do
+				siteCount += 1
+				local asset = site:GetAttribute("AssetName")
+				local size = site:GetAttribute("AssetSize")
+				local ground = site:GetAttribute("GroundCF")
+				local want = if typeof(asset) == "string" then THUNDERWORKS_KIT[asset] else nil
+				contract = contract and want ~= nil and typeof(size) == "Vector3"
+					and typeof(ground) == "CFrame" and site:GetAttribute("CollisionRole") == "none"
+					and typeof(site:GetAttribute("SupportPath")) == "string"
+				if want and typeof(size) == "Vector3" then
+					contract = contract and ((size :: Vector3) - want).Magnitude < 0.01
+				end
+				if typeof(asset) == "string" then kinds[asset] = true end
+				-- Nothing may be left hanging: every site stands on a solid surface.
+				if typeof(ground) == "CFrame" then
+					local at = (frame * (ground :: CFrame)).Position
+					local hit = workspace:Raycast(at + Vector3.new(0, 1.5, 0), Vector3.new(0, -3, 0), down)
+					grounded = grounded and hit ~= nil and math.abs(hit.Position.Y - at.Y) < 0.05
+				end
+			end
+			local kindCount = 0
+			for _ in kinds do kindCount += 1 end
+			check("Thunderworks prop sites carry the full kit contract", contract and siteCount > 0, tostring(siteCount) .. " sites")
+			check("Thunderworks uses all eight kit assets", kindCount == 8, tostring(kindCount))
+			check("Thunderworks AssetCount matches its site count",
+				sites ~= nil and sites:GetAttribute("AssetCount") == siteCount)
+			check("Thunderworks props all stand on a solid surface", grounded)
+			local props = model:FindFirstChild("BlenderProps")
+			local library = script.Parent.Parent.Map:FindFirstChild("ThunderPropTemplates")
+			if library then
+				local valid = props ~= nil and #props:GetChildren() == siteCount and siteCount == 33
+				for _, site in (if sites then sites:GetChildren() else {}) do
+					local mesh = if props then props:FindFirstChild(site.Name) else nil
+					local template = library:FindFirstChild(site:GetAttribute("AssetName"))
+					local size = site:GetAttribute("AssetSize")
+					local expected = frame * site:GetAttribute("GroundCF") * CFrame.new(0, size.Y / 2, 0)
+					valid = valid and mesh ~= nil and mesh:IsA("MeshPart") and template ~= nil and template:IsA("MeshPart")
+					if mesh and mesh:IsA("MeshPart") and template and template:IsA("MeshPart") then
+						valid = valid and (mesh.Size - size).Magnitude < 0.005 and (mesh.Position - expected.Position).Magnitude < 0.005
+							and mesh.CFrame.LookVector:Dot(expected.LookVector) > 0.9999
+							and mesh.MeshId == template.MeshId and mesh.MeshSize == template.MeshSize
+							and mesh.TextureID ~= "" and mesh.TextureID == template.TextureID
+							and mesh.Anchored and not mesh.CanCollide and not mesh.CanQuery and not mesh.CanTouch
+							and site:GetAttribute("AssetPlaced") == true and not site:FindFirstChild("PlaceholderArt")
+					end
+				end
+				check("Thunderworks native kit replaces all 33 sites with safe imported meshes", valid)
+			end
+			local floorClear = walkways ~= nil and not walkways:FindFirstChild("YardSkin")
+			for _, p in (if landmarks then landmarks:GetChildren() else {}) do
+				if p:IsA("BasePart") and (p.Name == "YardSeam" or p.Name == "YardScuff" or p.Name == "YardDrain") then
+					local half = math.abs(p.CFrame.UpVector.Y) * p.Size.Y / 2 + math.abs(p.CFrame.RightVector.Y) * p.Size.X / 2
+						+ math.abs(p.CFrame.LookVector.Y) * p.Size.Z / 2
+					floorClear = floorClear and p.Position.Y + half < centre.Y + 0.31 and not p.CanCollide
+				end
+			end
+			check("Thunderworks floor details stay below lightning warnings", floorClear)
+			-- The catching field: nothing solid inside the spawn radius, and
+			-- nothing standing proud of the yard inside 58. Flat scuff is exempt.
+			local intrudes, field, lights = 0, 0, 0
+			local roads = {}
+			for _, road in workspace.Map:GetDescendants() do
+				if road:IsA("BasePart") and road.Name == "Path" then table.insert(roads, road) end
+			end
+			local onRoad = 0
+			for _, host in { boundary, walkways, landmarks, props } do
+				for _, p in (if host then host:GetDescendants() else {}) do
+					if p:IsA("PointLight") then lights += 1 end
+					if not p:IsA("BasePart") then continue end
+					local half = math.abs(p.CFrame.UpVector.Y) * p.Size.Y / 2
+						+ math.abs(p.CFrame.RightVector.Y) * p.Size.X / 2
+						+ math.abs(p.CFrame.LookVector.Y) * p.Size.Z / 2
+					local top = p.Position.Y - centre.Y + half
+					if top <= 0.55 then continue end
+					local flat = frame:PointToObjectSpace(p.Position)
+					local plan = Vector3.new(flat.X, 0, flat.Z)
+					local u = if plan.Magnitude > 0.001 then (p.Position - Vector3.new(centre.X, p.Position.Y, centre.Z)).Unit else Vector3.xAxis
+					local reach = math.abs(u:Dot(p.CFrame.RightVector)) * p.Size.X / 2
+						+ math.abs(u:Dot(p.CFrame.UpVector)) * p.Size.Y / 2
+						+ math.abs(u:Dot(p.CFrame.LookVector)) * p.Size.Z / 2
+					local nearest = plan.Magnitude - reach
+					if nearest <= radius then intrudes += 1 end
+					if nearest < 58 and plan.Magnitude < 78 then field += 1 end
+					-- Approach structure: only what a player could walk into, so the
+					-- portal header spanning the road overhead is measured separately.
+					if plan.Magnitude > 78 and p.Position.Y - centre.Y - half < 6 then
+						for _, road in roads do
+							local pos = road.CFrame:PointToObjectSpace(p.Position)
+							local rx = math.abs(road.CFrame.RightVector:Dot(p.CFrame.RightVector)) * p.Size.X / 2
+								+ math.abs(road.CFrame.RightVector:Dot(p.CFrame.LookVector)) * p.Size.Z / 2
+							local rz = math.abs(road.CFrame.LookVector:Dot(p.CFrame.RightVector)) * p.Size.X / 2
+								+ math.abs(road.CFrame.LookVector:Dot(p.CFrame.LookVector)) * p.Size.Z / 2
+							if math.abs(pos.Z) < road.Size.Z / 2 + rz + 2
+								and math.abs(pos.X) < road.Size.X / 2 + rx + 2 then onRoad += 1 end
+						end
+					end
+				end
+			end
+			check("Thunderworks keeps the spawn field clear of scenery", intrudes == 0, tostring(intrudes))
+			check("Thunderworks keeps the flat yard clear inside 58", field == 0, tostring(field))
+			check("Thunderworks entrance structure clears roads by two studs", onRoad == 0, tostring(onRoad))
+			check("Thunderworks stays inside its light budget", lights <= 6, tostring(lights))
+			-- The optional catwalk route: both flights present, treads within stride.
+			local treads = {}
+			for _, p in (if walkways then walkways:GetChildren() else {}) do
+				if p:IsA("BasePart") and p.Name == "CatStep" then
+					table.insert(treads, p.Position.Y - centre.Y + p.Size.Y / 2)
+				end
+			end
+			table.sort(treads)
+			local rise, previous = 0, 0.30
+			for _, t in treads do
+				if t > previous + 0.001 then
+					rise = math.max(rise, t - previous)
+					previous = t
+				end
+			end
+			check("Thunderworks catwalk has both flights", #treads == 20, tostring(#treads))
+			check("Thunderworks treads stay within a stride", rise <= 0.7 and rise > 0, tostring(rise))
+		end
+		if def.element == "Cosmic" then
+			-- Verify either the complete blockout or the complete native mesh kit,
+			-- the permanent split, site contract and layout clearances. Unlike every other
+			-- region its kit has stacked and suspended assets, so a site's
+			-- PlacementRole decides what "supported" means.
+			local boundary = model:FindFirstChild("Boundary")
+			local walkways = model:FindFirstChild("Walkways")
+			local landmarks = model:FindFirstChild("Landmarks")
+			check("Orbit Outpost splits boundary, walkways and landmarks",
+				boundary ~= nil and walkways ~= nil and landmarks ~= nil)
+			local blenderProps = model:FindFirstChild("BlenderProps")
+			if script.Parent.Parent.Map:FindFirstChild("OrbitPropTemplates") then
+				check("Orbit Outpost native kit loaded", blenderProps ~= nil and model:GetAttribute("BlenderPropsVersion") == 1)
+			end
+			local sites = if landmarks then landmarks:FindFirstChild("PropSites") else nil
+			local frame = CFrame.lookAt(centre, Vector3.new(0, centre.Y, 0))
+			local contract, siteCount, grounded, stacked, art = true, 0, true, true, true
+			local kinds: { [string]: boolean } = {}
+			local groundOf: { [string]: Vector3 } = {}
+			local sizeOf: { [string]: Vector3 } = {}
+			local down = RaycastParams.new()
+			down.FilterType = Enum.RaycastFilterType.Include
+			down.FilterDescendantsInstances = { model }
+			for _, site in (if sites then sites:GetChildren() else {}) do
+				local ground = site:GetAttribute("GroundCF")
+				local size = site:GetAttribute("AssetSize")
+				if typeof(ground) == "CFrame" and typeof(size) == "Vector3" then
+					groundOf[site.Name] = (ground :: CFrame).Position
+					sizeOf[site.Name] = size :: Vector3
+				end
+			end
+			for _, site in (if sites then sites:GetChildren() else {}) do
+				siteCount += 1
+				local asset = site:GetAttribute("AssetName")
+				local size = site:GetAttribute("AssetSize")
+				local ground = site:GetAttribute("GroundCF")
+				local role = site:GetAttribute("PlacementRole")
+				local want = if typeof(asset) == "string" then ORBIT_KIT[asset] else nil
+				contract = contract and want ~= nil and typeof(size) == "Vector3"
+					and typeof(ground) == "CFrame" and site:GetAttribute("CollisionRole") == "none"
+					and site:GetAttribute("PivotMode") == "BottomCenter"
+					and typeof(site:GetAttribute("SupportPath")) == "string"
+					and (role == "Grounded" or role == "Stacked" or role == "Suspended")
+				if want and typeof(size) == "Vector3" then
+					contract = contract and ((size :: Vector3) - want).Magnitude < 0.01
+				end
+				if typeof(asset) == "string" then kinds[asset] = true end
+				-- Every stand-in lives in PlaceholderArt, so replacing art never has
+				-- to reach past the site into permanent geometry.
+				local holder = site:FindFirstChild("PlaceholderArt")
+				if blenderProps then
+					local mesh = blenderProps:FindFirstChild(site.Name)
+					art = art and holder == nil and site:GetAttribute("AssetPlaced") == true
+						and mesh ~= nil and mesh:IsA("MeshPart")
+					if mesh and mesh:IsA("MeshPart") and typeof(size) == "Vector3" and typeof(ground) == "CFrame" then
+						local wantCF = frame * ground * CFrame.new(0, size.Y / 2, 0)
+						art = art and (mesh.Size - size).Magnitude < 0.005
+							and (mesh.Position - wantCF.Position).Magnitude < 0.005
+							and mesh.CFrame.LookVector:Dot(wantCF.LookVector) > 0.9999
+							and mesh.Anchored and not mesh.CanCollide and not mesh.CanTouch and not mesh.CanQuery
+							and mesh:GetAttribute("BlenderAsset") == asset and mesh.TextureID ~= ""
+					end
+				else
+					art = art and holder ~= nil
+				end
+				for _, child in site:GetChildren() do
+					art = art and child == holder
+				end
+				if typeof(ground) == "CFrame" then
+					local at = (frame * (ground :: CFrame)).Position
+					if role == "Grounded" then
+						local hit = workspace:Raycast(at + Vector3.new(0, 1.5, 0), Vector3.new(0, -3, 0), down)
+						grounded = grounded and hit ~= nil and math.abs(hit.Position.Y - at.Y) < 0.05
+					elseif role == "Stacked" then
+						-- It has to land exactly on the top of the site it names.
+						local on = site:GetAttribute("StackOnSite")
+						local base = if typeof(on) == "string" then groundOf[on] else nil
+						local baseSize = if typeof(on) == "string" then sizeOf[on] else nil
+						stacked = stacked and base ~= nil and baseSize ~= nil
+							and math.abs((base :: Vector3).Y + (baseSize :: Vector3).Y - (ground :: CFrame).Position.Y) < 0.01
+							and math.abs((base :: Vector3).X - (ground :: CFrame).Position.X) < 0.01
+							and math.abs((base :: Vector3).Z - (ground :: CFrame).Position.Z) < 0.01
+					end
+				end
+			end
+			local kindCount = 0
+			for _ in kinds do kindCount += 1 end
+			check("Orbit Outpost prop sites carry the full kit contract", contract and siteCount > 0, tostring(siteCount) .. " sites")
+			check("Orbit Outpost uses all fifteen kit assets", kindCount == 15, tostring(kindCount))
+			check("Orbit Outpost AssetCount matches its site count",
+				sites ~= nil and sites:GetAttribute("AssetCount") == siteCount)
+			check("Orbit Outpost grounded props stand on a solid surface", grounded)
+			check("Orbit Outpost stacked props land on the site they name", stacked)
+			check("Orbit Outpost has complete placeholders or correctly placed native art", art)
+			if blenderProps then
+				check("Orbit Outpost has one native mesh per site", #blenderProps:GetChildren() == siteCount)
+			end
+			-- The catching field, the roads and the light budget, measured the way
+			-- the Thunderworks block above measures them; the flat field here runs to
+			-- 54 because the concept starts its rock terraces there.
+			local intrudes, field, lights, skin = 0, 0, 0, 0
+			local roads = {}
+			for _, road in workspace.Map:GetDescendants() do
+				if road:IsA("BasePart") and road.Name == "Path" then table.insert(roads, road) end
+			end
+			local onRoad = 0
+			for _, host in { boundary, walkways, landmarks, blenderProps } do
+				for _, p in (if host then host:GetDescendants() else {}) do
+					if p:IsA("PointLight") then lights += 1 end
+					if not p:IsA("BasePart") then continue end
+					local half = math.abs(p.CFrame.UpVector.Y) * p.Size.Y / 2
+						+ math.abs(p.CFrame.RightVector.Y) * p.Size.X / 2
+						+ math.abs(p.CFrame.LookVector.Y) * p.Size.Z / 2
+					local top = p.Position.Y - centre.Y + half
+					-- No ground skin. A Gravity Pulse telegraph is a 0.3-thick disc drawn
+					-- 0.16 above the creature, so it spans y 0.01 to 0.31 and any floor
+					-- laid over the region's own 0.30 disc would hide it.
+					if (p.Size.X >= radius or p.Size.Z >= radius) and top > 0.31 then skin += 1 end
+					if top <= 0.31 then continue end
+					local flat = frame:PointToObjectSpace(p.Position)
+					local plan = Vector3.new(flat.X, 0, flat.Z)
+					local u = if plan.Magnitude > 0.001 then (p.Position - Vector3.new(centre.X, p.Position.Y, centre.Z)).Unit else Vector3.xAxis
+					local reach = math.abs(u:Dot(p.CFrame.RightVector)) * p.Size.X / 2
+						+ math.abs(u:Dot(p.CFrame.UpVector)) * p.Size.Y / 2
+						+ math.abs(u:Dot(p.CFrame.LookVector)) * p.Size.Z / 2
+					local nearest = plan.Magnitude - reach
+					if nearest <= radius then intrudes += 1 end
+					if nearest < 54 and plan.Magnitude < 78 then field += 1 end
+					if plan.Magnitude > 78 and p.Position.Y - centre.Y - half < 6 then
+						for _, road in roads do
+							local pos = road.CFrame:PointToObjectSpace(p.Position)
+							local rx = math.abs(road.CFrame.RightVector:Dot(p.CFrame.RightVector)) * p.Size.X / 2
+								+ math.abs(road.CFrame.RightVector:Dot(p.CFrame.LookVector)) * p.Size.Z / 2
+							local rz = math.abs(road.CFrame.LookVector:Dot(p.CFrame.RightVector)) * p.Size.X / 2
+								+ math.abs(road.CFrame.LookVector:Dot(p.CFrame.LookVector)) * p.Size.Z / 2
+							if math.abs(pos.Z) < road.Size.Z / 2 + rz + 2
+								and math.abs(pos.X) < road.Size.X / 2 + rx + 2 then onRoad += 1 end
+						end
+					end
+				end
+			end
+			check("Orbit Outpost keeps the spawn field clear of scenery", intrudes == 0, tostring(intrudes))
+			check("Orbit Outpost keeps the lunar field clear inside 54", field == 0, tostring(field))
+			check("Orbit Outpost lays no floor over the hazard telegraph", skin == 0, tostring(skin))
+			check("Orbit Outpost entrance structure clears roads by two studs", onRoad == 0, tostring(onRoad))
+			check("Orbit Outpost stays inside its light budget", lights <= 6, tostring(lights))
+			-- Both flights up the gravity dais, treads within a stride.
+			local treads = {}
+			for _, p in (if walkways then walkways:GetChildren() else {}) do
+				if p:IsA("BasePart") and p.Name == "DaisStep" then
+					table.insert(treads, p.Position.Y - centre.Y + p.Size.Y / 2)
+				end
+			end
+			table.sort(treads)
+			local climb, previous = 0, 0.30
+			for _, t in treads do
+				if t > previous + 0.001 then
+					climb = math.max(climb, t - previous)
+					previous = t
+				end
+			end
+			check("Orbit Outpost dais has both flights", #treads == 16, tostring(#treads))
+			check("Orbit Outpost treads stay within a stride", climb <= 0.7 and climb > 0, tostring(climb))
+		end
+		check(def.id .. " is accessible when owned", Access.findLocked(centre, { [def.id] = true }) == nil)
+		for _, offset in { Vector3.new(70, 0, 0), Vector3.new(-70, 0, 0), Vector3.new(0, 0, 70), Vector3.new(0, 150, 0), Vector3.new(0, -30, 0) } do
+			check(def.id .. " checks entry at " .. tostring(offset),
+				Access.findLocked(centre + offset, {}) == (if def.unlockCost > 0 then def.id else nil))
+		end
+		local target = Encounters.clampToField(centre + Vector3.new(80, 3, 60), centre, radius)
+		check(def.id .. " roaming stays in the open field", approx(Vector3.new(target.X - centre.X, 0, target.Z - centre.Z).Magnitude, radius))
+		check(def.id .. " roaming preserves height", approx(target.Y, centre.Y + 3))
+		check(def.id .. " valid roaming target is unchanged", Encounters.clampToField(centre, centre, radius) == centre)
+		if def.unlockCost > 0 then
+			local profile = mockProfile(0)
+			local character = Instance.new("Model")
+			local root = Instance.new("Part")
+			root.Name = "HumanoidRootPart"
+			root.Anchored = true
+			root.Parent = character
+			character.PrimaryPart = root
+			local humanoid = Instance.new("Humanoid")
+			humanoid.Parent = character
+			local fakePlayer: any = profile.player
+			fakePlayer.Character = character
+			character:PivotTo(CFrame.new(centre + Vector3.new(65, 40, 0)))
+			check(def.id .. " returns a side jumper", Access.enforce(profile, 0) == def.id)
+			local gate = model:FindFirstChild("Gate") :: BasePart
+			local approach = gate.Position + gate.CFrame.LookVector * 12
+			check(def.id .. " returns to the gate approach", (root.Position - Vector3.new(approach.X, centre.Y + 4, approach.Z)).Magnitude < 0.01)
+			check(def.id .. " correction is outside the region", Access.findLocked(root.Position, {}) == nil)
+			profile.data.regions[def.id] = true
+			character:PivotTo(CFrame.new(centre))
+			check(def.id .. " purchase allows entry immediately", Access.enforce(profile, 1) == nil and root.Position == centre)
+			profile.data.regions[def.id] = nil
+			check(def.id .. " relaunch revokes access immediately", Access.enforce(profile, 2) == def.id)
+			character:PivotTo(CFrame.new(centre))
+			profile.loaded = false
+			check(def.id .. " waits for profile load", Access.enforce(profile, 3) == nil and root.Position == centre)
+			profile.loaded = true
+			humanoid.Health = 0
+			check(def.id .. " leaves dead characters alone", Access.enforce(profile, 4) == nil)
+			character:Destroy()
+		end
+	end
+end
+
+local function testRegionSignVisibility()
+	local regions = workspace:FindFirstChild("Regions")
+	if not regions then return end
+	for _, model in regions:GetChildren() do
+		local sign = model:FindFirstChild("GateSign") :: BasePart
+		local gate = model:FindFirstChild("Gate") :: BasePart
+		local params = RaycastParams.new()
+		params.FilterType = Enum.RaycastFilterType.Include
+		params.FilterDescendantsInstances = { model }
+		local blocked = 0
+		-- Read all parts of the board from the middle and both edges of the
+		-- approach road. This catches future scenery intruding in front of it.
+		for _, approachX in { -8, 0, 8 } do
+			local eye = gate.CFrame:PointToWorldSpace(Vector3.new(approachX, -0.5, -34))
+			for _, x in { -0.4, 0, 0.4 } do
+				for _, y in { -0.4, 0, 0.4 } do
+					local target = sign.CFrame:PointToWorldSpace(Vector3.new(x * sign.Size.X, y * sign.Size.Y, -sign.Size.Z / 2))
+					local ray = target - eye
+					local hit = workspace:Raycast(eye, ray + ray.Unit * 0.1, params)
+					if not hit or hit.Instance ~= sign then blocked += 1 end
+				end
+			end
+		end
+		check(model.Name .. " sign is unobstructed from the approach road", blocked == 0, tostring(blocked) .. " blocked samples")
+		local overlap = OverlapParams.new()
+		overlap.FilterType = Enum.RaycastFilterType.Include
+		local scenery: { Instance } = { gate }
+		for _, child in model:GetChildren() do
+			if child.Name == "Boundary" or child.Name == "Landmarks" or child.Name == "GatePost" or child.Name == "GateLintel" then
+				table.insert(scenery, child)
+			end
+		end
+		overlap.FilterDescendantsInstances = scenery
+		local touching = workspace:GetPartBoundsInBox(sign.CFrame, sign.Size, overlap)
+		check(model.Name .. " sign does not intersect entrance scenery", #touching == 0)
+	end
+end
+
+-- The catching field has to stay empty. Creatures roam inside `SpawnRadius`
+-- and a hazard is telegraphed on the ground around them, so a solid prop in
+-- that circle is a bug however good it looks from the entrance. Measured from
+-- the nearest point of each part's ground footprint, the way the layout-B
+-- arena cull in MapBuilder measures. Floors are excluded by their own size:
+-- nothing legitimately inside the field is as wide as the field.
+local function testRegionFieldClearance()
+	local regions = workspace:FindFirstChild("Regions")
+	if not regions then return end
+	for _, def in Config.Regions.list do
+		local model = regions:FindFirstChild(def.id) :: Model
+		if not model then continue end
+		local centre = model:GetAttribute("Centre") :: Vector3
+		local field = model:GetAttribute("SpawnRadius") :: number
+		local intruders = {}
+		for _, d in model:GetDescendants() do
+			local solid = d:IsA("BasePart") and d.CanCollide
+			local floor = solid and (d.Size.X >= field or d.Size.Z >= field)
+			if solid and not floor then
+				local box = d :: BasePart
+				local minX, maxX, minZ, maxZ = math.huge, -math.huge, math.huge, -math.huge
+				for _, sx in { -1, 1 } do
+					for _, sz in { -1, 1 } do
+						local c = box.CFrame:PointToWorldSpace(Vector3.new(sx * box.Size.X / 2, 0, sz * box.Size.Z / 2))
+						minX, maxX = math.min(minX, c.X), math.max(maxX, c.X)
+						minZ, maxZ = math.min(minZ, c.Z), math.max(maxZ, c.Z)
+					end
+				end
+				local nx = math.clamp(centre.X, minX, maxX)
+				local nz = math.clamp(centre.Z, minZ, maxZ)
+				if math.sqrt((nx - centre.X) ^ 2 + (nz - centre.Z) ^ 2) < field then
+					table.insert(intruders, box.Name)
+				end
+			end
+		end
+		check(def.id .. " catching field is clear", #intruders == 0, table.concat(intruders, ", "):sub(1, 90))
+	end
+end
+
+local function testImportStaging()
+	local map = script.Parent.Parent.Map
+	local staging = require(map.ImportStaging)
+	local source, storage = Instance.new("Folder"), Instance.new("Folder")
+	local raw = map.GustyPropTemplates:Clone()
+	raw.Name = "GustyPropsBundle"
+	for _, p in raw:GetDescendants() do
+		if p:IsA("BasePart") then p.Size *= 100 p.Anchored = false end
+	end
+	raw.Parent = source
+	check("raw import gallery is removed from the world before physics", staging.move(source, storage) == 1 and raw:IsDescendantOf(storage))
+	local anchored = true
+	for _, p in raw:GetDescendants() do
+		if p:IsA("BasePart") then anchored = anchored and p.Anchored end
+	end
+	check("stored import gallery cannot fall when reinserted", anchored)
+	check("import staging is idempotent", staging.move(source, storage) == 0)
+	local unrelated = Instance.new("Model")
+	unrelated.Name = "SplashwaterPropsBundle"
+	Instance.new("Part").Parent = unrelated
+	unrelated.Parent = source
+	check("import cleanup preserves unrelated models with the same name", staging.move(source, storage) == 0 and unrelated.Parent == source)
+	source:Destroy()
+	storage:Destroy()
+	-- Reproduce the reported failure: a recognized mesh outside region placement
+	-- must fail this check even if it has already fallen below the map.
+	local ids: { [string]: boolean } = {}
+	for _, name in { "GustyPropTemplates", "SplashwaterPropTemplates", "CinderPropTemplates", "FrostbitePropTemplates", "OrbitPropTemplates", "ThunderPropTemplates" } do
+		local library = map:FindFirstChild(name)
+		if not library then continue end
+		for _, p in library:GetDescendants() do
+			if p:IsA("MeshPart") then ids[p.MeshId] = true end
+		end
+	end
+	local regions = workspace:FindFirstChild("Regions")
+	local stray = 0
+	for _, p in workspace:GetDescendants() do
+		if p:IsA("MeshPart") and ids[p.MeshId] then
+			if not regions or not p:IsDescendantOf(regions) or not p:GetAttribute("BlenderAsset")
+				or not p.Anchored or p.Size.Magnitude > 35 then stray += 1 end
+		end
+	end
+	check("no loose or oversized imported region meshes in Workspace", stray == 0, tostring(stray))
+	-- Any kit, under any name: a copy of a staged gallery mesh that is not a
+	-- placed prop is a raw import that will fall (2026-09-22, a 184-stud crate
+	-- in a hand-made FrostbiteALpineTemplates model).
+	local staged = game:GetService("ServerStorage"):FindFirstChild("RegionImportStaging")
+	local rawIds: { [string]: boolean } = {}
+	for _, p in (if staged then staged:GetDescendants() else {}) do
+		if p:IsA("MeshPart") and p.MeshId ~= "" then rawIds[p.MeshId] = true end
+	end
+	local copies = {}
+	for _, p in workspace:GetDescendants() do
+		if p:IsA("MeshPart") and rawIds[p.MeshId] and not p:GetAttribute("BlenderAsset") then
+			table.insert(copies, p:GetFullName())
+		end
+	end
+	check("no raw import copies loose in Workspace", #copies == 0, table.concat(copies, ", "):sub(1, 90))
+end
+
 function Harness.run()
 	passed = 0
 	failed = 0
@@ -1479,6 +2462,10 @@ function Harness.run()
 		{ name = "purchases", fn = testPurchases },
 		{ name = "cosmetics", fn = testCosmetics },
 		{ name = "tutorial + gates", fn = testTutorialAndGates },
+		{ name = "region access + roaming", fn = testRegionAccess },
+		{ name = "region sign visibility", fn = testRegionSignVisibility },
+		{ name = "region field clearance", fn = testRegionFieldClearance },
+		{ name = "raw import staging", fn = testImportStaging },
 		{ name = "data", fn = testData },
 		{ name = "sell/storage", fn = testSellAndStorage },
 		{ name = "quests", fn = testQuestsAndRewards },

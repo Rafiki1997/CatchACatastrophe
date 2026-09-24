@@ -2,8 +2,8 @@
 -- Studio only. The in-memory test adapter starts every session with an empty
 -- city, so checking income, the bank and the collection pad used to mean
 -- catching and deploying a creature first. In Studio each tester is handed a
--- Prismatic Big Whoops, the strongest creature (128 x 20 x 2 = 5,120 Coins/s),
--- already working on their first free pad. Never runs outside Studio, and never
+-- Prismatic Rochebreaker, a high-tier Cosmic showcase creature, already working
+-- on their first free pad. Never runs outside Studio, and never
 -- for a profile backed by real data.
 
 local Players = game:GetService("Players")
@@ -16,11 +16,10 @@ local Notify = require(script.Parent.Notify)
 
 local StudioTester = {}
 
-local SPECIES = "the_big_whoops"
+local SPECIES = "rochebreaker"
 local VARIANT = "Prismatic"
--- one of each chase tier as well, so the tiers that only come out of an egg
--- can be looked at without spending anything
-local SHOWCASE = { "comet_king", "galaxy_gobbler", "void_whoops" }
+-- Grant the rest of the Cosmic roster automatically for Studio testing.
+local SHOWCASE = { "rubble_runt", "lagrange_loper", "pulsar_prickle", "nebula_noodle", "universe_seed" }
 local gifted: { [Player]: boolean } = {}
 -- The live suite deploys onto pads 1 and 2 a few seconds after the first join and
 -- checks what it finds there. Gift only once it reports done (Main.server sets
@@ -43,17 +42,21 @@ local function gift(profile: Profiles.Profile): boolean
 			break
 		end
 	end
-	-- Mythic, Celestial and Astral, deployed where they can be seen
-	for index, speciesId in SHOWCASE do
+	-- Fill available starter pads; any remaining examples stay in storage.
+	for _, speciesId in SHOWCASE do
 		local showUid = S.City.grantCreature(profile, speciesId, "Normal", true)
 		if showUid then
-			S.City.deploy(profile, showUid, index + 1)
+			for pad = 1, 6 do
+				if S.City.deploy(profile, showUid, pad) then
+					break
+				end
+			end
 		end
 	end
 	Sync.push(profile)
-	local text = "Studio tester: a Prismatic Big Whoops and the three chase tiers are in your storage."
+	local text = "Studio tester: all six Cosmic creatures are in your storage."
 	if placed then
-		text = "Studio tester: a Prismatic Big Whoops plus a Mythic, a Celestial and an Astral are on your pads."
+		text = "Studio tester: all six Cosmic creatures are yours! Check your pads and creature storage."
 	end
 	Notify.player(profile.player, "info", text, 7)
 	return true

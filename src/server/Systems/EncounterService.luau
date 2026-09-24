@@ -98,11 +98,82 @@ function EncounterService.legStart(previousTo: any, pivot: Vector3): Vector3
 	return if typeof(previousTo) == "Vector3" then previousTo else pivot
 end
 
+-- Keep roaming paths in the open field, away from boundary scenery. A circle
+-- is convex, so clamping both endpoints also keeps the entire leg inside.
+function EncounterService.clampToField(position: Vector3, centre: Vector3, radius: number, half: Vector3?): Vector3
+	if half then
+		-- A remodelled region is a rectangle, and clamping it to a circle kept
+		-- creatures off most of its grass.
+		return Vector3.new(
+			math.clamp(position.X, centre.X - half.X, centre.X + half.X),
+			position.Y,
+			math.clamp(position.Z, centre.Z - half.Z, centre.Z + half.Z)
+		)
+	end
+	local flat = Vector3.new(position.X - centre.X, 0, position.Z - centre.Z)
+	if flat.Magnitude <= radius then
+		return position
+	end
+	local edge = flat.Unit * radius
+	return Vector3.new(centre.X + edge.X, position.Y, centre.Z + edge.Z)
+end
+
+-- Push a point out of anything the region asked to be kept clear of.
+function EncounterService.clearOf(region: any, point: Vector3): Vector3
+	for _, zone in region.keepOut or {} do
+		local delta = point - region.centre - zone.at
+		local flat = Vector3.new(delta.X, 0, delta.Z)
+		if zone.lane then
+			if math.abs(delta.X) < zone.lane and math.abs(delta.Z) < zone.lane then
+				local push = if delta.X >= 0 then zone.lane else -zone.lane
+				point = Vector3.new(region.centre.X + zone.at.X + push, point.Y, point.Z)
+			end
+		elseif zone.radius > 0 and flat.Magnitude < zone.radius then
+			local out = if flat.Magnitude > 0.01 then flat.Unit else Vector3.new(1, 0, 0)
+			local edge = region.centre + zone.at + out * zone.radius
+			point = Vector3.new(edge.X, point.Y, edge.Z)
+		end
+	end
+	return point
+end
+
+-- Somewhere on this region's grass: inside the field, off the road and clear of
+-- anything standing in it. Falls back to the sampled point rather than looping.
+function EncounterService.pickHome(region: any): Vector3
+	local half = region.fieldHalf
+	for _ = 1, 10 do
+		local point
+		if half then
+			point = region.centre + Vector3.new(rng:NextNumber(-half.X, half.X), 0, rng:NextNumber(-half.Z, half.Z))
+		else
+			local angle = rng:NextNumber(0, math.pi * 2)
+			local dist = rng:NextNumber(10, region.spawnRadius)
+			point = region.centre + Vector3.new(math.cos(angle) * dist, 0, math.sin(angle) * dist)
+		end
+		local ok = true
+		for _, zone in region.keepOut or {} do
+			local delta = point - region.centre - zone.at
+			if zone.lane and math.abs(delta.X) < zone.lane and math.abs(delta.Z) < zone.lane then
+				ok = false
+			elseif zone.radius > 0 and Vector3.new(delta.X, 0, delta.Z).Magnitude < zone.radius then
+				ok = false
+			end
+		end
+		if ok then
+			return point
+		end
+	end
+	return region.centre + Vector3.new(region.spawnRadius * 0.6, 0, 0)
+end
+
 local function newLeg(encounter: Encounter, now: number)
 	local from = EncounterService.legStart(encounter.model:GetAttribute("PathTo"), encounter.model:GetPivot().Position)
 	local angle = rng:NextNumber(0, math.pi * 2)
 	local dist = rng:NextNumber(6, Config.Capture.roamRadius)
 	local target = encounter.home + Vector3.new(math.cos(angle) * dist, 0, math.sin(angle) * dist)
+	local region = refs.regions[encounter.regionId]
+	target = EncounterService.clampToField(target, region.centre, region.spawnRadius, region.fieldHalf)
+	target = EncounterService.clearOf(region, target)
 	local duration = math.max(1.5, (target - from).Magnitude / Config.Capture.roamSpeed)
 	local model = encounter.model
 	model:SetAttribute("PathFrom", from)
@@ -151,9 +222,7 @@ local function spawnOne(regionId: string, forceSpecies: string?, forceLegendary:
 		return nil
 	end
 
-	local angle = rng:NextNumber(0, math.pi * 2)
-	local dist = rng:NextNumber(10, region.spawnRadius)
-	local home = region.centre + Vector3.new(math.cos(angle) * dist, 0, math.sin(angle) * dist)
+	local home = EncounterService.pickHome(region)
 
 	local ok, model = pcall(CreatureModels.build, species.id, "Normal")
 	if not ok or typeof(model) ~= "Instance" then

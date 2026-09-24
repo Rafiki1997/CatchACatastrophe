@@ -207,7 +207,7 @@ function Router.init()
 
 	-- settings
 	local NUMBER_SETTINGS = { music = true, sfx = true }
-	local BOOL_SETTINGS = { reducedMotion = true, reducedFlashing = true, notifications = true }
+	local BOOL_SETTINGS = { reducedMotion = true, reducedFlashing = true, notifications = true, tutorial = true }
 	bind("SetSetting", function(key, value)
 		if typeof(key) ~= "string" then
 			return false

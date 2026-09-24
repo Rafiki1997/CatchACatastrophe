@@ -6,15 +6,19 @@
 -- Player plots are NOT built here; CityService builds them from `refs.plots`
 -- using Map.PlotTemplate.
 --
--- Layout, in studs, ground top surface at y = 0:
---   Hub plaza      radius 70 around the origin
---   Arena          radius 30; layout A at (0, 0, -105), layout B at polar(262, 300)
---                  between the Frostbite and Thunderworks regions, reached by a
---                  spur off the Frostbite road (Config.MapLayout, chosen: B)
---   Plot ring      radius 140; A: eight every 45 degrees from 22.5;
---                  B: six every 60 degrees from 60, between the region roads
---   Regions        radius 280, one every 60 degrees from 90
---   Region gates   radius 200 on the region's own angle
+-- Layout, in studs, ground top surface at y = 0. North is -Z.
+--   Town island   grass disc radius 215, the fountain at the origin
+--   Promenade     stone ring, radii 70 to 96, with four paved arms in to the
+--                 fountain apron (radius 30, basin radius 20)
+--   Services      Upgrade Workshop (-40, -40), Catastrophe Atlas (40, -40),
+--                 City Relaunch (40, 40). The south-west quadrant is garden.
+--   Plot ring     six 60 x 60 lots at radius 145, every 60 degrees from 0, each
+--                 on its own 14-wide connector out to the ring
+--   Regions       one straight chain north of the island: six 280 x 200 walled
+--                 cells, region i centred at z = -215 - (i - 0.5) * 200
+--   Region gates  a 44-wide opening in the divider wall at each cell's south
+--                 edge. Gusty Gardens opens straight off the town, unwalled.
+--   Arena         its own islet south of the town at (0, 0, 300)
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CollectionService = game:GetService("CollectionService")
@@ -34,6 +38,86 @@ local CONCRETE = rgb(186, 186, 194)
 local DECK = rgb(120, 126, 142)
 local STEEL = rgb(150, 156, 168)
 local PATH = rgb(158, 156, 166)
+
+-- ---------------------------------------------------------------- layout
+-- Every dimension the concept board fixes, in one place. North is -Z, so the
+-- region chain runs in decreasing z and the town's south entrance is at +z.
+local ISLAND_R = 215
+local RING_IN, RING_OUT = 70, 96
+local APRON_R, BASIN_R = 30, 20
+local TRUNK_W, ARM_W = 22, 16
+local PLOT_R, PLOT_HALF, CONNECTOR_W = 145, 30, 14
+local SERVICE_OFF = 40
+
+-- 200 deep is the floor the art sets, not a taste call: Frostbite Peaks'
+-- own approach scenery is 196 studs end to end and poked through a
+-- 180-deep cell's divider wall. The concept's cells are shallower still,
+-- which a circular prop ring cannot reach without being reshaped.
+local CELL_W, CELL_D = 280, 200
+local WALL_T, WALL_H = 3, 9
+-- 45 divides 180 exactly, so a lateral wall's piers land on every divider.
+local PIER_SPACING = 45
+local GATE_W = 44
+local CHAIN_Z0 = -ISLAND_R
+local CHAIN_LEN = CELL_D * 6
+local STRIP_W = CELL_W + 80
+local ARENA_CENTRE = Vector3.new(0, 0, 300)
+
+local PAVER = rgb(226, 214, 190)
+local PAVER_KERB = rgb(198, 184, 158)
+local GRASS_C = rgb(126, 168, 104)
+local WALL_STONE = rgb(228, 216, 192)
+local WALL_CAP = rgb(203, 189, 163)
+local WALL_PIER = rgb(216, 203, 179)
+local LANTERN = rgb(255, 214, 140)
+local IRON = rgb(64, 58, 56)
+local WATER_C = rgb(83, 204, 232)
+local TEAL_PANEL = rgb(38, 78, 122)
+local GOLD = rgb(226, 170, 58)
+local GOLD_DEEP = rgb(176, 124, 36)
+local NAVY = rgb(30, 52, 92)
+local BRONZE = rgb(120, 82, 48)
+local DIRT = rgb(226, 190, 132)
+-- The bay's lane is the beach: the concept shows no change of surface at all,
+-- so this matches splashwater_bay's groundColor exactly and only the geometry
+-- (and the region module's flat stones) marks the route.
+local SAND_TRAIL = rgb(246, 214, 152)
+-- The quarry's lane is the quarry floor: the Cinder Quarry concept draws no
+-- road at all either, so this matches cinder_canyon's groundColor exactly.
+local QUARRY_TRAIL = rgb(238, 134, 86)
+-- The Alpine Outpost's route is packed snow, a shade bluer than the meadow
+-- either side of it, as the concept draws it: no paving and no kerbs.
+local SNOW_TRAIL = rgb(190, 206, 228)
+
+-- A region whose interior has been remodelled to its own concept reports its
+-- own field rectangle from its scenery module. Regions still built around a
+-- circular prop ring report nothing and keep this disc.
+local SPAWN_RADIUS = 44
+-- Those same regions lay out their own perimeter planting and do not want the
+-- generic biome shoulders.
+local OWN_PERIMETER: { [string]: boolean } = { Wind = true, Water = true, Heat = true, Frost = true }
+-- Regions that dress the grass strip outside their own stretch of the side
+-- walls; the shared treeline leaves those stretches alone.
+local OWN_FLANK: { [string]: boolean } = { Frost = true }
+-- Gusty's route is trodden earth in the concept; the rest are paved except
+-- those below, whose concepts draw no road at all.
+local TRAIL_DIRT: { [string]: boolean } = { Wind = true }
+-- A lane that is the ground it crosses: same colour, same material, and only
+-- the geometry either side marks the way. Paving these kerbed a beach and a
+-- quarry floor with a grey runway, which is what neither concept shows.
+local TRAIL_BLEND: { [string]: { color: Color3, material: Enum.Material, width: number } } = {
+	Water = { color = SAND_TRAIL, material = Enum.Material.Sand, width = 22 },
+	Heat = { color = QUARRY_TRAIL, material = Enum.Material.Sandstone, width = 24 },
+	Frost = { color = SNOW_TRAIL, material = Enum.Material.Snow, width = 24 },
+}
+
+-- Boards built from concept art share one five-row hierarchy: a small element
+-- line, a large name, a large status, then a surge footer that sets its
+-- countdown above its explanation. Wind was approved on the original even rows
+-- and keeps them.
+local BOARD_HIERARCHY: { [string]: boolean } = {
+	Water = true, Heat = true, Frost = true, Storm = true, Cosmic = true,
+}
 
 local partCount = 0
 
@@ -95,6 +179,81 @@ local function disc(parent: Instance, name: string, centre: Vector3, radius: num
 		collide = true,
 		parent = parent,
 	})
+end
+
+-- Flat stone paving. The concept's town is paved, not chevroned: the promenade,
+-- its four arms, the plot connectors and both trunks are plain slabs, and the
+-- directional chevrons are kept for the region trail where they earn their keep.
+local function slab(parent: Instance, name: string, cx: number, cz: number, sizeX: number, sizeZ: number, y: number, color: Color3?): Part
+	return part({
+		name = name,
+		size = Vector3.new(sizeX, 1, sizeZ),
+		cf = CFrame.new(cx, y - 0.5, cz),
+		color = color or PAVER,
+		material = Enum.Material.Concrete,
+		collide = true,
+		parent = parent,
+	})
+end
+
+-- A paved strip between two ground points, for the radial connectors.
+local function strip(parent: Instance, name: string, from: Vector3, to: Vector3, width: number, y: number, color: Color3?): Part?
+	local delta = Vector3.new(to.X - from.X, 0, to.Z - from.Z)
+	local length = delta.Magnitude
+	if length < 0.5 then
+		return nil
+	end
+	local mid = Vector3.new((from.X + to.X) / 2, y - 0.5, (from.Z + to.Z) / 2)
+	return part({
+		name = name,
+		size = Vector3.new(width, 1, length),
+		cf = CFrame.lookAt(mid, mid + delta.Unit),
+		color = color or PAVER,
+		material = Enum.Material.Concrete,
+		collide = true,
+		parent = parent,
+	})
+end
+
+-- A run of pale stone wall with a lantern pier every PIER_SPACING studs: the
+-- enclosure the concept draws around every region. The end piers are optional
+-- so a divider's two halves do not bury a pier inside the taller gate piers.
+local function wall(parent: Instance, from: Vector3, to: Vector3, height: number, noStartPier: boolean?, noEndPier: boolean?)
+	local delta = Vector3.new(to.X - from.X, 0, to.Z - from.Z)
+	local length = delta.Magnitude
+	if length < 0.5 then
+		return
+	end
+	local mid = Vector3.new((from.X + to.X) / 2, 0, (from.Z + to.Z) / 2)
+	local base = CFrame.lookAt(mid, mid + delta.Unit)
+	part({ name = "Wall", size = Vector3.new(WALL_T, height, length), cf = base * CFrame.new(0, height / 2, 0),
+		color = WALL_STONE, material = Enum.Material.Concrete, collide = true, parent = parent })
+	part({ name = "WallCap", size = Vector3.new(WALL_T + 1.0, 1.0, length), cf = base * CFrame.new(0, height + 0.5, 0),
+		color = WALL_CAP, material = Enum.Material.Concrete, parent = parent })
+	-- Two scored courses: a plain slab read as a slab, and the concept's wall is
+	-- visibly laid in blocks.
+	for _, frac in { 0.36, 0.7 } do
+		part({ name = "WallCourse", size = Vector3.new(WALL_T + 0.3, 0.32, length), cf = base * CFrame.new(0, height * frac, 0),
+			color = WALL_CAP:Lerp(rgb(150, 140, 122), 0.5), material = Enum.Material.Concrete, parent = parent })
+	end
+	local piers = math.max(1, math.round(length / PIER_SPACING))
+	for i = 0, piers do
+		if not ((i == 0 and noStartPier) or (i == piers and noEndPier)) then
+			local at = from:Lerp(to, i / piers)
+			local top = height + 3.2
+			part({ name = "WallPier", size = Vector3.new(5.2, top, 5.2), cf = CFrame.new(at.X, top / 2, at.Z),
+				color = WALL_PIER, material = Enum.Material.Concrete, collide = true, parent = parent })
+			part({ name = "LanternBase", size = Vector3.new(3.4, 0.7, 3.4), cf = CFrame.new(at.X, top + 0.35, at.Z), color = IRON, parent = parent })
+			local bulb = part({ name = "LanternBulb", size = Vector3.new(2.4, 2.4, 2.4), cf = CFrame.new(at.X, top + 1.9, at.Z),
+				color = LANTERN, material = Enum.Material.Neon, parent = parent })
+			part({ name = "LanternCap", size = Vector3.new(3.8, 0.8, 3.8), cf = CFrame.new(at.X, top + 3.5, at.Z), color = IRON, parent = parent })
+			local light = Instance.new("PointLight")
+			light.Color = LANTERN
+			light.Range = 30
+			light.Brightness = 0.85
+			light.Parent = bulb
+		end
+	end
 end
 
 local function hazardStrip(parent: Instance, origin: CFrame, length: number, height: number, thickness: number)
@@ -266,35 +425,84 @@ local function lamp(parent: Instance, at: Vector3, color: Color3?)
 	light.Parent = bulb
 end
 
--- ============================================================ hub
+-- ============================================================ town
+
+-- The fountain at the centre of the park. It replaces the company logo ring,
+-- which sat in the same place and competed with the paving for attention.
+local function buildFountain(parent: Instance)
+	local f = Instance.new("Model")
+	f.Name = "Fountain"
+	f.Parent = parent
+	disc(f, "Apron", Vector3.new(0, 0.30, 0), APRON_R, 1, PAVER, Enum.Material.Concrete)
+	disc(f, "ApronKerb", Vector3.new(0, 0.36, 0), BASIN_R + 4.4, 1, rgb(238, 230, 212), Enum.Material.Concrete)
+	disc(f, "BasinFloor", Vector3.new(0, 0.62, 0), BASIN_R + 2.6, 1.2, rgb(206, 230, 238), Enum.Material.Concrete)
+	disc(f, "Water", Vector3.new(0, 1.30, 0), BASIN_R, 1.6, WATER_C, Enum.Material.Neon)
+	-- The rim is a ring of segments, not a disc: a disc wide enough to be a rim
+	-- is also a lid, and it capped the water it was meant to hold.
+	for i = 1, 36 do
+		local a = (i / 36) * 360
+		part({ name = "BasinRim", size = Vector3.new(4.4, 2.8, 2.6), cf = CFrame.new(polar(BASIN_R + 1.7, a, 1.4)) * CFrame.Angles(0, math.rad(-a), 0),
+			color = rgb(244, 237, 220), material = Enum.Material.Concrete, collide = true, parent = f })
+	end
+	disc(f, "Plinth", Vector3.new(0, 2.9, 0), 4.6, 3.6, rgb(240, 233, 216), Enum.Material.Concrete)
+	local body = part({ name = "StatueBody", size = Vector3.new(7.2, 7.2, 7.2), cf = CFrame.new(0, 6.2, 0),
+		color = rgb(248, 244, 234), shape = Enum.PartType.Ball, collide = true, parent = f })
+	for _, side in { -1, 1 } do
+		part({ name = "StatueEar", size = Vector3.new(1.6, 4.6, 2.0), cf = CFrame.new(side * 2.1, 9.7, 0) * CFrame.Angles(0, 0, math.rad(side * 12)),
+			color = rgb(248, 244, 234), parent = f })
+		part({ name = "StatueEye", size = Vector3.new(0.9, 1.2, 0.5), cf = CFrame.new(side * 1.5, 6.6, 3.4), color = rgb(58, 54, 60), parent = f })
+	end
+	part({ name = "Jet", size = Vector3.new(1.1, 7.4, 1.1), cf = CFrame.new(0, 13.2, 0), color = rgb(226, 246, 255),
+		material = Enum.Material.Neon, transparency = 0.45, query = false, parent = f })
+	local glow = Instance.new("PointLight")
+	glow.Color = WATER_C
+	glow.Range = 42
+	glow.Brightness = 0.8
+	glow.Parent = body
+end
+
+-- A low board on a pair of posts, beside a path rather than across it.
+local function groundSign(parent: Instance, at: Vector3, text: string, yaw: number)
+	local frame = CFrame.new(at) * CFrame.Angles(0, math.rad(yaw), 0)
+	for _, side in { -1, 1 } do
+		part({ name = "SignPost", size = Vector3.new(0.9, 6, 0.9), cf = frame * CFrame.new(side * 5.2, 3, 0),
+			color = rgb(122, 96, 72), material = Enum.Material.Wood, collide = true, parent = parent })
+	end
+	local board = part({ name = "SignBoard", size = Vector3.new(13, 3.6, 0.7), cf = frame * CFrame.new(0, 6.2, 0),
+		color = rgb(240, 232, 214), material = Enum.Material.WoodPlanks, collide = true, parent = parent })
+	local gui = surface(board, Enum.NormalId.Front, 26)
+	local l = label(gui, "Text", text, UDim2.fromScale(0.92, 0.7), UDim2.fromScale(0.04, 0.15), rgb(64, 58, 52))
+	l.TextStrokeTransparency = 1
+	return board
+end
 
 local function buildHub(parent: Instance)
 	local hub = Instance.new("Model")
 	hub.Name = "Hub"
 	hub.Parent = parent
 
-	-- Floors sit slightly proud of the ground. A floor whose top face is exactly
-	-- at y = 0, like the ground's, z-fights with it: the two surfaces flicker
-	-- against each other, which showed up as a shimmering circle across the
-	-- plaza. Every stacked layer below keeps a similar gap for the same reason.
-	disc(hub, "Plaza", Vector3.new(0, 0.06, 0), 70, 1, CONCRETE, Enum.Material.Concrete)
-	disc(hub, "PlazaInner", Vector3.new(0, 0.15, 0), 30, 1, rgb(206, 202, 210), Enum.Material.Concrete)
-	-- company logo ring in the middle
-	for i = 1, 24 do
-		local a = (i / 24) * 360
-		part({
-			name = "LogoTile",
-			size = Vector3.new(3.2, 0.16, 1.6),
-			cf = CFrame.new(polar(16, a, 0.32)) * CFrame.Angles(0, math.rad(-a), 0),
-			color = if i % 2 == 0 then rgb(150, 157, 166) else rgb(105, 114, 126),
-			parent = hub,
-		})
-	end
+	-- Stacked discs, each a little proud of the one beneath it. Two surfaces at
+	-- exactly the same height z-fight, which used to shimmer across the plaza.
+	disc(hub, "Island", Vector3.new(0, 0.04, 0), ISLAND_R, 6, GRASS_C, Enum.Material.Grass)
+	disc(hub, "Ring", Vector3.new(0, 0.10, 0), RING_OUT, 1, PAVER, Enum.Material.Concrete)
+	disc(hub, "RingKerb", Vector3.new(0, 0.16, 0), RING_IN + 1.4, 1, PAVER_KERB, Enum.Material.Concrete)
+	disc(hub, "Park", Vector3.new(0, 0.22, 0), RING_IN, 1, GRASS_C, Enum.Material.Grass)
+
+	-- Four arms cross the park: the north and south trunks run all the way out
+	-- to the island edge, east and west let players round the fountain either way.
+	local trunkLen = ISLAND_R - 3 - APRON_R
+	slab(hub, "TrunkNorth", 0, -(APRON_R + ISLAND_R - 3) / 2, TRUNK_W, trunkLen, 0.28)
+	slab(hub, "TrunkSouth", 0, (APRON_R + ISLAND_R - 3) / 2, TRUNK_W, trunkLen, 0.28)
+	local armLen = RING_IN + 1 - APRON_R
+	slab(hub, "ArmWest", -(APRON_R + RING_IN + 1) / 2, 0, armLen, ARM_W, 0.28)
+	slab(hub, "ArmEast", (APRON_R + RING_IN + 1) / 2, 0, armLen, ARM_W, 0.28)
+
+	buildFountain(hub)
 
 	local spawn = Instance.new("SpawnLocation")
 	spawn.Name = "Spawn"
 	spawn.Size = Vector3.new(12, 1, 12)
-	spawn.CFrame = CFrame.new(0, 0.5, -20)
+	spawn.CFrame = CFrame.new(0, 0.82, 52)
 	spawn.Anchored = true
 	spawn.CanCollide = true
 	spawn.Neutral = true
@@ -303,109 +511,67 @@ local function buildHub(parent: Instance)
 	spawn.Transparency = 0.35
 	spawn.Parent = hub
 
-	-- ---------------------------------------------------------------- workshop
-	local workshopPos = Vector3.new(-42, 0, 22)
-	local workshop = Instance.new("Model")
-	workshop.Name = "Workshop"
-	workshop.Parent = hub
-	part({ name = "Floor", size = Vector3.new(26, 1, 20), cf = CFrame.new(workshopPos + Vector3.new(0, 0.5, 0)), color = DECK, collide = true, parent = workshop })
-	part({ name = "Wall", size = Vector3.new(26, 12, 1), cf = CFrame.new(workshopPos + Vector3.new(0, 6.5, 9.5)), color = rgb(96, 132, 168), collide = true, parent = workshop })
-	part({ name = "WallL", size = Vector3.new(1, 12, 20), cf = CFrame.new(workshopPos + Vector3.new(-12.5, 6.5, 0)), color = rgb(96, 132, 168), collide = true, parent = workshop })
-	part({ name = "WallR", size = Vector3.new(1, 12, 20), cf = CFrame.new(workshopPos + Vector3.new(12.5, 6.5, 0)), color = rgb(96, 132, 168), collide = true, parent = workshop })
-	part({ name = "Roof", size = Vector3.new(28, 1, 22), cf = CFrame.new(workshopPos + Vector3.new(0, 13, 0)), color = HAZARD, parent = workshop })
-	hazardStrip(workshop, CFrame.new(workshopPos + Vector3.new(0, 12.2, -11.1)), 26, 1.2, 0.2)
-	-- big spanner and gear on the front wall
-	local gearCentre = workshopPos + Vector3.new(-7, 7.5, -9.5)
-	part({ name = "Gear", size = Vector3.new(0.6, 6, 6), cf = CFrame.new(gearCentre) * CFrame.Angles(0, math.rad(90), 0), color = STEEL, shape = Enum.PartType.Cylinder, parent = workshop })
-	for i = 1, 8 do
-		local a = math.rad((i / 8) * 360)
-		-- teeth ring in the wall plane (XY), not the ground plane
-		part({ name = "Tooth", size = Vector3.new(1.4, 1.4, 0.7), cf = CFrame.new(gearCentre + Vector3.new(math.cos(a) * 3.4, math.sin(a) * 3.4, 0)) * CFrame.Angles(0, 0, a), color = STEEL, parent = workshop })
+	-- The three public services stand in the park inside the ring, one to a
+	-- quadrant, all facing south into it the way the concept draws them. The
+	-- south-west quadrant is left as garden.
+	local Landmarks = require(script.Parent.HubLandmarks)
+	local function facingSouth(pos: Vector3): CFrame
+		return CFrame.lookAt(pos, pos + Vector3.new(0, 0, 1))
 	end
-	local sign = part({ name = "Sign", size = Vector3.new(14, 3.4, 0.4), cf = CFrame.new(workshopPos + Vector3.new(0, 15.2, -8)), color = INK, parent = workshop })
-	label(surface(sign, Enum.NormalId.Front, 24), "Text", "UPGRADE WORKSHOP", UDim2.fromScale(1, 1), UDim2.fromScale(0, 0), HAZARD)
-	local workshopTerminal = part({ name = "Terminal", size = Vector3.new(4, 4.5, 2.4), cf = CFrame.new(workshopPos + Vector3.new(0, 2.8, -7)), color = rgb(58, 62, 82), collide = true, parent = workshop })
-	workshopTerminal:SetAttribute("OpensPanel", "Workshop")
-	workshopTerminal:SetAttribute("WaypointName", "Upgrade Workshop")
-	workshopTerminal:SetAttribute("WaypointColor", HAZARD)
-	workshopTerminal:SetAttribute("WaypointHeight", 12)
-	CollectionService:AddTag(workshopTerminal, "Waypoint")
-	label(surface(workshopTerminal, Enum.NormalId.Front, 22), "Text", "UPGRADES", UDim2.fromScale(1, 0.6), UDim2.fromScale(0, 0.2), rgb(190, 245, 255))
-
-	-- ---------------------------------------------------------------- beacon
-	local beaconPos = Vector3.new(42, 0, 22)
-	local beacon = Instance.new("Model")
-	beacon.Name = "Beacon"
-	beacon.Parent = hub
-	disc(beacon, "Base", beaconPos + Vector3.new(0, 0.14, 0), 12, 1.2, DECK, Enum.Material.Concrete)
-	for i = 1, 3 do
-		part({ name = "Buttress", size = Vector3.new(1.6, 14, 1.6), cf = CFrame.new(beaconPos + polar(5, i * 120, 7)) * CFrame.Angles(0, math.rad(-i * 120), 0), color = DECK, collide = true, parent = beacon })
+	local workshopPos = Vector3.new(-SERVICE_OFF, 0, -SERVICE_OFF)
+	local atlasPos = Vector3.new(SERVICE_OFF, 0, -SERVICE_OFF)
+	local beaconPos = Vector3.new(SERVICE_OFF, 0, SERVICE_OFF)
+	local workshopTerminal = Landmarks.buildWorkshop(hub, facingSouth(workshopPos), part)
+	local atlasTerminal = Landmarks.buildAtlas(hub, facingSouth(atlasPos), part)
+	local beaconTerminal = Landmarks.buildBeacon(hub, facingSouth(beaconPos), part)
+	-- a paved forecourt in front of each, joining its own arm of the park
+	for _, at in { workshopPos, atlasPos, beaconPos } do
+		slab(hub, "ServiceForecourt", at.X, at.Z + 24, 34, 12, 0.29)
+		strip(hub, "ServiceSpur", Vector3.new(at.X, 0, at.Z + 28), Vector3.new(at.X, 0, math.sign(at.Z) * (RING_IN - 2)), 10, 0.29)
 	end
-	part({ name = "Column", size = Vector3.new(26, 5, 5), cf = CFrame.new(beaconPos + Vector3.new(0, 13, 0)) * CFrame.Angles(0, 0, math.rad(90)), color = STEEL, shape = Enum.PartType.Cylinder, collide = true, parent = beacon })
-	for i = 1, 5 do
-		part({ name = "Band", size = Vector3.new(0.8, 5.6, 5.6), cf = CFrame.new(beaconPos + Vector3.new(0, 4 + (i - 1) * 5, 0)) * CFrame.Angles(0, 0, math.rad(90)), color = if i % 2 == 0 then HAZARD else INK, shape = Enum.PartType.Cylinder, parent = beacon })
+
+	-- garden quadrant: a bench, boulders and planting, no interaction
+	local gardenAt = Vector3.new(-SERVICE_OFF, 0, SERVICE_OFF)
+	part({ name = "BenchSeat", size = Vector3.new(11, 0.7, 3), cf = CFrame.new(gardenAt + Vector3.new(0, 2.6, -6)) * CFrame.Angles(0, math.rad(18), 0),
+		color = rgb(150, 106, 74), material = Enum.Material.WoodPlanks, collide = true, parent = hub })
+	part({ name = "BenchBack", size = Vector3.new(11, 3.2, 0.6), cf = CFrame.new(gardenAt + Vector3.new(0, 4.2, -7.4)) * CFrame.Angles(0, math.rad(18), 0),
+		color = rgb(150, 106, 74), material = Enum.Material.WoodPlanks, parent = hub })
+	for i = 1, 7 do
+		local a = (i / 7) * 360
+		part({ name = "GardenShrub", size = Vector3.new(6 + (i % 3) * 2, 4.4, 5.6), cf = CFrame.new(gardenAt + polar(13 + (i % 3) * 4, a, 1.6)),
+			color = rgb(84 + (i % 3) * 14, 138 + (i % 2) * 18, 78), material = Enum.Material.Grass, shape = Enum.PartType.Ball, collide = true, parent = hub })
 	end
-	local crown = part({ name = "Crown", size = Vector3.new(7, 7, 7), cf = CFrame.new(beaconPos + Vector3.new(0, 28, 0)), color = rgb(120, 235, 255), material = Enum.Material.Neon, shape = Enum.PartType.Ball, parent = beacon })
-	local cl = Instance.new("PointLight")
-	cl.Color = rgb(140, 235, 255)
-	cl.Range = 60
-	cl.Brightness = 2
-	cl.Parent = crown
-	local beaconSign = part({ name = "Sign", size = Vector3.new(13, 3.2, 0.4), cf = CFrame.new(beaconPos + Vector3.new(0, 34, -0.5)), color = INK, parent = beacon })
-	label(surface(beaconSign, Enum.NormalId.Front, 24), "Text", "CITY RELAUNCH", UDim2.fromScale(1, 1), UDim2.fromScale(0, 0), rgb(140, 235, 255))
-	local beaconTerminal = part({ name = "Terminal", size = Vector3.new(4, 4.5, 2.4), cf = CFrame.new(beaconPos + Vector3.new(0, 3.4, -8)), color = rgb(58, 62, 82), collide = true, parent = beacon })
-	beaconTerminal:SetAttribute("OpensPanel", "Relaunch")
-	beaconTerminal:SetAttribute("WaypointName", "City Relaunch")
-	beaconTerminal:SetAttribute("WaypointColor", rgb(140, 235, 255))
-	beaconTerminal:SetAttribute("WaypointHeight", 12)
-	CollectionService:AddTag(beaconTerminal, "Waypoint")
-	label(surface(beaconTerminal, Enum.NormalId.Front, 22), "Text", "RELAUNCH", UDim2.fromScale(1, 0.6), UDim2.fromScale(0, 0.2), rgb(190, 245, 255))
+	for _, spot in { Vector3.new(-16, 0, 12), Vector3.new(9, 0, 17) } do
+		part({ name = "GardenRock", size = Vector3.new(7, 5, 6.4), cf = CFrame.new(gardenAt + spot + Vector3.new(0, 1.2, 0)),
+			color = rgb(138, 140, 148), material = Enum.Material.Rock, shape = Enum.PartType.Ball, collide = true, parent = hub })
+	end
 
-	-- ---------------------------------------------------------------- atlas kiosk
-	local atlasPos = Vector3.new(0, 0, 48)
-	local kiosk = Instance.new("Model")
-	kiosk.Name = "AtlasKiosk"
-	kiosk.Parent = hub
-	disc(kiosk, "Base", atlasPos + Vector3.new(0, 0.14, 0), 9, 1.2, DECK, Enum.Material.Concrete)
-	part({ name = "Post", size = Vector3.new(1.4, 8, 1.4), cf = CFrame.new(atlasPos + Vector3.new(0, 4, 0)), color = DECK, collide = true, parent = kiosk })
-	part({ name = "Canopy", size = Vector3.new(12, 0.8, 8), cf = CFrame.new(atlasPos + Vector3.new(0, 8.4, 0)), color = rgb(120, 220, 150), parent = kiosk })
-	local atlasTerminal = part({ name = "Terminal", size = Vector3.new(5, 4.5, 2.2), cf = CFrame.new(atlasPos + Vector3.new(0, 3, -3)), color = rgb(58, 62, 82), collide = true, parent = kiosk })
-	atlasTerminal:SetAttribute("OpensPanel", "Atlas")
-	atlasTerminal:SetAttribute("WaypointName", "Catastrophe Atlas")
-	atlasTerminal:SetAttribute("WaypointColor", rgb(120, 220, 150))
-	atlasTerminal:SetAttribute("WaypointHeight", 12)
-	CollectionService:AddTag(atlasTerminal, "Waypoint")
-	label(surface(atlasTerminal, Enum.NormalId.Front, 22), "Text", "CATASTROPHE ATLAS", UDim2.fromScale(1, 0.7), UDim2.fromScale(0, 0.15), rgb(190, 245, 255))
+	-- Lamps line the arms, a pair either side where each leaves the apron and
+	-- another where it meets the ring.
+	for _, a in { 0, 90, 180, 270 } do
+		local half = (if a % 180 == 0 then ARM_W else TRUNK_W) / 2 + 4
+		for _, side in { -1, 1 } do
+			lamp(hub, polar(APRON_R + 9, a) + polar(half, a + 90) * side)
+			lamp(hub, polar(RING_IN - 8, a) + polar(half, a + 90) * side)
+		end
+	end
+	for i = 1, Config.MaxPlayers do
+		lamp(hub, polar(RING_OUT + 6, plotAngle(i)))
+	end
 
-	-- ---------------------------------------------------------------- company board
-	local boardPos = Vector3.new(0, 8, 62)
-	part({ name = "BoardPostL", size = Vector3.new(0.8, 9, 0.8), cf = CFrame.new(-8, 4.5, 62), color = DECK, collide = true, parent = hub })
-	part({ name = "BoardPostR", size = Vector3.new(0.8, 9, 0.8), cf = CFrame.new(8, 4.5, 62), color = DECK, collide = true, parent = hub })
-	local board = part({ name = "Board", size = Vector3.new(20, 9, 1), cf = CFrame.new(boardPos) * CFrame.Angles(0, math.rad(180), 0), color = rgb(52, 58, 78), parent = hub })
+	-- The two ways out, signed beside the path rather than across it.
+	groundSign(hub, Vector3.new(-21, 0, ISLAND_R - 19), "PLAYER TOWN", 180)
+	groundSign(hub, Vector3.new(-21, 0, -(ISLAND_R - 19)), "TO REGIONS", 0)
+	local boardPos = Vector3.new(24, 8, ISLAND_R - 19)
+	part({ name = "BoardPostL", size = Vector3.new(0.8, 9, 0.8), cf = CFrame.new(boardPos + Vector3.new(-8, -3.5, 0)), color = DECK, collide = true, parent = hub })
+	part({ name = "BoardPostR", size = Vector3.new(0.8, 9, 0.8), cf = CFrame.new(boardPos + Vector3.new(8, -3.5, 0)), color = DECK, collide = true, parent = hub })
+	local board = part({ name = "Board", size = Vector3.new(20, 9, 1), cf = CFrame.new(boardPos), color = rgb(52, 58, 78), parent = hub })
 	local boardText = label(surface(board, Enum.NormalId.Front, 20), "Text", Config.CompanyName, UDim2.fromScale(0.96, 0.9), UDim2.fromScale(0.02, 0.05), rgb(255, 252, 245))
 	boardText.TextScaled = false
 	boardText.TextSize = 26
 	boardText.TextWrapped = true
 	boardText.TextXAlignment = Enum.TextXAlignment.Left
 	boardText.TextYAlignment = Enum.TextYAlignment.Top
-
-	-- lamps and paths around the plaza
-	for i = 1, Config.MaxPlayers do
-		lamp(hub, polar(64, plotAngle(i)))
-	end
-	-- start outside the logo ring: four paths meeting at the exact centre would
-	-- overlap each other there
-	-- A spoke stops at the edge of what it leads to. A road run to a kiosk's
-	-- centre carried on under the kiosk; `stopShort` is the destination's footprint.
-	local function spoke(target: Vector3, stopShort: number, width: number, accent: Color3?)
-		local dir = target.Unit
-		path(hub, dir * 20, target - dir * stopShort, width, accent)
-	end
-	spoke(workshopPos, 10, 8, HAZARD)
-	spoke(beaconPos, 13, 8, rgb(120, 235, 255)) -- base disc radius 12
-	spoke(atlasPos, 10, 8, rgb(120, 220, 150)) -- base disc radius 9
-	-- the route south leads to the crisis arena; its wall ring is at z -75
-	spoke(Vector3.new(0, 0, -70), 0, 10, rgb(255, 120, 100))
 
 	return {
 		model = hub,
@@ -419,8 +585,7 @@ end
 
 -- ============================================================ arena
 
-local function buildArena(parent: Instance)
-	local centre = Vector3.new(0, 0, -105)
+local function buildArena(parent: Instance, centre: Vector3)
 	local arena = Instance.new("Model")
 	arena.Name = "Arena"
 	arena.Parent = parent
@@ -445,8 +610,16 @@ local function buildArena(parent: Instance)
 	end
 
 	-- stage behind the arena
-	part({ name = "Stage", size = Vector3.new(40, 2, 16), cf = CFrame.new(0, 1, -128), color = DECK, collide = true, parent = arena })
-	hazardStrip(arena, CFrame.new(0, 1.4, -120.1), 40, 1.4, 0.2)
+	-- The stage, its hazard stripe and the screen stand on the arena's far side
+	-- from the town, facing back into it. They used to be written as absolute
+	-- coordinates tied to the arena's old home; when the arena moved to its own
+	-- islet these stayed behind, and the screen ended up standing in the middle
+	-- of the road to Gusty Gardens.
+	local outward = Vector3.new(centre.X, 0, centre.Z)
+	outward = if outward.Magnitude > 1 then outward.Unit else Vector3.new(0, 0, -1)
+	local stageCF = CFrame.lookAt(centre + outward * 23 + Vector3.new(0, 1, 0), centre + Vector3.new(0, 1, 0))
+	part({ name = "Stage", size = Vector3.new(40, 2, 16), cf = stageCF, color = DECK, collide = true, parent = arena })
+	hazardStrip(arena, stageCF * CFrame.new(0, 0.4, -7.9), 40, 1.4, 0.2)
 
 	local bossSpot = part({ name = "BossSpot", size = Vector3.new(2, 1, 2), cf = CFrame.new(centre + Vector3.new(0, 0.5, 0)), transparency = 1, collide = false, query = false, parent = arena })
 	bossSpot:SetAttribute("WaypointName", "Crisis Arena")
@@ -455,9 +628,11 @@ local function buildArena(parent: Instance)
 	CollectionService:AddTag(bossSpot, "Waypoint")
 
 	-- screen
-	part({ name = "ScreenPostL", size = Vector3.new(1, 13, 1), cf = CFrame.new(-8, 6.5, -134), color = DECK, collide = true, parent = arena })
-	part({ name = "ScreenPostR", size = Vector3.new(1, 13, 1), cf = CFrame.new(8, 6.5, -134), color = DECK, collide = true, parent = arena })
-	local screen = part({ name = "Screen", size = Vector3.new(18, 8, 1), cf = CFrame.new(0, 12, -134), color = rgb(40, 44, 62), parent = arena })
+	part({ name = "ScreenPostL", size = Vector3.new(1, 13, 1), cf = stageCF * CFrame.new(-8, 5.5, 6), color = DECK, collide = true, parent = arena })
+	part({ name = "ScreenPostR", size = Vector3.new(1, 13, 1), cf = stageCF * CFrame.new(8, 5.5, 6), color = DECK, collide = true, parent = arena })
+	-- Front is the -Z face, and stageCF looks at the arena, so the board now
+	-- reads from inside the ring instead of facing out into empty grass.
+	local screen = part({ name = "Screen", size = Vector3.new(18, 8, 1), cf = stageCF * CFrame.new(0, 11, 6), color = rgb(40, 44, 62), parent = arena })
 	local screenText = label(surface(screen, Enum.NormalId.Front, 20), "Text", "Containment Crisis", UDim2.fromScale(0.96, 0.9), UDim2.fromScale(0.02, 0.05), rgb(255, 220, 120))
 	screenText.TextScaled = false
 	screenText.TextSize = 30
@@ -505,11 +680,14 @@ end
 -- tinted fill light, so you can tell where you are from a distance and at a
 -- glance: snow falling on the Peaks, embers rising over the Canyon, dust
 -- drifting through the Outpost. One emitter per region, not one per prop.
-local AMBIENCE: { [string]: { texture: string, rate: number, size: number, speed: NumberRange, lifetime: NumberRange, drag: number, spread: Vector2, up: boolean, transparency: number, light: number } } = {
+local AMBIENCE: { [string]: { texture: string, rate: number, size: number, speed: NumberRange, lifetime: NumberRange, drag: number, spread: Vector2, up: boolean, transparency: number, light: number, fill: number? } } = {
 	Wind = { texture = "rbxasset://textures/particles/sparkles_main.dds", rate = 26, size = 1.1, speed = NumberRange.new(3, 8), lifetime = NumberRange.new(4, 7), drag = 0.6, spread = Vector2.new(35, 35), up = false, transparency = 0.55, light = 0.35 },
 	Water = { texture = "rbxasset://textures/particles/smoke_main.dds", rate = 16, size = 7, speed = NumberRange.new(1, 3), lifetime = NumberRange.new(5, 9), drag = 1.2, spread = Vector2.new(20, 20), up = true, transparency = 0.88, light = 0.25 },
 	Heat = { texture = "rbxasset://textures/particles/sparkles_main.dds", rate = 34, size = 0.9, speed = NumberRange.new(5, 11), lifetime = NumberRange.new(3, 6), drag = 0.4, spread = Vector2.new(18, 18), up = true, transparency = 0.35, light = 0.6 },
-	Frost = { texture = "rbxasset://textures/particles/sparkles_main.dds", rate = 46, size = 0.85, speed = NumberRange.new(2, 5), lifetime = NumberRange.new(6, 10), drag = 1.6, spread = Vector2.new(25, 25), up = false, transparency = 0.3, light = 0.4 },
+	-- Frost was the densest, most opaque and most self-lit of the six, over a
+	-- Snow-material floor that already bounces most of the light it gets. The
+	-- snowfall now reads as weather rather than as a second light source.
+	Frost = { texture = "rbxasset://textures/particles/sparkles_main.dds", rate = 30, size = 0.85, speed = NumberRange.new(2, 5), lifetime = NumberRange.new(6, 10), drag = 1.6, spread = Vector2.new(25, 25), up = false, transparency = 0.58, light = 0.12, fill = 0.2 },
 	Storm = { texture = "rbxasset://textures/particles/sparkles_main.dds", rate = 20, size = 0.75, speed = NumberRange.new(4, 9), lifetime = NumberRange.new(2, 4), drag = 0.3, spread = Vector2.new(45, 45), up = true, transparency = 0.4, light = 0.5 },
 	Cosmic = { texture = "rbxasset://textures/particles/sparkles_main.dds", rate = 30, size = 1.0, speed = NumberRange.new(1, 4), lifetime = NumberRange.new(7, 12), drag = 0.8, spread = Vector2.new(60, 60), up = false, transparency = 0.25, light = 0.55 },
 }
@@ -570,153 +748,193 @@ local function regionAmbience(parent: Instance, centre: Vector3, element: string
 	local light = Instance.new("PointLight")
 	light.Color = def.color
 	light.Range = radius * 1.6
-	light.Brightness = 0.55
+	light.Brightness = spec.fill or 0.55
 	light.Shadows = false
 	light.Parent = fill
 end
 
-local function regionProps(parent: Instance, centre: Vector3, element: string, def: any, radius: number)
-	local c = def.color
-	local rand = Random.new(def.index * 7919)
-	local function spot(minR: number, maxR: number): Vector3
-		return centre + polar(rand:NextNumber(minR, maxR), rand:NextNumber(0, 360))
+
+-- The prop ring each scenery module lays down is a circle of radius 75 inside a
+-- 280-wide cell, which leaves a wide band of bare ground either side of it.
+-- These are the biome's own outcrops filling that band in three ranks all the
+-- way out to the wall, so the cell reads as one place rather than a ring
+-- dropped in an empty box.
+local function buildShoulders(parent: Instance, def: any, centre: Vector3, radius: number)
+	local group = Instance.new("Model")
+	group.Name = "Shoulders"
+	group.Parent = parent
+	local element = def.element
+	local material = if element == "Water" then Enum.Material.Sand
+		elseif element == "Frost" then Enum.Material.Snow
+		elseif element == "Heat" then Enum.Material.Sandstone
+		elseif element == "Wind" then Enum.Material.Grass
+		else Enum.Material.Slate
+	local tint = def.groundColor:Lerp(rgb(118, 130, 112), 0.18)
+	local wallX = CELL_W / 2
+	local function blob(name: string, at: Vector3, size: Vector3, color: Color3, rounded: boolean): Part
+		return part({ name = name, size = size, cf = CFrame.new(at), color = color, material = material,
+			shape = if rounded then Enum.PartType.Ball else Enum.PartType.Block,
+			collide = true, query = false, parent = group })
+	end
+	local function planting(at: Vector3, scale: number, seed: number)
+		if element == "Frost" or element == "Wind" or element == "Water" then
+			local snowy = element == "Frost"
+			part({ name = "ShoulderTrunk", size = Vector3.new(1.5, 8, 1.5) * scale, cf = CFrame.new(at + Vector3.new(0, 4 * scale, 0)),
+				color = rgb(94, 76, 59), material = Enum.Material.Wood, collide = true, query = false, parent = group })
+			for tier = 1, 3 do
+				local width = (11 - tier * 2) * scale
+				part({ name = "ShoulderCanopy", size = Vector3.new(width, 6 * scale, width), cf = CFrame.new(at + Vector3.new(0, (5 + tier * 2.5) * scale, 0)),
+					color = if snowy then rgb(178, 198, 209) else rgb(67 + tier * 10, 120 + tier * 12, 76 + tier * 5),
+					material = if snowy then Enum.Material.Snow else Enum.Material.Grass,
+					shape = Enum.PartType.Ball, collide = true, query = false, parent = group })
+			end
+		else
+			-- Heat, Storm and Cosmic get standing rock rather than trees
+			local rockCol = if element == "Heat" then rgb(178, 106, 74)
+				elseif element == "Storm" then rgb(104, 108, 118) else rgb(122, 112, 140)
+			local r = blob("ShoulderRock", at + Vector3.new(0, 4.4 * scale, 0), Vector3.new(9, 12, 8.4) * scale, rockCol, false)
+			r.CFrame *= CFrame.Angles(0, seed * 0.7, math.rad(6))
+		end
 	end
 
-	if element == "Wind" then
-		for i = 1, 10 do
-			local p = spot(12, radius - 8)
-			for j = 1, 4 do
-				part({ name = "Grass", size = Vector3.new(0.4, rand:NextNumber(3, 6), 0.4), cf = CFrame.new(p + Vector3.new(j * 0.5, 2.5, 0)) * CFrame.Angles(0, 0, math.rad(rand:NextNumber(-16, 16))), color = rgb(120, 200, 110), material = Enum.Material.Grass, parent = parent })
-			end
-		end
-		-- a big skeletal windmill
-		local wm = spot(20, 30)
-		part({ name = "MillTower", size = Vector3.new(3, 22, 3), cf = CFrame.new(wm + Vector3.new(0, 11, 0)), color = rgb(220, 216, 206), collide = true, parent = parent })
-		part({ name = "MillCap", size = Vector3.new(5, 4, 5), cf = CFrame.new(wm + Vector3.new(0, 23, 0)), color = c, shape = Enum.PartType.Ball, parent = parent })
-		for i = 1, 4 do
-			part({ name = "MillBlade", size = Vector3.new(1.2, 12, 0.4), cf = CFrame.new(wm + Vector3.new(0, 23, -3)) * CFrame.Angles(0, 0, math.rad(i * 90)) * CFrame.new(0, 6, 0), color = rgb(250, 250, 252), parent = parent })
-		end
-		for i = 1, 6 do
-			local p = spot(14, radius - 10)
-			part({ name = "Bush", size = Vector3.new(4, 3, 4), cf = CFrame.new(p + Vector3.new(0, 1.5, 0)), color = rgb(110, 180, 100), material = Enum.Material.LeafyGrass, shape = Enum.PartType.Ball, parent = parent })
-		end
-	elseif element == "Water" then
-		for i = 1, 7 do
-			local p = spot(12, radius - 10)
-			local r = rand:NextNumber(6, 14)
-			disc(parent, "Pool", p + Vector3.new(0, 0.46, 0), r, 0.4, c, Enum.Material.Glass)
-			part({ name = "PoolRim", size = Vector3.new(0.5, r * 2 + 1.6, r * 2 + 1.6), cf = CFrame.new(p + Vector3.new(0, 0.38, 0)) * CFrame.Angles(0, 0, math.rad(90)), color = rgb(214, 196, 150), shape = Enum.PartType.Cylinder, parent = parent })
-		end
-		for i = 1, 8 do
-			local p = spot(14, radius - 8)
-			part({ name = "Rock", size = Vector3.new(rand:NextNumber(2, 5), rand:NextNumber(2, 4), rand:NextNumber(2, 5)), cf = CFrame.new(p + Vector3.new(0, 1.4, 0)) * CFrame.Angles(0, rand:NextNumber(0, 6), 0), color = rgb(150, 148, 140), material = Enum.Material.Slate, collide = true, parent = parent })
-		end
-		-- a small dock
-		local d = centre + polar(26, 200)
-		part({ name = "Dock", size = Vector3.new(6, 0.7, 20), cf = CFrame.new(d + Vector3.new(0, 1.2, 0)), color = rgb(168, 124, 78), material = Enum.Material.WoodPlanks, collide = true, parent = parent })
-		for i = 1, 4 do
-			part({ name = "Piling", size = Vector3.new(0.9, 3.4, 0.9), cf = CFrame.new(d + Vector3.new(2.2, 0.6, -7 + (i - 1) * 5)), color = rgb(120, 88, 56), material = Enum.Material.Wood, collide = true, parent = parent })
-		end
-	elseif element == "Heat" then
-		for i = 1, 9 do
-			local p = spot(12, radius - 8)
-			part({ name = "Rock", size = Vector3.new(rand:NextNumber(4, 9), rand:NextNumber(4, 11), rand:NextNumber(4, 9)), cf = CFrame.new(p + Vector3.new(0, 3, 0)) * CFrame.Angles(0, rand:NextNumber(0, 6), 0), color = rgb(138, 78, 60), material = Enum.Material.Rock, collide = true, parent = parent })
-		end
-		for i = 1, 10 do
-			local p = spot(10, radius - 6)
-			local crack = part({ name = "Crack", size = Vector3.new(rand:NextNumber(3, 9), 0.2, rand:NextNumber(0.6, 1.6)), cf = CFrame.new(p + Vector3.new(0, 0.16, 0)) * CFrame.Angles(0, rand:NextNumber(0, 6), 0), color = rgb(255, 120, 50), material = Enum.Material.Neon, parent = parent })
-			local pl = Instance.new("PointLight")
-			pl.Color = rgb(255, 130, 60)
-			pl.Range = 16
-			pl.Brightness = 0.7
-			pl.Parent = crack
-		end
-		-- a smoking vent
-		local v = centre + polar(24, 140)
-		part({ name = "VentCone", size = Vector3.new(7, 9, 9), cf = CFrame.new(v + Vector3.new(0, 3.5, 0)) * CFrame.Angles(0, 0, math.rad(90)), color = rgb(96, 58, 46), shape = Enum.PartType.Cylinder, collide = true, parent = parent })
-		local mouth = part({ name = "VentMouth", size = Vector3.new(0.4, 4.4, 4.4), cf = CFrame.new(v + Vector3.new(0, 7.2, 0)) * CFrame.Angles(0, 0, math.rad(90)), color = rgb(255, 130, 50), material = Enum.Material.Neon, shape = Enum.PartType.Cylinder, parent = parent })
-		local emitter = Instance.new("ParticleEmitter")
-		emitter.Texture = "rbxasset://textures/particles/smoke_main.dds"
-		emitter.Rate = 14
-		emitter.Lifetime = NumberRange.new(2, 3.5)
-		emitter.Speed = NumberRange.new(6, 10)
-		emitter.Size = NumberSequence.new(6)
-		emitter.Transparency = NumberSequence.new(0.6)
-		emitter.Color = ColorSequence.new(rgb(90, 80, 76))
-		emitter.Parent = mouth
-	elseif element == "Frost" then
-		for i = 1, 10 do
-			local p = spot(12, radius - 8)
-			part({ name = "SnowMound", size = Vector3.new(rand:NextNumber(6, 12), rand:NextNumber(2, 5), rand:NextNumber(6, 12)), cf = CFrame.new(p + Vector3.new(0, 1.2, 0)), color = rgb(240, 246, 252), material = Enum.Material.Snow, shape = Enum.PartType.Ball, collide = true, parent = parent })
-		end
-		for i = 1, 4 do
-			local p = spot(16, radius - 12)
-			-- an ice arch
-			for j = 1, 5 do
-				local a = math.rad(20 + (j - 1) * 35)
-				part({ name = "ArchBlock", size = Vector3.new(3.2, 3, 3), cf = CFrame.new(p + Vector3.new(-math.cos(a) * 7, 8 + math.sin(a) * 3, 0)) * CFrame.Angles(0, 0, a), color = c, material = Enum.Material.Glass, transparency = 0.3, collide = true, parent = parent })
-			end
-			part({ name = "ArchLegL", size = Vector3.new(3, 9, 3), cf = CFrame.new(p + Vector3.new(-7, 4.5, 0)), color = c, material = Enum.Material.Glass, transparency = 0.3, collide = true, parent = parent })
-			part({ name = "ArchLegR", size = Vector3.new(3, 9, 3), cf = CFrame.new(p + Vector3.new(7, 4.5, 0)), color = c, material = Enum.Material.Glass, transparency = 0.3, collide = true, parent = parent })
-		end
-		for i = 1, 8 do
-			local p = spot(14, radius - 8)
-			part({ name = "Icicle", size = Vector3.new(1.2, rand:NextNumber(4, 9), 1.2), cf = CFrame.new(p + Vector3.new(0, 3, 0)), color = c, material = Enum.Material.Ice, transparency = 0.18, parent = parent })
-		end
-	elseif element == "Storm" then
-		for i = 1, 6 do
-			local p = spot(14, radius - 10)
-			part({ name = "Pylon", size = Vector3.new(2, 20, 2), cf = CFrame.new(p + Vector3.new(0, 10, 0)), color = DECK, collide = true, parent = parent })
-			part({ name = "CrossArm", size = Vector3.new(10, 1, 1), cf = CFrame.new(p + Vector3.new(0, 18, 0)), color = DECK, parent = parent })
-			for _, side in { -1, 1 } do
-				local ins = part({ name = "Insulator", size = Vector3.new(1.2, 1.6, 1.2), cf = CFrame.new(p + Vector3.new(side * 4.5, 16.9, 0)), color = c, material = Enum.Material.Neon, parent = parent })
-				local pl = Instance.new("PointLight")
-				pl.Color = c
-				pl.Range = 20
-				pl.Brightness = 0.9
-				pl.Parent = ins
-			end
-		end
-		for i = 1, 8 do
-			local p = spot(12, radius - 8)
-			part({ name = "Panel", size = Vector3.new(5, 0.4, 4), cf = CFrame.new(p + Vector3.new(0, 2.4, 0)) * CFrame.Angles(math.rad(-28), rand:NextNumber(0, 6), 0), color = rgb(50, 58, 84), parent = parent })
-			part({ name = "PanelPost", size = Vector3.new(0.6, 2.4, 0.6), cf = CFrame.new(p + Vector3.new(0, 1.2, 0)), color = DECK, collide = true, parent = parent })
-		end
-	else -- Cosmic
-		disc(parent, "Deck", centre + Vector3.new(0, 1.4, 0), radius - 12, 1.2, rgb(66, 60, 96), Enum.Material.Metal)
-		for i = 1, 18 do
-			local a = (i / 18) * 360
-			part({ name = "DeckRail", size = Vector3.new(6, 2.4, 0.6), cf = CFrame.new(centre + polar(radius - 12, a, 3)) * CFrame.Angles(0, math.rad(-a), 0), color = c, material = Enum.Material.Neon, transparency = 0.35, parent = parent })
-		end
-		for i = 1, 8 do
-			local p = spot(14, radius - 16)
-			part({ name = "FloatRock", size = Vector3.new(rand:NextNumber(3, 7), rand:NextNumber(2, 5), rand:NextNumber(3, 7)), cf = CFrame.new(p + Vector3.new(0, rand:NextNumber(6, 16), 0)) * CFrame.Angles(rand:NextNumber(0, 3), rand:NextNumber(0, 6), rand:NextNumber(0, 3)), color = rgb(96, 88, 128), material = Enum.Material.Rock, parent = parent })
-		end
+	-- Five ranks down the cell, three columns out to the wall on each side.
+	for _, side in { -1, 1 } do
 		for i = 1, 5 do
-			local p = spot(16, radius - 16)
-			part({ name = "Antenna", size = Vector3.new(0.8, 14, 0.8), cf = CFrame.new(p + Vector3.new(0, 8.4, 0)), color = STEEL, collide = true, parent = parent })
-			local tip = part({ name = "AntennaTip", size = Vector3.new(2.4, 2.4, 2.4), cf = CFrame.new(p + Vector3.new(0, 16, 0)), color = c, material = Enum.Material.Neon, shape = Enum.PartType.Ball, parent = parent })
-			local pl = Instance.new("PointLight")
-			pl.Color = c
-			pl.Range = 22
-			pl.Brightness = 1
-			pl.Parent = tip
+			local z = centre.Z - CELL_D / 2 + 26 + (i - 1) * (CELL_D - 52) / 4
+			local jog = ((i + (if side < 0 then 0 else 1)) % 3) - 1
+
+			-- rank 1: the big biome mound just outside the prop ring
+			local x1 = side * (radius + 13 + (i % 2) * 8)
+			local at1 = Vector3.new(x1, 0, z)
+			local height = 20 + (i % 3) * 7
+			if element == "Water" or element == "Wind" then
+				blob("Dune", at1 + Vector3.new(0, -4, 0), Vector3.new(46 + jog * 6, height * 0.7, 42), tint, true)
+			elseif element == "Heat" then
+				for tier = 1, 3 do
+					local width = 38 - tier * 7
+					blob("CanyonStratum", at1 + Vector3.new(0, (tier - 0.5) * height / 3 - 2, 0), Vector3.new(width, height / 3, width * 0.8),
+						tint:Lerp(rgb(205, 139, 89), tier * 0.15), false)
+				end
+			else
+				local ridge = blob("Ridge", at1 + Vector3.new(0, height * 0.2, 0), Vector3.new(28, height, 26), tint, false)
+				ridge.CFrame *= CFrame.Angles(0, math.rad(i * 26 * side), math.rad(16 * side))
+				if element == "Frost" then
+					blob("SnowCap", at1 + Vector3.new(0, height * 0.66, 0), Vector3.new(24, 9, 23), rgb(200, 213, 222), true)
+				elseif element == "Cosmic" then
+					local shard = blob("FloatingShard", at1 + Vector3.new(0, height + 11, 0), Vector3.new(6, 11, 6), def.color, false)
+					shard.CFrame *= CFrame.Angles(0.3, 0.6, 0.4)
+					shard.CanCollide = false
+				end
+			end
+			blob("BiomeShoulder", at1 + Vector3.new(side * -15, -2.4, 0), Vector3.new(25, 8, 24), def.groundColor, true)
+
+			-- rank 2: lower ground between the mound and the wall
+			local x2 = side * (radius + 40 + jog * 5)
+			local h2 = 13 + (i % 2) * 5
+			if element == "Heat" then
+				blob("CanyonStep", Vector3.new(x2, h2 * 0.2, z + 4), Vector3.new(30, h2, 26), tint:Lerp(rgb(205, 139, 89), 0.28), false)
+			else
+				blob("ShoulderBank", Vector3.new(x2, -3, z + 4), Vector3.new(34, h2 + 8, 30), tint, true)
+			end
+
+			-- rank 3: planting hugging the wall, alternating with the ranks above
+			planting(Vector3.new(side * (wallX - 9 - (i % 2) * 5), 0, z - 14), 0.8 + (i % 3) * 0.14, i * side)
+			if i % 2 == 1 then
+				planting(Vector3.new(side * (wallX - 22), 0, z + 16), 0.72 + (i % 2) * 0.16, i * side + 3)
+			end
 		end
 	end
 end
 
+-- Where region i sits on the chain. The cells butt end to end running north
+-- from the island edge, so the boundary between i and i+1 is a single wall.
+local function regionCentre(index: number): Vector3
+	return Vector3.new(0, 0, CHAIN_Z0 - (index - 0.5) * CELL_D)
+end
+
+local function regionSouthEdge(index: number): number
+	return CHAIN_Z0 - (index - 1) * CELL_D
+end
+
+-- A gate pier as the concept draws it: cream block stone, a teal panel inset in
+-- the face you approach, gold trim either side of it with a gold diamond, and a
+-- warm amber lantern on the cap.
+local function gatePier(parent: Instance, x: number, z: number, height: number)
+	local south = z + 4.8
+	part({ name = "GatePierBase", size = Vector3.new(10.6, 2.0, 10.6), cf = CFrame.new(x, 1.0, z), color = WALL_CAP, material = Enum.Material.Concrete, collide = true, parent = parent })
+	part({ name = "GatePier", size = Vector3.new(9, height, 9), cf = CFrame.new(x, 2 + height / 2, z), color = WALL_PIER, material = Enum.Material.Concrete, collide = true, parent = parent })
+	part({ name = "GatePierCap", size = Vector3.new(10.8, 1.5, 10.8), cf = CFrame.new(x, 2.75 + height, z), color = WALL_CAP, material = Enum.Material.Concrete, parent = parent })
+	-- the teal face panel, its gold flanking trim and the diamond
+	local panelH = height - 4
+	part({ name = "GatePanel", size = Vector3.new(4.8, panelH, 0.7), cf = CFrame.new(x, 2 + height / 2, south), color = TEAL_PANEL, material = Enum.Material.Slate, parent = parent })
+	for _, s in { -1, 1 } do
+		part({ name = "GatePanelTrim", size = Vector3.new(1.1, panelH + 1.4, 0.8), cf = CFrame.new(x + s * 3.2, 2 + height / 2, south), color = GOLD, material = Enum.Material.Metal, parent = parent })
+	end
+	part({ name = "GateDiamond", size = Vector3.new(2.7, 2.7, 0.5), cf = CFrame.new(x, 2 + height * 0.42, south + 0.5) * CFrame.Angles(0, 0, math.rad(45)),
+		color = GOLD, material = Enum.Material.Metal, parent = parent })
+	-- amber lantern on the cap
+	local lampY = 4.2 + height
+	part({ name = "LanternBase", size = Vector3.new(5.4, 0.9, 5.4), cf = CFrame.new(x, lampY - 1.0, z), color = GOLD_DEEP, material = Enum.Material.Metal, parent = parent })
+	local bulb = part({ name = "LanternBulb", size = Vector3.new(4.0, 3.6, 4.0), cf = CFrame.new(x, lampY + 1.0, z), color = rgb(255, 238, 196), material = Enum.Material.Neon, parent = parent })
+	for _, s in { -1, 1 } do
+		part({ name = "LanternPost", size = Vector3.new(0.7, 3.8, 0.7), cf = CFrame.new(x + s * 2.1, lampY + 1.0, z + 2.1), color = GOLD_DEEP, material = Enum.Material.Metal, parent = parent })
+		part({ name = "LanternPost", size = Vector3.new(0.7, 3.8, 0.7), cf = CFrame.new(x + s * 2.1, lampY + 1.0, z - 2.1), color = GOLD_DEEP, material = Enum.Material.Metal, parent = parent })
+	end
+	part({ name = "LanternCap", size = Vector3.new(5.6, 1.1, 5.6), cf = CFrame.new(x, lampY + 3.3, z), color = GOLD_DEEP, material = Enum.Material.Metal, parent = parent })
+	local light = Instance.new("PointLight")
+	light.Color = rgb(255, 226, 168)
+	light.Range = 38
+	light.Brightness = 1.1
+	light.Parent = bulb
+end
+
+-- The enclosure: two lateral walls the length of the chain, a wall across the
+-- north end, and a divider at every boundary but the town's, which the concept
+-- leaves open. The gate piers and lintel belong to the divider; the barrier
+-- that hangs between them belongs to the region, so it keeps its own colour,
+-- prompt and tag.
+local function buildChainWalls(parent: Instance)
+	local walls = Instance.new("Model")
+	walls.Name = "RegionWalls"
+	walls.Parent = parent
+	local half, gap = CELL_W / 2, GATE_W / 2
+	local zEnd = CHAIN_Z0 - CHAIN_LEN
+	for _, side in { -1, 1 } do
+		wall(walls, Vector3.new(side * half, 0, CHAIN_Z0), Vector3.new(side * half, 0, zEnd), WALL_H)
+	end
+	wall(walls, Vector3.new(-half, 0, zEnd), Vector3.new(half, 0, zEnd), WALL_H, true, true)
+	for index = 2, #Config.Regions.list do
+		local z = regionSouthEdge(index)
+		wall(walls, Vector3.new(-half, 0, z), Vector3.new(-gap, 0, z), WALL_H, true, true)
+		wall(walls, Vector3.new(gap, 0, z), Vector3.new(half, 0, z), WALL_H, true, true)
+		gatePier(walls, -gap, z, 19)
+		gatePier(walls, gap, z, 19)
+		-- A slim beam behind the banner carries it between the piers.
+		part({ name = "BannerBeam", size = Vector3.new(GATE_W + 2, 1.1, 1.1), cf = CFrame.new(0, 25.6, z), color = GOLD_DEEP, material = Enum.Material.Metal, parent = walls })
+	end
+
+	-- The chain's south end is Gusty Gardens' open threshold: the same teal
+	-- piers and a low wall either side of a gap, and no barrier at all.
+	local zSouth = CHAIN_Z0
+	wall(walls, Vector3.new(-half, 0, zSouth), Vector3.new(-gap, 0, zSouth), 6, true, true)
+	wall(walls, Vector3.new(gap, 0, zSouth), Vector3.new(half, 0, zSouth), 6, true, true)
+	gatePier(walls, -gap, zSouth, 13)
+	gatePier(walls, gap, zSouth, 13)
+	return walls
+end
+
 local function buildRegion(parent: Instance, def: any)
-	local angle = 90 + 60 * (def.index - 1)
-	local centre = polar(280, angle)
+	local centre = regionCentre(def.index)
 	local radius = 75
-	local spawnRadius = 55
+	local accessRadius = 78
 
 	local model = Instance.new("Model")
 	model.Name = def.id
 	model:SetAttribute("RegionId", def.id)
 	model:SetAttribute("Element", def.element)
 	model:SetAttribute("Centre", centre)
-	model:SetAttribute("SpawnRadius", spawnRadius)
+	model:SetAttribute("AccessRadius", accessRadius)
+	model:SetAttribute("AccessHalf", Vector3.new(CELL_W / 2, 0, CELL_D / 2))
 	model.Parent = parent
 
 	-- coloured ground patch
@@ -725,24 +943,39 @@ local function buildRegion(parent: Instance, def: any)
 	local GROUND_MATERIAL: { [string]: Enum.Material } = {
 		Wind = Enum.Material.Grass,
 		Water = Enum.Material.Sand,
-		Heat = Enum.Material.Basalt,
+		-- the quarry floor is cut sandstone, not the old ravine's dark basalt
+		Heat = Enum.Material.Sandstone,
 		Frost = Enum.Material.Snow,
 		Storm = Enum.Material.Asphalt,
-		Cosmic = Enum.Material.Metal,
+		-- Orbit Outpost's floor is lunar soil, not station plating, and it is
+		-- the only floor the region has: a raised skin would bury the Gravity
+		-- Pulse telegraph, which is a 0.3-thick disc drawn 0.16 above the
+		-- creature and so spans y 0.01 .. 0.31 against this disc's 0.30 top.
+		Cosmic = Enum.Material.Sand,
 	}
-	disc(model, "Ground", centre + Vector3.new(0, 0.3, 0), radius, 1.4, def.groundColor, GROUND_MATERIAL[def.element] or Enum.Material.Ground)
-	-- a rim wall all the way round, with a gap on the hub side for the gate
-	local gateAngle = angle + 180 -- the side facing the origin
-	for i = 1, 40 do
-		local a = (i / 40) * 360
-		local delta = math.abs(((a - gateAngle + 180) % 360) - 180)
-		if delta > 14 then
-			part({ name = "Fence", size = Vector3.new(12.4, 6, 1.4), cf = CFrame.new(centre + polar(radius, a, 3)) * CFrame.Angles(0, math.rad(-a), 0), color = DECK, collide = true, parent = model })
-			part({ name = "FenceTop", size = Vector3.new(12.4, 0.6, 2.0), cf = CFrame.new(centre + polar(radius, a, 6.2)) * CFrame.Angles(0, math.rad(-a), 0), color = def.color, parent = model })
-		end
+	-- The cell floor is the concept's rectangle. The scenery module still lays
+	-- its props on a circle of `radius` inside it; the strips either side of that
+	-- circle are the open shoulders the concept fills with trees beyond the wall.
+	part({
+		name = "Ground",
+		size = Vector3.new(CELL_W, 1.4, CELL_D),
+		cf = CFrame.new(centre.X, -0.4, centre.Z),
+		color = def.groundColor,
+		material = GROUND_MATERIAL[def.element] or Enum.Material.Ground,
+		collide = true,
+		parent = model,
+	})
+	local layout = require(script.Parent.RegionScenery).build(model, def, centre, radius, part)
+	if not OWN_PERIMETER[def.element] then
+		buildShoulders(model, def, centre, radius)
 	end
-
-	regionProps(model, centre, def.element, def, radius)
+	local field = if typeof(layout) == "table" then layout.field else nil
+	local keepOut = if typeof(layout) == "table" then layout.keepOut else nil
+	local spawnRadius = if field then math.min(field.X, field.Z) else SPAWN_RADIUS
+	model:SetAttribute("SpawnRadius", spawnRadius)
+	if field then
+		model:SetAttribute("FieldHalf", field)
+	end
 	regionAmbience(model, centre, def.element, def, radius)
 
 	local wild = Instance.new("Folder")
@@ -750,20 +983,56 @@ local function buildRegion(parent: Instance, def: any)
 	wild.Parent = model
 
 	-- ---------------------------------------------------------------- gate
-	local gatePos = polar(200, angle)
-	local gateCF = CFrame.new(gatePos) * CFrame.Angles(0, math.rad(-angle + 90), 0)
+	-- The barrier hangs in the divider at this cell's south edge, facing the
+	-- player walking up the chain.
+	local gatePos = Vector3.new(0, 0, regionSouthEdge(def.index))
+	local gateCF = CFrame.new(gatePos) * CFrame.Angles(0, math.rad(180), 0)
 	local gate = part({
 		name = "Gate",
-		size = Vector3.new(20, 12, 2),
-		cf = gateCF * CFrame.new(0, 6, 0),
-		color = def.color,
+		size = Vector3.new(GATE_W, 15, 1.4),
+		cf = gateCF * CFrame.new(0, 8.5, 0),
+		color = rgb(186, 230, 250),
 		material = Enum.Material.Neon,
-		transparency = 0.45,
+		transparency = 0.55,
 		collide = true,
 		parent = model,
 	})
 	gate:SetAttribute("RegionId", def.id)
 	CollectionService:AddTag(gate, "RegionGate")
+	-- The gold padlock the concept floats in the middle of a locked barrier.
+	-- These are children of the barrier so Controllers.RegionGates fades them
+	-- out with it when the region opens.
+	if def.unlockCost > 0 then
+		-- The concept's barrier is a pale pane inside a bright rail, crossed by
+		-- two faint diagonals, with a gold lock medallion floating at its middle.
+		-- All of it hangs off the barrier so Controllers.RegionGates fades the
+		-- whole assembly when the region opens.
+		local edge = def.color:Lerp(rgb(150, 236, 255), 0.55)
+		for _, dy in { -7.2, 7.2 } do
+			part({ name = "GateRail", size = Vector3.new(GATE_W + 1.2, 0.9, 1.8), cf = gateCF * CFrame.new(0, 8.5 + dy, 0),
+				color = edge, material = Enum.Material.Neon, query = false, parent = gate })
+		end
+		for _, dx in { -GATE_W / 2, GATE_W / 2 } do
+			part({ name = "GatePost", size = Vector3.new(1.1, 15.4, 1.8), cf = gateCF * CFrame.new(dx, 8.5, 0),
+				color = edge, material = Enum.Material.Neon, query = false, parent = gate })
+		end
+		for _, tilt in { 1, -1 } do
+			part({ name = "GateDiagonal", size = Vector3.new(math.sqrt(GATE_W * GATE_W + 225) - 2, 0.35, 0.5),
+				cf = gateCF * CFrame.new(0, 8.5, -0.5) * CFrame.Angles(0, 0, tilt * math.atan2(15, GATE_W)),
+				color = edge, material = Enum.Material.Neon, transparency = 0.5, query = false, parent = gate })
+		end
+		part({ name = "LockBadge", size = Vector3.new(0.9, 9.6, 9.6), cf = gateCF * CFrame.new(0, 8.5, -1.5) * CFrame.Angles(0, math.rad(90), 0),
+			color = GOLD, material = Enum.Material.Neon, shape = Enum.PartType.Cylinder, query = false, parent = gate })
+		part({ name = "LockRim", size = Vector3.new(0.7, 11.0, 11.0), cf = gateCF * CFrame.new(0, 8.5, -1.2) * CFrame.Angles(0, math.rad(90), 0),
+			color = GOLD_DEEP, material = Enum.Material.Metal, shape = Enum.PartType.Cylinder, query = false, parent = gate })
+		part({ name = "LockBody", size = Vector3.new(3.2, 2.8, 0.6), cf = gateCF * CFrame.new(0, 7.8, -2.2), color = rgb(252, 248, 238), query = false, parent = gate })
+		part({ name = "LockShackle", size = Vector3.new(2.0, 2.0, 0.55), cf = gateCF * CFrame.new(0, 9.9, -2.2), color = rgb(252, 248, 238), query = false, parent = gate })
+		part({ name = "LockKeyhole", size = Vector3.new(0.8, 1.1, 0.4), cf = gateCF * CFrame.new(0, 7.7, -2.6), color = GOLD_DEEP, query = false, parent = gate })
+	else
+		-- Gusty Gardens opens straight off the town: no wall, no barrier.
+		gate.Transparency = 1
+		gate.CanCollide = false
+	end
 	if def.unlockCost > 0 then
 		local unlockPrompt = Instance.new("ProximityPrompt")
 		unlockPrompt.Name = "UnlockPrompt"
@@ -775,72 +1044,103 @@ local function buildRegion(parent: Instance, def: any)
 		unlockPrompt.MaxActivationDistance = 16
 		unlockPrompt.Parent = gate
 	end
-	-- gate frame
-	for _, side in { -1, 1 } do
-		part({ name = "GatePost", size = Vector3.new(2.4, 15, 2.4), cf = gateCF * CFrame.new(side * 11, 7.5, 0), color = DECK, collide = true, parent = model })
-	end
-	part({ name = "GateLintel", size = Vector3.new(25, 2.4, 2.6), cf = gateCF * CFrame.new(0, 14, 0), color = INK, parent = model })
-	hazardStrip(model, gateCF * CFrame.new(0, 14, -1.4), 24, 2.0, 0.2)
+	-- gate frame. Every element except Heat builds its own entrance in its
+	-- scenery module -- a harbour, a trellis, a timber expedition arch, a steel
+	-- portal, a pair of research pillars -- and the industrial posts and hazard
+	-- strip would read as a second gate there. Storm's portal replaces this trim
+	-- outright: its piers stand at x +/-13 where these posts sat at +/-11, and
+	-- its header carries the same lintel line 3.4 studs higher. Cosmic's pillars
+	-- stand at the same +/-13 and carry no lintel at all, which is the concept.
+	-- The divider wall now supplies the piers and lintel for every gate, so the
+	-- industrial trim Heat used to grow for itself would read as a second frame.
 
-	-- sign beside the gate, facing the hub
-	local signHost = part({ name = "GateSign", size = Vector3.new(13, 8, 0.6), cf = gateCF * CFrame.new(17, 7, -1.2), color = rgb(48, 52, 70), collide = true, parent = model })
-	local gui = surface(signHost, Enum.NormalId.Back, 22)
-	local title = label(gui, "Title", def.name, UDim2.fromScale(0.94, 0.34), UDim2.fromScale(0.03, 0.04), def.color)
-	local costText = if def.unlockCost <= 0 then "OPEN" else "Unlock: " .. Format.abbreviate(def.unlockCost) .. " Coins"
-	local cost = label(gui, "Cost", costText, UDim2.fromScale(0.94, 0.26), UDim2.fromScale(0.03, 0.4), rgb(255, 232, 150))
-	local forecast = label(gui, "Forecast", "Legendary forecast: --", UDim2.fromScale(0.94, 0.24), UDim2.fromScale(0.03, 0.7), rgb(200, 230, 255))
-	-- element name so the sign reads without colour
-	local elementLabel = label(gui, "Element", def.element, UDim2.fromScale(0.3, 0.16), UDim2.fromScale(0.67, 0.04), rgb(230, 236, 250))
-	elementLabel.TextXAlignment = Enum.TextXAlignment.Right
+	-- The destination sign is a banner over the opening, which is where the
+	-- region concepts put it. It is still the part named GateSign carrying a Gui
+	-- with Title / Cost / Forecast, which is the whole contract
+	-- Controllers.RegionGates relies on, so the live rows keep working.
+	--
+	-- RegionSign still builds the older freestanding board and is one flag away
+	-- if it is wanted back; the concepts do not show one beside the gate.
+	local signCF = gateCF * CFrame.new(0, 26.5, 0)
+	local signHost = part({ name = "GateSign", size = Vector3.new(30, 13, 0.9), cf = signCF, color = NAVY, collide = true, parent = model })
+	-- a gold frame and a diamond finial, as drawn
+	for _, spec in { { 31.4, 1.0, 0, 6.5 }, { 31.4, 1.0, 0, -6.5 }, { 1.0, 14.4, 15.2, 0 }, { 1.0, 14.4, -15.2, 0 } } do
+		part({ name = "SignFrame", size = Vector3.new(spec[1], spec[2], 1.3), cf = signCF * CFrame.new(spec[3], spec[4], 0),
+			color = GOLD, material = Enum.Material.Metal, parent = model })
+	end
+	part({ name = "SignFinial", size = Vector3.new(2.6, 2.6, 0.9), cf = signCF * CFrame.new(0, 7.6, 0) * CFrame.Angles(0, 0, math.rad(45)),
+		color = GOLD, material = Enum.Material.Metal, parent = model })
+	local gui = surface(signHost, Enum.NormalId.Front, 26)
+	-- The two tiers are drawn in the Gui so the plaque reads as one surface with
+	-- the banner rather than a second board floating in front of it.
+	local topPanel = Instance.new("Frame")
+	topPanel.Name = "TopPanel"
+	topPanel.Size = UDim2.fromScale(0.96, 0.52)
+	topPanel.Position = UDim2.fromScale(0.02, 0.03)
+	topPanel.BackgroundColor3 = NAVY
+	topPanel.BorderSizePixel = 0
+	topPanel.Parent = gui
+	local plaque = Instance.new("Frame")
+	plaque.Name = "Plaque"
+	plaque.Size = UDim2.fromScale(0.74, 0.36)
+	plaque.Position = UDim2.fromScale(0.13, 0.58)
+	plaque.BackgroundColor3 = BRONZE
+	plaque.BorderSizePixel = 0
+	plaque.Parent = gui
+	for _, frame in { topPanel, plaque } do
+		local corner = Instance.new("UICorner")
+		corner.CornerRadius = UDim.new(0, 10)
+		corner.Parent = frame
+		local stroke = Instance.new("UIStroke")
+		stroke.Color = GOLD
+		stroke.Thickness = 4
+		stroke.Parent = frame
+	end
+	local elementLabel = label(gui, "Element", string.upper(def.element), UDim2.fromScale(0.3, 0.1), UDim2.fromScale(0.02, 0.9), def.color)
+	elementLabel.TextTransparency = 0.45
+	local title = label(topPanel, "Title", string.upper(def.name), UDim2.fromScale(0.92, 0.66), UDim2.fromScale(0.04, 0.16), rgb(255, 253, 246))
+	local costText = if def.unlockCost <= 0 then "OPEN" else Format.abbreviate(def.unlockCost) .. " COINS"
+	local cost = label(plaque, "Cost", costText, UDim2.fromScale(0.92, 0.6), UDim2.fromScale(0.04, 0.1), rgb(255, 238, 198))
+	local forecast = label(gui, "Forecast", "Legendary forecast: --", UDim2.fromScale(0.9, 0.09), UDim2.fromScale(0.05, 0.905), rgb(206, 232, 255))
+	forecast.TextWrapped = true
+	if BOARD_HIERARCHY[def.element] then
+		forecast.RichText = true
+	end
 
 	local entrance = part({ name = "Entrance", size = Vector3.new(6, 1, 6), cf = gateCF * CFrame.new(0, 0.5, 14), transparency = 1, collide = false, query = false, parent = model })
 
-	-- a route edged in the region's own colour, so the way to Frostbite Peaks
-	-- looks different from the way to Cinder Canyon long before you can read the sign
-	-- Six region roads at 60-degree spacing cannot all pass between eight cities
-	-- at 45-degree spacing: the roads at 30/150/210/330 ran over a city corner
-	-- (18 studs off the city centre line at radius 140, inside the 30-stud half
-	-- width). Those four dog-leg (option A): out through the nearest gap between
-	-- two cities, a short connector behind the city ring, then straight into the
-	-- gate. The roads at 90 and 270 already run through a gap and stay straight.
-	local gap = math.round(angle / 45) * 45
-	if angle % 360 == 270 then
-		-- the crisis arena sits on the 270 line between the plaza and this gate,
-		-- so the road through the 270 gap ran straight across the arena floor
-		gap = 315
-	end
-	if Config.MapLayout == "B" then
-		-- B seats the cities between the roads and moves the arena away, so every
-		-- region road is straight
-		gap = angle
-	end
-	if math.abs(gap - angle) < 1 then
-		path(model, polar(74, angle), gatePos, 9, def.color)
+	-- A paved trail straight up the axis, kerbed in this region's own colour.
+	-- The concept paves the chain in the same pale stone as the town; the
+	-- chevron roadbed the hub uses read as a runway at this length.
+	local zMid = regionSouthEdge(def.index) - CELL_D / 2 + 1.5
+	if TRAIL_DIRT[def.element] then
+		-- trodden earth, and the region module scatters its flat stones on top
+		local trail = slab(model, "Trail", 0, zMid, 24, CELL_D + 3, 0.42, DIRT)
+		trail.Material = Enum.Material.Ground
+	elseif TRAIL_BLEND[def.element] then
+		-- Tropical Tidepools shows firmer pale sand down the middle of the bay
+		-- and Cinder Quarry shows bare quarry floor; both are the ground either
+		-- side of them, only walked flatter.
+		local blend = TRAIL_BLEND[def.element]
+		local trail = slab(model, "Trail", 0, zMid, blend.width, CELL_D + 3, 0.42, blend.color)
+		trail.Material = blend.material
 	else
-		-- behind the platforms: back edge 170, back corner 172.6. The connector is
-		-- chords of at most 15 degrees, whose midpoints dip 1.6 studs inside the
-		-- radius, so a long swing (Frostbite, 45 degrees) reads as a curve and
-		-- still clears the corners.
-		local behind = 186
-		path(model, polar(74, gap), polar(behind, gap), 9, def.color)
-		local swing = angle - gap
-		local steps = math.max(1, math.ceil(math.abs(swing) / 15))
-		for i = 1, steps do
-			path(model, polar(behind, gap + swing * (i - 1) / steps), polar(behind, gap + swing * i / steps), 9, def.color)
+		slab(model, "Trail", 0, zMid, 18, CELL_D + 3, 0.42)
+		for _, side in { -1, 1 } do
+			slab(model, "TrailKerb", side * 9.4, zMid, 1.8, CELL_D + 3, 0.46, def.color)
 		end
-		path(model, polar(behind, angle), gatePos, 9, def.color)
 	end
-	-- Past the gate the route is a stub, not a runway to the middle: the wild
-	-- ground stays open for creatures to roam and hazards to play out on. The
-	-- ground disc (radius 75 about the centre at 280) begins at 205.
-	path(model, gatePos, polar(230, angle), 9, def.color)
-	lamp(model, gatePos + Vector3.new(0, 0, 0) + polar(16, angle + 90), def.color)
-	lamp(model, gatePos + polar(16, angle - 90), def.color)
+	lamp(model, gatePos + Vector3.new(GATE_W / 2 + 12, 0, -9), def.color)
+	lamp(model, gatePos + Vector3.new(-(GATE_W / 2 + 12), 0, -9), def.color)
 
 	return {
 		model = model,
 		centre = centre,
 		spawnRadius = spawnRadius,
+		accessRadius = accessRadius,
+		fieldHalf = field,
+		keepOut = keepOut,
+		accessHalf = Vector3.new(CELL_W / 2, 0, CELL_D / 2),
 		gate = gate,
 		gateSign = { title = title, cost = cost, forecast = forecast },
 		entrance = entrance,
@@ -848,9 +1148,9 @@ local function buildRegion(parent: Instance, def: any)
 	}
 end
 
--- Scenery stays outside the playable ring and region interiors. The underlying
--- ground remains continuous; hills use embedded ellipsoids with no flat seams.
--- Fixed placement avoids changing the gameplay random sequence on each boot.
+-- Trees and boulders rim the island and flank the chain, so the ground reads as
+-- an edge rather than running off flat -- which is how the concept board frames
+-- both. Fixed placement keeps the gameplay random sequence untouched.
 local function buildLandscape(parent: Instance)
 	local scenery = Instance.new("Folder")
 	scenery.Name = "Landscape"
@@ -864,75 +1164,52 @@ local function buildLandscape(parent: Instance)
 		rock(host, "Trunk", pos + Vector3.new(0, 4 * scale, 0), Vector3.new(1.6, 8, 1.6) * scale, rgb(94, 76, 59), Enum.Material.Wood)
 		for tier = 1, 3 do
 			local width = (12 - tier * 2) * scale
-			local color = if snowy then rgb(213, 232, 236) else rgb(67 + tier * 10, 120 + tier * 12, 76 + tier * 5)
+			local color = if snowy then rgb(178, 198, 209) else rgb(67 + tier * 10, 120 + tier * 12, 76 + tier * 5)
 			local material = if snowy then Enum.Material.Snow else Enum.Material.Grass
 			rock(host, "Canopy", pos + Vector3.new(0, (5 + tier * 2.5) * scale, 0), Vector3.new(width, 6 * scale, width), color, material, true)
 		end
 	end
 
-	-- Low banks in the empty wedges between destinations, beyond all city plots.
-	for i = 1, 6 do
-		local angle = 120 + (i - 1) * 60
-		local centre = polar(230, angle)
-		local clear = true
-		for _, def in Config.Regions.list do
-			if (centre - polar(280, 90 + 60 * (def.index - 1))).Magnitude < 110 then
-				clear = false
+	-- island rim, both trunk mouths left clear
+	local rim = Instance.new("Folder")
+	rim.Name = "IslandRim"
+	rim.Parent = scenery
+	for i = 1, 54 do
+		local a = (i / 54) * 360
+		local at = polar(ISLAND_R - 7 - (i % 3) * 4, a)
+		if math.abs(at.X) > TRUNK_W then
+			if i % 4 == 0 then
+				rock(rim, "ShoreRock", at + Vector3.new(0, 1.2, 0), Vector3.new(9 + (i % 3) * 3, 8, 8.4), rgb(138, 140, 148), Enum.Material.Rock, true)
+			else
+				tree(rim, at, 0.85 + (i % 4) * 0.12, false)
 			end
-		end
-		if clear then
-			rock(scenery, "MeadowBank", centre + Vector3.new(0, -2, 0), Vector3.new(52, 17, 44), rgb(108, 150, 91), Enum.Material.Grass, true)
-			rock(scenery, "MeadowShoulder", centre + polar(21, angle + 90, -1.5), Vector3.new(32, 11, 29), rgb(119, 159, 98), Enum.Material.Grass, true)
-			tree(scenery, centre + polar(31, angle, 0), 0.9, false)
 		end
 	end
 
+	-- the treeline outside both chain walls
+	local flanks = Instance.new("Folder")
+	flanks.Name = "ChainFlanks"
+	flanks.Parent = scenery
+	local ownFlank: { { number } } = {}
 	for _, def in Config.Regions.list do
-		local angle = 90 + 60 * (def.index - 1)
-		local centre = polar(280, angle)
-		local group = Instance.new("Folder")
-		group.Name = def.id
-		group.Parent = scenery
-		local element = def.element
-		local material = if element == "Water" then Enum.Material.Sand elseif element == "Frost" then Enum.Material.Snow elseif element == "Heat" then Enum.Material.Sandstone elseif element == "Wind" then Enum.Material.Grass else Enum.Material.Slate
-		-- The semicircle faces away from the hub: entrances and signs stay open.
-		for i = 1, 7 do
-			local bearing = angle - 84 + (i - 1) * 28
-			local at = centre + polar(119 + (i % 2) * 8, bearing)
-			local height = 22 + (i % 3) * 8
-			local tint = def.groundColor:Lerp(rgb(118, 130, 112), 0.18)
-			if element == "Water" or element == "Wind" then
-				rock(group, "Dune", at + Vector3.new(0, -3, 0), Vector3.new(57, height * 0.7, 48), tint, material, true)
-			elseif element == "Heat" then
-				for tier = 1, 3 do
-					local width = 44 - tier * 7
-					rock(group, "CanyonStratum", at + Vector3.new(0, (tier - 0.5) * height / 3 - 1, 0), Vector3.new(width, height / 3, width * 0.8),
-						tint:Lerp(rgb(205, 139, 89), tier * 0.15), material)
-				end
+		if OWN_FLANK[def.element] then
+			local c = regionCentre(def.index).Z
+			table.insert(ownFlank, { c - CELL_D / 2, c + CELL_D / 2 })
+		end
+	end
+	local rows = math.floor(CHAIN_LEN / 26)
+	for i = 0, rows do
+		local z = CHAIN_Z0 - i * (CHAIN_LEN / rows)
+		local skip = false
+		for _, span in ownFlank do
+			skip = skip or (z >= span[1] and z <= span[2])
+		end
+		for _, side in (if skip then {} else { -1, 1 }) do
+			local x = side * (CELL_W / 2 + 11 + (i % 3) * 8)
+			if (i + (if side < 0 then 0 else 2)) % 5 == 0 then
+				rock(flanks, "RidgeRock", Vector3.new(x + side * 11, 1.5, z), Vector3.new(13, 11, 12), rgb(132, 134, 142), Enum.Material.Rock, true)
 			else
-				local ridge = rock(group, "Ridge", at + Vector3.new(0, height * 0.25, 0), Vector3.new(32, height, 30), tint, material)
-				ridge.CFrame *= CFrame.Angles(0, math.rad(bearing), math.rad(18))
-				if element == "Frost" then
-					rock(group, "SnowCap", at + Vector3.new(0, height * 0.73, 0), Vector3.new(28, 9, 27), rgb(239, 246, 249), Enum.Material.Snow, true)
-				elseif element == "Cosmic" then
-					local floating = rock(group, "FloatingShard", at + Vector3.new(0, height + 12, 0), Vector3.new(6, 10, 6), def.color, Enum.Material.Slate)
-					floating.CFrame *= CFrame.Angles(0.3, 0.6, 0.4)
-					floating.CanCollide = false
-					local seam = rock(group, "CrystalSeam", at + Vector3.new(0, height + 12, 0), Vector3.new(6.3, 0.5, 6.3), def.color, Enum.Material.Neon)
-					seam.CFrame = floating.CFrame
-					seam.CanCollide = false
-				end
-			end
-			-- A lower apron softens the transition from plain grass to each biome.
-			local shoulder = centre + polar(94, bearing)
-			rock(group, "BiomeShoulder", shoulder + Vector3.new(0, -1.3, 0), Vector3.new(25, 7, 24), def.groundColor, material, true)
-			if element == "Wind" or element == "Frost" then
-				tree(group, centre + polar(98, bearing + 7), 0.85 + (i % 3) * 0.16, element == "Frost")
-			elseif element == "Water" then
-				local reeds = centre + polar(91, bearing + 7)
-				for stem = 1, 3 do
-					rock(group, "BeachGrass", reeds + Vector3.new(stem - 2, 1.8, 0), Vector3.new(0.35, 3.6 + stem * 0.4, 0.35), rgb(120, 145, 90), Enum.Material.Grass)
-				end
+				tree(flanks, Vector3.new(x, 0, z), 0.85 + (i % 4) * 0.14, false)
 			end
 		end
 	end
@@ -941,33 +1218,36 @@ end
 -- ============================================================ build
 
 function MapBuilder.build()
+	local staging, storage = require(script.Parent.ImportStaging), game:GetService("ServerStorage")
+	staging.move(workspace, storage)
+	staging.quarantine(workspace, storage)
 	partCount = 0
 
 	local map = Instance.new("Model")
 	map.Name = "Map"
 	map.Parent = workspace
 
-	-- ground
-	part({ name = "Ground", size = Vector3.new(900, 4, 900), cf = CFrame.new(0, -2, 0), color = rgb(126, 168, 104), material = Enum.Material.Grass, collide = true, parent = map })
+	-- The world is the round island plus the strip the chain sits on, which
+	-- together give the concept board's silhouette. The island disc itself is
+	-- laid by buildHub; this is the ground under the regions and the causeway
+	-- south to the arena.
+	part({ name = "Ground", size = Vector3.new(STRIP_W, 6, CHAIN_LEN + 24), cf = CFrame.new(0, -3, CHAIN_Z0 - CHAIN_LEN / 2 + 12),
+		color = GRASS_C, material = Enum.Material.Grass, collide = true, parent = map })
+	-- The strip is a rectangle and the island a circle; butted together they met
+	-- on a corner that read as a seam from above. This disc rounds the junction.
+	disc(map, "ChainApron", Vector3.new(0, 0.03, CHAIN_Z0 + 30), STRIP_W / 2, 6, GRASS_C, Enum.Material.Grass)
+	part({ name = "Causeway", size = Vector3.new(30, 6, 56), cf = CFrame.new(0, -3, ISLAND_R + 18),
+		color = GRASS_C, material = Enum.Material.Grass, collide = true, parent = map })
 
 	local hub = buildHub(map)
-	local arena = buildArena(map)
-	if Config.MapLayout == "B" then
-		-- Layout B: six cities at 60-degree spacing put a city on either side of
-		-- the arena with their corners on its wall, and the straight Frostbite road
-		-- through its middle. The arena moves out between the Frostbite and
-		-- Thunderworks regions (141 studs from each centre, 33 clear of both), its
-		-- front facing a spur that leaves the Frostbite road behind the city ring.
-		local newCentre = polar(262, 300)
-		local spurFrom = polar(182, 270)
-		local front = Vector3.new(spurFrom.X - newCentre.X, 0, spurFrom.Z - newCentre.Z).Unit
-		-- the arena was built with its front on +Z (toward the hub); turn +Z onto `front`
-		local turn = CFrame.lookAt(Vector3.zero, -front)
-		local move = CFrame.new(newCentre) * turn * CFrame.new(-arena.centre)
-		arena.model:PivotTo(move * arena.model:GetPivot())
-		arena.centre = newCentre
-		path(map, spurFrom, newCentre + front * 37, 10, rgb(255, 120, 100))
-	end
+
+	-- The Containment Crisis arena keeps its own islet south of the town, which
+	-- is where the crisis copy sends players, and off the concept's north view.
+	disc(map, "ArenaIslet", ARENA_CENTRE + Vector3.new(0, 0.04, 0), 62, 6, GRASS_C, Enum.Material.Grass)
+	local arena = buildArena(map, ARENA_CENTRE)
+	strip(map, "ArenaCauseway", Vector3.new(0, 0, ISLAND_R - 6), ARENA_CENTRE - Vector3.new(0, 0, 44), 14, 0.3, PAVER)
+
+	buildChainWalls(map)
 
 	local regionsFolder = Instance.new("Folder")
 	regionsFolder.Name = "Regions"
@@ -983,50 +1263,20 @@ function MapBuilder.build()
 		end
 	end
 
-	-- plot ring: eight CFrames whose front (local -Z) looks at the origin
+	-- plot ring: six CFrames whose front (local -Z) looks at the fountain, each
+	-- on its own connector from the promenade to its front gate
 	local plotsFolder = Instance.new("Folder")
 	plotsFolder.Name = "Plots"
 	plotsFolder.Parent = workspace
 	local plots: { [number]: CFrame } = {}
 	for i = 1, Config.MaxPlayers do
 		local a = plotAngle(i)
-		local pos = polar(140, a)
+		local pos = polar(PLOT_R, a)
 		plots[i] = CFrame.lookAt(pos, Vector3.new(0, 0, 0))
-		-- a driveway to the front apron (local z -43 .. -29), not a strip across the pads
-		path(map, polar(72, a), polar(97, a), 8, rgb(120, 200, 255))
-		lamp(map, polar(104, a))
+		strip(map, "PlotConnector", polar(RING_OUT - 2, a), polar(PLOT_R - PLOT_HALF, a), CONNECTOR_W, 0.26)
 	end
 
 	buildLandscape(map)
-	if Config.MapLayout == "B" then
-		-- Scenery that landed under or against the relocated arena goes: props and
-		-- landscape mounds whose ground footprint comes within 40 studs of the
-		-- centre (walls at 30, lamps at 34). Roads and anything as large as a region
-		-- ground disc are left alone.
-		local cx, cz = arena.centre.X, arena.centre.Z
-		local removed = 0
-		for _, d in map:GetDescendants() do
-			if d:IsA("BasePart") and not d:IsDescendantOf(arena.model) and d.Size.Magnitude < 120
-				and not d.Name:find("Path") and not d.Name:find("Chevron") and d.Name ~= "Ground" then
-				local minX, maxX, minZ, maxZ = math.huge, -math.huge, math.huge, -math.huge
-				for _, sx in { -1, 1 } do
-					for _, sz in { -1, 1 } do
-						local c = d.CFrame:PointToWorldSpace(Vector3.new(sx * d.Size.X / 2, 0, sz * d.Size.Z / 2))
-						minX, maxX = math.min(minX, c.X), math.max(maxX, c.X)
-						minZ, maxZ = math.min(minZ, c.Z), math.max(maxZ, c.Z)
-					end
-				end
-				local nx, nz = math.clamp(cx, minX, maxX), math.clamp(cz, minZ, maxZ)
-				if math.sqrt((nx - cx) ^ 2 + (nz - cz) ^ 2) < 40 then
-					d:Destroy()
-					removed += 1
-				end
-			end
-		end
-		if removed > 0 then
-			print(("[MapBuilder] layout B: %d scenery parts cleared from under the arena"):format(removed))
-		end
-	end
 
 	local effects = Instance.new("Folder")
 	effects.Name = "Effects"
