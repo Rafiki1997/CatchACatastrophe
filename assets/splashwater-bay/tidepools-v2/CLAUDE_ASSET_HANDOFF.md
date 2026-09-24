@@ -2,7 +2,7 @@
 
 Astra's eight requested Blender models are now delivered here:
 
-`C:\Users\rahul\orca\Catch-a-Catastrophe\assets\splashwater-bay\tidepools-v2`
+`C:\Users\nguye\Documents\repos\catch-a-catastrophe\CatchACatastrophe\assets\splashwater-bay\tidepools-v2`
 
 Start with `README.md`, `manifest.json`, and `preview-all-assets.png` in this folder.
 Import `TropicalTidepoolsBundle.fbx` through Studio before expecting native templates.

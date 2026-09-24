@@ -4,7 +4,7 @@ The user approved V7 Gravity Garden. Implement the playable base region while Co
 
 ## Workspace and ownership
 
-Work in `C:\Users\rahul\orca\Catch-a-Catastrophe`, the checkout containing the latest Gusty, Splashwater, Cinder, Frostbite and Thunderworks region modules. The older `orca\workspaces\Catch-a-Catastrophe\Catch-A-Catastrophe` checkout lacks these refinements: do not implement there. Read this repository's AGENTS.md, newest RELAY.md and docs/CONTRACTS.md first. Preserve concurrent edits.
+Work in `C:\Users\nguye\Documents\repos\catch-a-catastrophe\CatchACatastrophe`, the checkout containing the latest Gusty, Splashwater, Cinder, Frostbite and Thunderworks region modules. The older `orca\workspaces\Catch-a-Catastrophe\Catch-A-Catastrophe` checkout lacks these refinements: do not implement there. Read this repository's AGENTS.md, newest RELAY.md and docs/CONTRACTS.md first. Preserve concurrent edits.
 
 - Claude owns `src/server/Map/OrbitOutpost.luau`, narrow Cosmic delegation/entrance/floor changes, collision, walkable terrain, transparent energy/glass panels, asset-site placeholders, and relevant validation.
 - Codex owns `assets/orbit-outpost/`, `tools/blender/create_orbit_props.py`, `tools/blender/verify_orbit_props.py`, and later mesh-template/placement integration. Do not edit these or shared Blender helpers.

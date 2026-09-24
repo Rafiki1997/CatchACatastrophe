@@ -1,6 +1,6 @@
 # Catch A Catastrophe agent instructions
 
-Work only inside this repository: `C:\Users\rahul\orca\Catch-a-Catastrophe`.
+Work only inside this repository: `C:\Users\nguye\Documents\repos\catch-a-catastrophe\CatchACatastrophe`.
 Do not read relay or handoff files from other projects, or infer missing state
 from another repository.
 

@@ -1,7 +1,7 @@
 # side-by-side: V2 left, build right (same size), plus an optional overlay blend
 import sys
 from PIL import Image, ImageDraw, ImageFont
-V2 = "C:/Users/rahul/orca/Catch-a-Catastrophe/docs/art/regions/2026-09-22-frostbite-peaks/frostbite-peaks-v2-02-alpine-outpost-refined.png"
+V2 = "C:/Users/nguye/Documents/repos/catch-a-catastrophe/CatchACatastrophe/docs/art/regions/2026-09-22-frostbite-peaks/frostbite-peaks-v2-02-alpine-outpost-refined.png"
 render, out = sys.argv[1], sys.argv[2]
 label = sys.argv[3] if len(sys.argv) > 3 else 'build (placeholder art), refcam'
 ref = Image.open(V2).convert('RGB')

@@ -88,7 +88,7 @@ overlap; the base generator now hides that proxy and insets the glazing.
 
 ## Reproduce
 
-Run from `C:\Users\rahul\orca\Catch-a-Catastrophe` using Blender background mode:
+Run from `C:\Users\nguye\Documents\repos\catch-a-catastrophe\CatchACatastrophe` using Blender background mode:
 - `--python-exit-code 1 --python tools/blender/create_orbit_props.py`
 - `--python-exit-code 1 --python tools/blender/verify_orbit_props.py`
 - `--python-exit-code 1 --python tools/blender/render_orbit_landmarks.py`

@@ -2,7 +2,7 @@
 
 All **28 required asset names** in your `ALPINE-OUTPOST-V2-ASSET-REQUEST.md` are delivered, plus the two optional earlier pieces. Read this folder's README, manifest and validation.json. Use these final files rather than the first 22-piece draft.
 
-Folder: `C:\Users\rahul\orca\Catch-a-Catastrophe\assets\frostbite-peaks\alpine-v2`
+Folder: `C:\Users\nguye\Documents\repos\catch-a-catastrophe\CatchACatastrophe\assets\frostbite-peaks\alpine-v2`
 
 Bundle: `AlpineOutpostBundle.fbx`. Native template target: `FrostbiteAlpineTemplates.rbxm`. Editable source: `AlpineOutpost.blend`.
 

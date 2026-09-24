@@ -7,7 +7,7 @@ from PIL import Image, ImageDraw, ImageFont
 import refcam as RC
 import layout as Lo
 
-V2 = "C:/Users/rahul/orca/Catch-a-Catastrophe/docs/art/regions/2026-09-22-frostbite-peaks/frostbite-peaks-v2-02-alpine-outpost-refined.png"
+V2 = "C:/Users/nguye/Documents/repos/catch-a-catastrophe/CatchACatastrophe/docs/art/regions/2026-09-22-frostbite-peaks/frostbite-peaks-v2-02-alpine-outpost-refined.png"
 out = sys.argv[1] if len(sys.argv) > 1 else 'layout_on_v2.png'
 im = Image.open(V2).convert('RGB')
 d = ImageDraw.Draw(im, 'RGBA')

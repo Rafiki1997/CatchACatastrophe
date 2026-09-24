@@ -3,7 +3,7 @@
 import sys, numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from homog import to_px
-V2 = "C:/Users/rahul/orca/Catch-a-Catastrophe/docs/art/regions/2026-09-22-frostbite-peaks/frostbite-peaks-v2-02-alpine-outpost-refined.png"
+V2 = "C:/Users/nguye/Documents/repos/catch-a-catastrophe/CatchACatastrophe/docs/art/regions/2026-09-22-frostbite-peaks/frostbite-peaks-v2-02-alpine-outpost-refined.png"
 im = Image.open(V2).convert('RGB')
 ov = Image.new('RGBA', im.size, (0, 0, 0, 0))
 d = ImageDraw.Draw(ov)

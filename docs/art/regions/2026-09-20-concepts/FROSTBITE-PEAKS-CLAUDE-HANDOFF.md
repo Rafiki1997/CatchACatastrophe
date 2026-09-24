@@ -7,13 +7,13 @@ after your layout is finished. Do not wait for those assets to build the base.
 
 ## Project and reference
 
-Work only in `C:\Users\rahul\orca\Catch-a-Catastrophe`.
+Work only in `C:\Users\nguye\Documents\repos\catch-a-catastrophe\CatchACatastrophe`.
 Do not use the older `orca\workspaces\Catch-a-Catastrophe` checkout.
 Read root `AGENTS.md`, newest `RELAY.md`, and `docs/CONTRACTS.md` first.
 
 Approved image, open and inspect it:
 
-`C:\Users\rahul\orca\Catch-a-Catastrophe\docs\art\regions\2026-09-20-concepts\frostbite-peaks-v2-alpine-expedition.png`
+`C:\Users\nguye\Documents\repos\catch-a-catastrophe\CatchACatastrophe\docs\art\regions\2026-09-20-concepts\frostbite-peaks-v2-alpine-expedition.png`
 
 The image shows a broad snow field within sculpted snowy mountain walls, a
 jagged rear mountain ridge, a short rope bridge over a frozen cascade on the

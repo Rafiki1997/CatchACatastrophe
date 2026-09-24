@@ -4,7 +4,7 @@
 
 ## Current handoff to Claude (takes precedence over historical sections)
 
-- Work exclusively in `C:\Users\rahul\orca\Catch-a-Catastrophe`. Do not follow
+- Work exclusively in `C:\Users\nguye\Documents\repos\catch-a-catastrophe\CatchACatastrophe`. Do not follow
   historical external-project paths below. Start with this project's `RELAY.md`.
 - User requested the handoff; no new gameplay feature or publishing is requested.
 - Latest change: server snapshots include `build.placeVersion` from `game.PlaceVersion`
@@ -129,7 +129,7 @@ untested hazards, and Studio state may be superseded by this checkpoint.
 
 ## Previous checkpoint — lighting pickup
 
-- Work is scoped exclusively to `C:\Users\rahul\orca\Catch-a-Catastrophe`.
+- Work is scoped exclusively to `C:\Users\nguye\Documents\repos\catch-a-catastrophe\CatchACatastrophe`.
 - All 78 Studio scripts matched disk by path and normalized-source Adler-32 checksum;
   no Studio-only scripts were found in the three managed script trees.
 - Rojo 7.7 responds on port 34872 for `CatchACatastrophe`. The plugin connection and
@@ -164,7 +164,7 @@ Everything in the spec is built. ~19,400 lines of Luau across 78 files, all comm
 
 | | |
 |---|---|
-| Repo | `C:\Users\rahul\orca\Catch-a-Catastrophe` (own git history, currently clean) |
+| Repo | `C:\Users\nguye\Documents\repos\catch-a-catastrophe\CatchACatastrophe` (own git history, currently clean) |
 | Published place | `placeId 88888194204730` — "Catch a Catastrophe" |
 | Build | `rojo build -o build/CatchACatastrophe.rbxl` |
 | Binding spec | `docs/superpowers/specs/2026-09-06-catch-a-catastrophe-spec.md` |
@@ -183,7 +183,7 @@ This project lost time twice to disk/Studio divergence. The fix is now in place 
 Start the server from the repo root and connect from Studio's Rojo toolbar:
 
 ```bash
-cd C:/Users/rahul/orca/Catch-a-Catastrophe && rojo serve --port 34872
+cd C:/Users/nguye/Documents/repos/catch-a-catastrophe/CatchACatastrophe && rojo serve --port 34872
 ```
 
 Then in Studio: **Rojo → Connect**, port 34872. Disk becomes the single source of truth and every edit

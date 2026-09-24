@@ -12,7 +12,7 @@
 
 ## Global Constraints
 
-- Work only inside `C:\Users\rahul\orca\Catch-a-Catastrophe`.
+- Work only inside `C:\Users\nguye\Documents\repos\catch-a-catastrophe\CatchACatastrophe`.
 - Preserve the concept-first and flat-color requirements in `docs/CreateACatastropheCreatureCreation.md`.
 - Keep wild rarity selection Common, Uncommon, Rare, and Legendary for all regions.
 - Keep Epic and Mythic egg-only for this showcase replacement.

@@ -1,7 +1,7 @@
 # Catch A Catastrophe handoff instructions
 
 This repository is the only project in scope. Work in
-`C:\Users\rahul\orca\Catch-a-Catastrophe`. Do not read relay or handoff files
+`C:\Users\nguye\Documents\repos\catch-a-catastrophe\CatchACatastrophe`. Do not read relay or handoff files
 from other projects, or infer missing state from another repository.
 
 When the user says `pickup`, `/pickup`, or `pick up`, follow this protocol:

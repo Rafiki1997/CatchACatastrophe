@@ -50,7 +50,7 @@
   - **Rojo incident, resolved:** a Qwen Code agent in an orca pane kept running `rojo serve --port 34872` from the stale worktree (`orca/workspaces/.../Catch-A-Catastrophe`, `feature/CAC-1` @ `3ef4ef3`, 2026-09-06).
     - The Studio plugin connected to it and synced six-week-old scripts into the open place.
     - The user closed that session; Rojo now serves the **main checkout** on 34872.
-  - **Rule for every agent:** run `rojo serve` only from `C:/Users/rahul/orca/Catch-a-Catastrophe`, never from the orca worktree.
+  - **Rule for every agent:** run `rojo serve` only from `C:/Users/nguye/Documents/repos/catch-a-catastrophe/CatchACatastrophe`, never from the orca worktree.
 - **Publishing:** nothing published. `docs/CONTRACTS.md` and this entry are uncommitted (other sessions' edits share these files).
 
 ## Gusty meadow kit v1: pine, shrub, moss rocks and daisy bed heroes ready for review — 2026-09-23
@@ -1201,7 +1201,7 @@
   has not been measured. Existing impact_generic.mp3 warning remains unrelated.
 - **Studio:** CatchACatastrophe.rbxl, PlaceId 0, left in Play, normal player camera;
   no character teleport, purchase or ownership changes. Rojo remains connected to
-  C:\Users\rahul\orca\Catch-a-Catastrophe on 34872. Build stamp 2026-09-20 12:04.
+  C:\Users\nguye\Documents\repos\catch-a-catastrophe\CatchACatastrophe on 34872. Build stamp 2026-09-20 12:04.
 - **Publishing:** not published or committed. Next: user's visual review of the
   Splashwater board, then Cinder Canyon; monster labels remain deferred.
 
@@ -1325,7 +1325,7 @@
   The existing impact_generic.mp3 warning persists.
 - **Studio:** CatchACatastrophe.rbxl, PlaceId 0, left in Play with normal player
   camera; no character teleport probes. Rojo remains connected on 34872 to
-  C:\Users\rahul\orca\Catch-a-Catastrophe. Final stamp: 2026-09-20 11:00.
+  C:\Users\nguye\Documents\repos\catch-a-catastrophe\CatchACatastrophe. Final stamp: 2026-09-20 11:00.
 - **Publishing:** not published or committed. Next: user review of Splashwater Bay,
   then Cinder Canyon. Keep monster labels and further Gusty polish on the backlog.
 
@@ -1364,7 +1364,7 @@
   multiplayer performance not measured. Existing impact_generic.mp3 warning persists.
 - **Studio:** CatchACatastrophe.rbxl, PlaceId 0, left in Play with normal player
   camera; no character teleport probes used. Rojo restarted hidden on port 34872;
-  user connected and applied sync. Source is C:\Users\rahul\orca\Catch-a-Catastrophe,
+  user connected and applied sync. Source is C:\Users\nguye\Documents\repos\catch-a-catastrophe\CatchACatastrophe,
   NOT the stale orca/workspaces checkout. Final build stamp: 2026-09-20 10:50.
 - **Publishing:** not published or committed. Next: user feedback on Gusty's layout,
   foliage and mill; refine those or choose selective custom assets before moving
@@ -1406,14 +1406,14 @@
   client session was run. Prior Play screenshot limitation remains; Edit previews work.
 - **Studio:** CatchACatastrophe, PlaceId 0, in-memory test adapter; left in Play at the
   Atlas entrance with its panel closed and normal player camera. Rojo serves this repo
-  on port 34872. **Source is C:\Users\rahul\orca\Catch-a-Catastrophe**, not the older
+  on port 34872. **Source is C:\Users\nguye\Documents\repos\catch-a-catastrophe\CatchACatastrophe**, not the older
   orca/workspaces checkout named in the thread environment.
 - **Publishing:** not published or committed. Next: user review of Atlas and region
   silhouettes, then refine individual regions at player scale, starting with Gusty.
 
 ## Hub Workshop and Relaunch art pass — 2026-09-20
 
-- **Source location correction:** the active game matches `C:\Users\rahul\orca\Catch-a-Catastrophe`,
+- **Source location correction:** the active game matches `C:\Users\nguye\Documents\repos\catch-a-catastrophe\CatchACatastrophe`,
   not the older `orca\workspaces\Catch-a-Catastrophe\Catch-A-Catastrophe` checkout.
   Earlier summaries from that checkout understated progress (7-step versus 13-step tutorial).
 - **Completed:** Workshop and City Relaunch now face the plaza center via a shared local -Z
@@ -1469,7 +1469,7 @@ with what is actually true. Nothing was lost; the work it described is done.
 
 - **Updated:** 2026-09-07 morning (Claude Code). Codex reached its weekly limit; Claude owns
   this repo until told otherwise, and took over Codex's unfinished collection pad indicator.
-- **Repo:** `C:\Users\rahul\orca\Catch-a-Catastrophe` — Rojo 7.7, branch `main`
+- **Repo:** `C:\Users\nguye\Documents\repos\catch-a-catastrophe\CatchACatastrophe` — Rojo 7.7, branch `main`
 - **Working tree: CLEAN** apart from this file when it is being written. Everything is committed.
 - **Studio:** "Catch a Catastrophe (placeId 88888194204730)". Instance ids change on every
   relaunch; call `list_roblox_studios`. Left in **Play** for the user to look at the route lights.

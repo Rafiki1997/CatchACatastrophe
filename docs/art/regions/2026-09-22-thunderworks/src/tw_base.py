@@ -671,7 +671,7 @@ def build_creatures(c, positions=CREATURES):
 
 
 # ------------------------------------------------------------------ Astra's kit
-PROPS_V1 = "C:/Users/rahul/orca/Catch-a-Catastrophe/assets/thunderworks/props-v1/props.blend"
+PROPS_V1 = "C:/Users/nguye/Documents/repos/catch-a-catastrophe/CatchACatastrophe/assets/thunderworks/props-v1/props.blend"
 
 
 def load_props_v1():

@@ -1,7 +1,7 @@
 # Labelled V2 crops, one per requested asset family, for Astra.
 import sys
 from PIL import Image, ImageDraw, ImageFont
-V2 = "C:/Users/rahul/orca/Catch-a-Catastrophe/docs/art/regions/2026-09-22-frostbite-peaks/frostbite-peaks-v2-02-alpine-outpost-refined.png"
+V2 = "C:/Users/nguye/Documents/repos/catch-a-catastrophe/CatchACatastrophe/docs/art/regions/2026-09-22-frostbite-peaks/frostbite-peaks-v2-02-alpine-outpost-refined.png"
 src = Image.open(V2).convert('RGB')
 CROPS = [
     ('FA_Lodge', (150, 20, 390, 300)), ('FA_Tent / FA_Camp_Sled', (268, 275, 385, 350)),

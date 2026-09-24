@@ -14,7 +14,7 @@ hatching, no stealing, no paid random rolls, no cash shop.
 Rojo 7.7 is on PATH.
 
 ```bash
-cd C:/Users/rahul/orca/Catch-a-Catastrophe && rojo build -o build/CatchACatastrophe.rbxl
+cd C:/Users/nguye/Documents/repos/catch-a-catastrophe/CatchACatastrophe && rojo build -o build/CatchACatastrophe.rbxl
 ```
 
 Open `build/CatchACatastrophe.rbxl` in Roblox Studio and press **Play** (F5). For two-player tests use

@@ -4,11 +4,11 @@ Implement the approved refined Alpine Outpost design in Catch a Catastrophe. The
 
 ## Repository and authoritative image
 
-Work in `C:\Users\rahul\orca\Catch-a-Catastrophe`. Read AGENTS.md, the latest RELAY.md and relevant contracts first. Preserve other agents' work.
+Work in `C:\Users\nguye\Documents\repos\catch-a-catastrophe\CatchACatastrophe`. Read AGENTS.md, the latest RELAY.md and relevant contracts first. Preserve other agents' work.
 
 Open and visually inspect this exact image before implementing:
 
-`C:\Users\rahul\orca\Catch-a-Catastrophe\docs\art\regions\2026-09-22-frostbite-peaks\frostbite-peaks-v2-02-alpine-outpost-refined.png`
+`C:\Users\nguye\Documents\repos\catch-a-catastrophe\CatchACatastrophe\docs\art\regions\2026-09-22-frostbite-peaks\frostbite-peaks-v2-02-alpine-outpost-refined.png`
 
 This V2 image is the visual target. The original V1 option and the September 20 Alpine Expedition design are not the final target. Read `ALPINE-OUTPOST-V2-REFINEMENT.md` for context. The white caption/footer is presentation, not in-game signage.
 

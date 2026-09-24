@@ -14,7 +14,7 @@ Rahul selected the Powder Fir concept, requested sibling variations, approved th
 
 ## 2. Workspace and pickup
 
-- Work in **`C:\Users\rahul\orca\Catch-a-Catastrophe`**. This is the source checkout. The older `orca\workspaces\Catch-a-Catastrophe\Catch-A-Catastrophe` checkout is not the implementation target.
+- Work in **`C:\Users\nguye\Documents\repos\catch-a-catastrophe\CatchACatastrophe`**. This is the source checkout. The older `orca\workspaces\Catch-a-Catastrophe\Catch-A-Catastrophe` checkout is not the implementation target.
 - Read root `AGENTS.md`, the newest `RELAY.md` checkpoint, and relevant `docs/CONTRACTS.md` sections before implementation. Other sessions may have advanced the project since this document.
 - At authoring, branch was `main`, HEAD `da98f6b4272ce34a46443d6df0905e60aa2fda8c`, with substantial uncommitted art and map work. These identify the starting state, not a requirement to reset to that commit. Preserve subsequent and unrelated changes.
 - Communicate in English. Be concrete about what is modeled, exported, imported, and verified. Proceed with the requested work; ask about decisions that actually affect its scope or design.
@@ -258,7 +258,7 @@ Each completed kit should include source `.blend`, optimized `.blend`, preview P
 
 ## 10. Copyable starter prompt for the next AI
 
-> Read `docs/art/ASSET-RESTYLE-HANDOFF.md` in `C:\Users\rahul\orca\Catch-a-Catastrophe`, then inspect its approved Powder Fir lineup, branch-detail image, optimized preview and source Blender scene. These trees establish the style and quality target for recreating all existing game assets in Blender. Read AGENTS.md, the newest RELAY.md and relevant CONTRACTS.md sections before editing.
+> Read `docs/art/ASSET-RESTYLE-HANDOFF.md` in `C:\Users\nguye\Documents\repos\catch-a-catastrophe\CatchACatastrophe`, then inspect its approved Powder Fir lineup, branch-detail image, optimized preview and source Blender scene. These trees establish the style and quality target for recreating all existing game assets in Blender. Read AGENTS.md, the newest RELAY.md and relevant CONTRACTS.md sections before editing.
 >
 > Start by inventorying the next asset family and its exact map bounds, pivots, sockets, interactions and collision requirements. Preserve each region's theme and existing gameplay. Build one representative asset in the same sculpted, detailed, softly textured style as the approved trees, and render it beside them at matching scale for review. Extend an approved design into meaningful variants, then optimize and export without losing its important forms. Keep editable source and game exports separate.
 >

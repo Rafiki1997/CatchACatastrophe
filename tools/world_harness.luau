@@ -8,7 +8,7 @@ local serde = require("@lune/serde")
 local process = require("@lune/process")
 local P = require("./lune_proxy")
 
-local REPO = "C:/Users/rahul/orca/Catch-a-Catastrophe/"
+local REPO = "C:/Users/nguye/Documents/repos/catch-a-catastrophe/CatchACatastrophe/"
 local OUT = process.args[1] or "map.json"
 
 local V3, CF = roblox.Vector3, roblox.CFrame

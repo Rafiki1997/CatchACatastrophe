@@ -31,7 +31,7 @@ Lune 0.10.5 (`C:/Users/rahul/AppData/Local/Temp/lunebin/lune.exe`).
 
 Copied from the spec and from the code the spec must not break.
 
-- **Repository:** `C:\Users\rahul\orca\Catch-a-Catastrophe`, branch `main`. Preserve the
+- **Repository:** `C:\Users\nguye\Documents\repos\catch-a-catastrophe\CatchACatastrophe`, branch `main`. Preserve the
   ~21 modified / many untracked files already in the working tree, and everything under
   `assets/frostbite-peaks/` — that is Codex's, written concurrently.
 - **Do not publish. Do not commit.** (`AGENTS.md` items 6 and 8.)

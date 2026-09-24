@@ -3,10 +3,10 @@
 Update the player plot in Catch a Catastrophe to match the “Pocket Power Town” reference image as closely as possible.
 
 Reference image:
-C:\Users\rahul\orca\workspaces\Catch-a-Catastrophe\Catch-A-Catastrophe\docs\art\plots\2026-09-21-player-plot\plot-v2-pocket-power-town.png
+C:\Users\nguye\Documents\repos\catch-a-catastrophe\CatchACatastrophe\docs\art\plots\2026-09-21-player-plot\plot-v2-pocket-power-town.png
 
 Project:
-C:\Users\rahul\orca\workspaces\Catch-a-Catastrophe\Catch-A-Catastrophe
+C:\Users\nguye\Documents\repos\catch-a-catastrophe\CatchACatastrophe
 
 Treat the screenshot as the visual specification, not loose inspiration. Match its layout, proportions, colors, materials, architecture, and decoration placement.
 

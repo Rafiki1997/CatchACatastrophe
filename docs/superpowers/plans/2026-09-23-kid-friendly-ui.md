@@ -18,7 +18,7 @@
 - Every text-bearing widget (`label`, `button`, `iconButton`, `badge`, progress label, tab, tooltip) gets an outline by default. A label can opt out with `outline = false`.
 - The base design resolution stays 1280x720, and `W.attachScale` / `W.safeArea` keep working as today.
 - Rojo is the only sync path into Studio. Never hand-patch a script `.Source` through StudioMCP. Never publish.
-- **Working tree:** the main checkout `C:/Users/rahul/orca/Catch-a-Catastrophe` holds another session's uncommitted work. Stage only the exact paths each task names (`git add <path>`, never `git add -A` / `.`). Do **not** edit `src/client/UI/Panels/CreaturesPanel.luau`, `QuestsPanel.luau`, `SettingsPanel.luau` or `src/client/UI/TutorialUI.luau`, because they carry uncommitted edits that are not ours. `RELAY.md` and `docs/CONTRACTS.md` also carry them, so edit those files but never commit them.
+- **Working tree:** the main checkout `C:/Users/nguye/Documents/repos/catch-a-catastrophe/CatchACatastrophe` holds another session's uncommitted work. Stage only the exact paths each task names (`git add <path>`, never `git add -A` / `.`). Do **not** edit `src/client/UI/Panels/CreaturesPanel.luau`, `QuestsPanel.luau`, `SettingsPanel.luau` or `src/client/UI/TutorialUI.luau`, because they carry uncommitted edits that are not ours. `RELAY.md` and `docs/CONTRACTS.md` also carry them, so edit those files but never commit them.
 - Environment traps: the Bash tool strips backslashes in Windows paths (use forward slashes, or the PowerShell tool). `cat > file` with no heredoc waits on stdin forever. Set `PYTHONIOENCODING=utf-8` for anything that touches StudioMCP.
 
 ## File map

@@ -6,7 +6,7 @@ Do not wait for imported assets or implement their upload/placement yourself.
 
 ## Workspace and ownership
 
-Work only in `C:\Users\rahul\orca\Catch-a-Catastrophe`, not the old
+Work only in `C:\Users\nguye\Documents\repos\catch-a-catastrophe\CatchACatastrophe`, not the old
 `orca\workspaces\Catch-a-Catastrophe` checkout. Read `AGENTS.md`, the newest
 `RELAY.md`, and `docs/CONTRACTS.md`. Preserve unrelated dirty work.
 

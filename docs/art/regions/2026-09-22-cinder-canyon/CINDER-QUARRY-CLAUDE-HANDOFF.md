@@ -4,9 +4,9 @@ The user approved **option 03 / Cinder Quarry**. Implement the base region while
 
 ## Authoritative files
 
-- Reference image: `C:\Users\rahul\orca\Catch-a-Catastrophe\docs\art\regions\2026-09-22-cinder-canyon\cinder-canyon-v1-03-cinder-quarry.png`
-- This handoff: `C:\Users\rahul\orca\Catch-a-Catastrophe\docs\art\regions\2026-09-22-cinder-canyon\CINDER-QUARRY-CLAUDE-HANDOFF.md`
-- Asset delivery folder: `C:\Users\rahul\orca\Catch-a-Catastrophe\assets\cinder-canyon\quarry-v2`
+- Reference image: `C:\Users\nguye\Documents\repos\catch-a-catastrophe\CatchACatastrophe\docs\art\regions\2026-09-22-cinder-canyon\cinder-canyon-v1-03-cinder-quarry.png`
+- This handoff: `C:\Users\nguye\Documents\repos\catch-a-catastrophe\CatchACatastrophe\docs\art\regions\2026-09-22-cinder-canyon\CINDER-QUARRY-CLAUDE-HANDOFF.md`
+- Asset delivery folder: `C:\Users\nguye\Documents\repos\catch-a-catastrophe\CatchACatastrophe\assets\cinder-canyon\quarry-v2`
 - Expected bundle: `CinderQuarryBundle.fbx`. Check the folder's README/manifest for delivery status; file names in this contract do not imply an upload or Roblox asset ID.
 
 Work in the current main repository above. Inspect existing source and live Studio before editing; do not overwrite newer work with stale source from a separate checkout. Respect AGENTS.md and use Rojo.

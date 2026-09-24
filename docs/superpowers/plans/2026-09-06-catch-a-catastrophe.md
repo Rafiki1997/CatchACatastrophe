@@ -52,7 +52,7 @@ Each agent task is verified by: (a) `rojo build` succeeds and the file loads in 
 
 ## Rulings made while planning
 
-- **Where the game lives:** a new Rojo repo at `C:\Users\rahul\orca\Catch-a-Catastrophe`, not the Munch It! Studio place (the only connected Studio place is Munch It!, an unrelated game; the spec forbids overwriting it). Cost if wrong: the user must open the built `.rbxl` themselves.
+- **Where the game lives:** a new Rojo repo at `C:\Users\nguye\Documents\repos\catch-a-catastrophe\CatchACatastrophe`, not the Munch It! Studio place (the only connected Studio place is Munch It!, an unrelated game; the spec forbids overwriting it). Cost if wrong: the user must open the built `.rbxl` themselves.
 - **Parallel implementers on disjoint files.** The SDD skill says one implementer at a time; here every task owns distinct files and the sibling project shipped the same way. Agents do NOT commit; the lead commits each task's files when its report arrives, so there is one writer to git. Cost if wrong: an agent edits a shared file — caught at review.
 - **Surge definition:** the surge is the 90 s window that opens when a region's Legendary forecast reaches zero (the guaranteed Legendary spawns at that moment). Perfect capture of ANY species in that region during the window yields Overcharged. Cost if wrong: Overcharged is a little easier than intended; tune `surgeDuration`.
 - **Storage counts every owned creature** (deployed + stored) against 60/120. Cost if wrong: players hit the cap sooner; raise `Config.Economy.storage`.

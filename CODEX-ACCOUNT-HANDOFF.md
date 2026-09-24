@@ -4,7 +4,7 @@ Prepared September 22, 2026. Read this, then `AGENTS.md` and the newest checkpoi
 
 ## Start here
 
-**Active repository:** `C:\Users\rahul\orca\Catch-a-Catastrophe`
+**Active repository:** `C:\Users\nguye\Documents\repos\catch-a-catastrophe\CatchACatastrophe`
 
 The previous conversation's environment sometimes opened the older checkout at `C:\Users\rahul\orca\workspaces\Catch-a-Catastrophe\Catch-A-Catastrophe`. Do not implement or run Rojo there. This project's AGENTS.md requires working in the active repository above.
 
@@ -106,6 +106,6 @@ Rahul is switching Codex accounts. Continue the same project without restarting 
 
 ## Suggested first message to the next Codex account
 
-> Read `C:\Users\rahul\orca\Catch-a-Catastrophe\CODEX-ACCOUNT-HANDOFF.md`, then AGENTS.md and the latest RELAY.md. Continue from the current files. Cinder Quarry's base and twelve Blender assets are finished; native import, final socket integration and Studio visual/runtime checks remain. Splashwater's eight-asset kit is also delivered and awaiting integration. Check what Claude has completed since this handoff before changing implementation. Preserve all existing work and do not commit or publish.
+> Read `C:\Users\nguye\Documents\repos\catch-a-catastrophe\CatchACatastrophe\CODEX-ACCOUNT-HANDOFF.md`, then AGENTS.md and the latest RELAY.md. Continue from the current files. Cinder Quarry's base and twelve Blender assets are finished; native import, final socket integration and Studio visual/runtime checks remain. Splashwater's eight-asset kit is also delivered and awaiting integration. Check what Claude has completed since this handoff before changing implementation. Preserve all existing work and do not commit or publish.
 
 Transfer verification was read-only except for this document and a RELAY.md checkpoint. No source, assets or Studio state were modified, and no game checks were rerun during the transfer.

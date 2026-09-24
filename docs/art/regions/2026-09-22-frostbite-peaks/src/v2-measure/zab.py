@@ -1,7 +1,7 @@
 # crop the same box from V2 and a build render, side by side at a zoom
 import sys
 from PIL import Image
-V2 = "C:/Users/rahul/orca/Catch-a-Catastrophe/docs/art/regions/2026-09-22-frostbite-peaks/frostbite-peaks-v2-02-alpine-outpost-refined.png"
+V2 = "C:/Users/nguye/Documents/repos/catch-a-catastrophe/CatchACatastrophe/docs/art/regions/2026-09-22-frostbite-peaks/frostbite-peaks-v2-02-alpine-outpost-refined.png"
 render, out = sys.argv[1], sys.argv[2]
 x0, y0, x1, y1 = map(int, sys.argv[3:7])
 z = float(sys.argv[7]) if len(sys.argv) > 7 else 2

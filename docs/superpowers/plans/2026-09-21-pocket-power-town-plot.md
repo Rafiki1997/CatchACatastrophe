@@ -32,7 +32,7 @@ Roblox Studio, Lune 0.10.5 for headless measurement
 
 Copied from the spec and from the code the spec must not break.
 
-- **Repository:** `C:\Users\rahul\orca\Catch-a-Catastrophe`, branch `main`. The worktree
+- **Repository:** `C:\Users\nguye\Documents\repos\catch-a-catastrophe\CatchACatastrophe`, branch `main`. The worktree
   under `orca\workspaces\...` is stale; Rojo serves the main checkout. Preserve the ~22
   modified / many untracked files already in the working tree.
 - **Do not publish. Do not commit.** (`AGENTS.md` items 6 and 8.) Where this plan's steps
