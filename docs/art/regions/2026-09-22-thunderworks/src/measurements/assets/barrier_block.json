@@ -1,0 +1,12 @@
+{
+  "id": "barrier_block",
+  "title": "Road Barrier",
+  "blurb": "Red-and-white concrete barrier for the band edges.",
+  "options": "02 03 05",
+  "size_wdh": [
+    6.0,
+    2.0,
+    1.8
+  ],
+  "render_s": 19.8
+}

@@ -1,0 +1,314 @@
+[
+  {
+    "id": "tesla_coil",
+    "title": "Giant Tesla Coil",
+    "blurb": "Stepped plinth, copper primary, ceramic column, wound secondary, polished toroid.",
+    "options": "01 03 04",
+    "size_wdh": [
+      16.6,
+      16.6,
+      40.0
+    ],
+    "render_s": 21.7
+  },
+  {
+    "id": "dynamo_hall",
+    "title": "Dynamo Hall",
+    "blurb": "Pilastered brick hall with arched lit windows, clerestory, verdigris cupola and chimney.",
+    "options": "01",
+    "size_wdh": [
+      64.5,
+      30.4,
+      36.8
+    ],
+    "render_s": 20.6
+  },
+  {
+    "id": "leyden_rack",
+    "title": "Leyden Jar Rack",
+    "blurb": "Five glass jars with copper foil and ball electrodes on a bus bar.",
+    "options": "01 03",
+    "size_wdh": [
+      15.9,
+      4.6,
+      8.2
+    ],
+    "render_s": 20.6
+  },
+  {
+    "id": "spark_gap",
+    "title": "Spark Gap",
+    "blurb": "Two ceramic columns with copper spheres; an arc jumps the gap.",
+    "options": "01 04",
+    "size_wdh": [
+      13.4,
+      5.8,
+      12.7
+    ],
+    "render_s": 20.4
+  },
+  {
+    "id": "storm_jar",
+    "title": "Storm Bell Jar",
+    "blurb": "A caught thundercloud under a copper-ribbed glass dome.",
+    "options": "01 03",
+    "size_wdh": [
+      11.2,
+      11.2,
+      15.0
+    ],
+    "render_s": 19.9
+  },
+  {
+    "id": "battery_bank",
+    "title": "Accumulator Bank",
+    "blurb": "Giant teal cells with copper terminals and charge meters.",
+    "options": "02 03 05",
+    "size_wdh": [
+      16.4,
+      6.0,
+      10.8
+    ],
+    "render_s": 21.7
+  },
+  {
+    "id": "collector_mast",
+    "title": "Lightning Collector Mast",
+    "blurb": "Today's collector reworked: lattice mast, copper rings, crown ball.",
+    "options": "01 02 03",
+    "size_wdh": [
+      14.2,
+      14.2,
+      35.6
+    ],
+    "render_s": 19.8
+  },
+  {
+    "id": "gantry",
+    "title": "Substation Gantry",
+    "blurb": "Lattice portal with box-truss beam, earth-wire peaks and insulator strings.",
+    "options": "02 03 05",
+    "size_wdh": [
+      27.0,
+      3.0,
+      21.6
+    ],
+    "render_s": 20.8
+  },
+  {
+    "id": "power_transformer",
+    "title": "Power Transformer",
+    "blurb": "Teal tank, radiator banks, conservator and tall HV bushings on a gravel pit.",
+    "options": "02 03 05",
+    "size_wdh": [
+      13.0,
+      10.0,
+      14.2
+    ],
+    "render_s": 20.4
+  },
+  {
+    "id": "circuit_breaker",
+    "title": "Circuit Breaker",
+    "blurb": "Three ceramic poles with copper heads on a steel frame.",
+    "options": "02 03 05",
+    "size_wdh": [
+      7.4,
+      1.9,
+      9.9
+    ],
+    "render_s": 20.2
+  },
+  {
+    "id": "switch_house",
+    "title": "Switch House",
+    "blurb": "Brick control building, lit windows, teal door, roof plant and radio mast.",
+    "options": "02 03 05",
+    "size_wdh": [
+      24.2,
+      16.5,
+      20.5
+    ],
+    "render_s": 20.9
+  },
+  {
+    "id": "dynamo_drum",
+    "title": "Giant Dynamo Drum",
+    "blurb": "Wound copper drum on teal cradles with slotted end plates and ceramic bushings.",
+    "options": "04",
+    "size_wdh": [
+      19.7,
+      24.7,
+      18.9
+    ],
+    "render_s": 19.4
+  },
+  {
+    "id": "barrel_workshop",
+    "title": "Barrel-Roof Workshop",
+    "blurb": "Corrugated walls under a teal barrel roof, roller door, lit window.",
+    "options": "01 02 04",
+    "size_wdh": [
+      13.8,
+      17.2,
+      9.5
+    ],
+    "render_s": 21.3
+  },
+  {
+    "id": "locomotive",
+    "title": "Stormrail Engine",
+    "blurb": "Box-cab electric locomotive with pantograph and roof insulators.",
+    "options": "05",
+    "size_wdh": [
+      5.7,
+      25.1,
+      13.6
+    ],
+    "render_s": 21.0
+  },
+  {
+    "id": "engine_shed",
+    "title": "Engine Shed",
+    "blurb": "Steel columns under a teal barrel vault with a skylight, masonry back wall.",
+    "options": "05",
+    "size_wdh": [
+      19.6,
+      42.0,
+      15.9
+    ],
+    "render_s": 21.1
+  },
+  {
+    "id": "rails",
+    "title": "Track and Buffer Stop",
+    "blurb": "Rails on sleepers and ballast, red-and-white buffer stop.",
+    "options": "05",
+    "size_wdh": [
+      7.6,
+      41.5,
+      3.2
+    ],
+    "render_s": 20.5
+  },
+  {
+    "id": "catenary_mast",
+    "title": "Catenary Mast",
+    "blurb": "H-column with cantilever, stay and insulators over the track.",
+    "options": "05",
+    "size_wdh": [
+      5.9,
+      1.8,
+      13.0
+    ],
+    "render_s": 20.3
+  },
+  {
+    "id": "water_tower",
+    "title": "Bolt Water Tower",
+    "blurb": "Braced timber tower, stave tank with hoops, painted bolt.",
+    "options": "05",
+    "size_wdh": [
+      9.4,
+      9.4,
+      27.4
+    ],
+    "render_s": 20.6
+  },
+  {
+    "id": "pylon",
+    "title": "Transmission Pylon",
+    "blurb": "Tapered lattice tower for the heath outside the walls; carries the lines.",
+    "options": "all",
+    "size_wdh": [
+      16.6,
+      8.6,
+      42.1
+    ],
+    "render_s": 20.8
+  },
+  {
+    "id": "floodlight",
+    "title": "Floodlight Mast",
+    "blurb": "Tapered pole with a five-lamp head.",
+    "options": "all",
+    "size_wdh": [
+      3.6,
+      2.5,
+      16.4
+    ],
+    "render_s": 20.5
+  },
+  {
+    "id": "cable_tray",
+    "title": "Cable Tray",
+    "blurb": "T-stands carrying a bundle of heavy cables.",
+    "options": "01 04",
+    "size_wdh": [
+      12.9,
+      2.2,
+      2.7
+    ],
+    "render_s": 19.1
+  },
+  {
+    "id": "utility_pole",
+    "title": "Utility Pole",
+    "blurb": "Timber pole, crossarm, pin insulators and a pot transformer.",
+    "options": "02 05",
+    "size_wdh": [
+      6.0,
+      2.6,
+      16.0
+    ],
+    "render_s": 19.8
+  },
+  {
+    "id": "fence_section",
+    "title": "Chain-Link Fence",
+    "blurb": "Galvanised run with barbed top and DANGER plates; fences every compound.",
+    "options": "02 03 05",
+    "size_wdh": [
+      16.9,
+      1.1,
+      7.9
+    ],
+    "render_s": 20.1
+  },
+  {
+    "id": "flatcar",
+    "title": "Cable Flatcar",
+    "blurb": "Four-axle flatcar with a giant cable drum chocked on the deck.",
+    "options": "05",
+    "size_wdh": [
+      5.5,
+      18.6,
+      11.3
+    ],
+    "render_s": 19.8
+  },
+  {
+    "id": "barrier_block",
+    "title": "Road Barrier",
+    "blurb": "Red-and-white concrete barrier for the band edges.",
+    "options": "02 03 05",
+    "size_wdh": [
+      6.0,
+      2.0,
+      1.8
+    ],
+    "render_s": 19.8
+  },
+  {
+    "id": "yard_clutter",
+    "title": "Yard Clutter",
+    "blurb": "Drum stack, crates on a pallet, cable spool.",
+    "options": "all",
+    "size_wdh": [
+      8.5,
+      2.9,
+      2.6
+    ],
+    "render_s": 20.2
+  }
+]

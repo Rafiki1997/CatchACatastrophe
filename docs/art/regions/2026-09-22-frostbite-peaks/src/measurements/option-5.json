@@ -1,0 +1,23 @@
+{
+  "interior_clear_pct": 83.2,
+  "field_rect": [
+    184.0,
+    140.0
+  ],
+  "field_clear_pct": 99.8,
+  "lane_width": 24.0,
+  "lane_blocked_cells": 0,
+  "lane_blockers": [],
+  "solid_objects": 291,
+  "option": "05",
+  "title": "COLDSNOUT'S CROWN",
+  "slug": "coldsnouts-crown",
+  "build_s": 0.6,
+  "landmarks": [
+    "carved King Coldsnout statue with glacier crown (~36 studs incl. plinth) on a three-tier plinth with stairs",
+    "two ivory tusk arches (34 and 28 span) and a frost brazier, right band",
+    "six rune stones with glowing glyphs, front-left",
+    "glacier chunks rear-right, strata ridge rear-left",
+    "14 carved lane markers"
+  ]
+}

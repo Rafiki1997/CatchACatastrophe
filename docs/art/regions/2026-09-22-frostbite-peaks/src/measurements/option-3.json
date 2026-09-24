@@ -1,0 +1,24 @@
+{
+  "interior_clear_pct": 83.1,
+  "field_rect": [
+    184.0,
+    140.0
+  ],
+  "field_clear_pct": 99.9,
+  "lane_width": 24.0,
+  "lane_blocked_cells": 0,
+  "lane_blockers": [],
+  "solid_objects": 328,
+  "option": "03",
+  "title": "GLACIER FALLS",
+  "slug": "glacier-falls",
+  "build_s": 0.6,
+  "landmarks": [
+    "blue glacier cliff, rear-right corner (13 to 38 studs)",
+    "frozen waterfall on its south face",
+    "frozen pool 32 x 23 with a rock rim",
+    "natural ice arch, left band, 40 span x 29 high",
+    "low strata cliffs with ice seams, rear-left",
+    "ice boulders through the bands"
+  ]
+}

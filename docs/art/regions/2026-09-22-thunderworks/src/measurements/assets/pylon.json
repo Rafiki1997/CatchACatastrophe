@@ -1,0 +1,12 @@
+{
+  "id": "pylon",
+  "title": "Transmission Pylon",
+  "blurb": "Tapered lattice tower for the heath outside the walls; carries the lines.",
+  "options": "all",
+  "size_wdh": [
+    16.6,
+    8.6,
+    42.1
+  ],
+  "render_s": 20.8
+}

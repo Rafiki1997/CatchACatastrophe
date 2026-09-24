@@ -1,0 +1,22 @@
+{
+  "interior_clear_pct": 77.8,
+  "field_rect": [
+    184.0,
+    140.0
+  ],
+  "field_clear_pct": 99.9,
+  "lane_width": 24.0,
+  "lane_blocked_cells": 0,
+  "lane_blockers": [],
+  "solid_objects": 343,
+  "option": "02",
+  "title": "ALPINE OUTPOST",
+  "slug": "alpine-outpost",
+  "build_s": 0.6,
+  "landmarks": [
+    "snow-capped strata ridge along the rear wall (to ~34 studs at the corners)",
+    "rear-left terrace (top 6) with stairs, log expedition hut, tent, woodpile, flag, crates",
+    "two right-hand rock outcrops (top 10), 23-stud rope bridge, stairs, frozen creek",
+    "18 trail posts flanking the lane, trailhead signpost"
+  ]
+}

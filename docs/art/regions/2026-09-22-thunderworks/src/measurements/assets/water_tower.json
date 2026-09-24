@@ -1,0 +1,12 @@
+{
+  "id": "water_tower",
+  "title": "Bolt Water Tower",
+  "blurb": "Braced timber tower, stave tank with hoops, painted bolt.",
+  "options": "05",
+  "size_wdh": [
+    9.4,
+    9.4,
+    27.4
+  ],
+  "render_s": 20.6
+}

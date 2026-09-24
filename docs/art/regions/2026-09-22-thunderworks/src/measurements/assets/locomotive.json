@@ -1,0 +1,12 @@
+{
+  "id": "locomotive",
+  "title": "Stormrail Engine",
+  "blurb": "Box-cab electric locomotive with pantograph and roof insulators.",
+  "options": "05",
+  "size_wdh": [
+    5.7,
+    25.1,
+    13.6
+  ],
+  "render_s": 21.0
+}

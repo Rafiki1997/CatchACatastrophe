@@ -1,0 +1,12 @@
+{
+  "id": "dynamo_hall",
+  "title": "Dynamo Hall",
+  "blurb": "Pilastered brick hall with arched lit windows, clerestory, verdigris cupola and chimney.",
+  "options": "01",
+  "size_wdh": [
+    64.5,
+    30.4,
+    36.8
+  ],
+  "render_s": 20.6
+}

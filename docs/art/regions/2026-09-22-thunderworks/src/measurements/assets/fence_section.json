@@ -1,0 +1,12 @@
+{
+  "id": "fence_section",
+  "title": "Chain-Link Fence",
+  "blurb": "Galvanised run with barbed top and DANGER plates; fences every compound.",
+  "options": "02 03 05",
+  "size_wdh": [
+    16.9,
+    1.1,
+    7.9
+  ],
+  "render_s": 20.1
+}

@@ -1,0 +1,12 @@
+{
+  "id": "cable_tray",
+  "title": "Cable Tray",
+  "blurb": "T-stands carrying a bundle of heavy cables.",
+  "options": "01 04",
+  "size_wdh": [
+    12.9,
+    2.2,
+    2.7
+  ],
+  "render_s": 19.1
+}

@@ -1,0 +1,12 @@
+{
+  "id": "leyden_rack",
+  "title": "Leyden Jar Rack",
+  "blurb": "Five glass jars with copper foil and ball electrodes on a bus bar.",
+  "options": "01 03",
+  "size_wdh": [
+    15.9,
+    4.6,
+    8.2
+  ],
+  "render_s": 20.6
+}

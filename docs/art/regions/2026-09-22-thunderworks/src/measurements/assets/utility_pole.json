@@ -1,0 +1,12 @@
+{
+  "id": "utility_pole",
+  "title": "Utility Pole",
+  "blurb": "Timber pole, crossarm, pin insulators and a pot transformer.",
+  "options": "02 05",
+  "size_wdh": [
+    6.0,
+    2.6,
+    16.0
+  ],
+  "render_s": 19.8
+}

@@ -1,0 +1,12 @@
+{
+  "id": "flatcar",
+  "title": "Cable Flatcar",
+  "blurb": "Four-axle flatcar with a giant cable drum chocked on the deck.",
+  "options": "05",
+  "size_wdh": [
+    5.5,
+    18.6,
+    11.3
+  ],
+  "render_s": 19.8
+}

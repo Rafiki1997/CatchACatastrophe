@@ -1,0 +1,12 @@
+{
+  "id": "rails",
+  "title": "Track and Buffer Stop",
+  "blurb": "Rails on sleepers and ballast, red-and-white buffer stop.",
+  "options": "05",
+  "size_wdh": [
+    7.6,
+    41.5,
+    3.2
+  ],
+  "render_s": 20.5
+}

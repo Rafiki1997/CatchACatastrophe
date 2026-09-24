@@ -1,0 +1,24 @@
+{
+  "interior_clear_pct": 79.2,
+  "field_rect": [
+    184.0,
+    140.0
+  ],
+  "field_clear_pct": 99.8,
+  "lane_width": 24.0,
+  "lane_blocked_cells": 0,
+  "lane_blockers": [],
+  "solid_objects": 321,
+  "option": "01",
+  "title": "IGLOO HOLLOW",
+  "slug": "igloo-hollow",
+  "build_s": 0.6,
+  "landmarks": [
+    "five snow-block igloos (R 18 / 12 / 9.5 left, 17.5 / 11.5 right)",
+    "fire pit",
+    "snowman",
+    "sled",
+    "ice-block stacks",
+    "eight ice-crystal clusters"
+  ]
+}

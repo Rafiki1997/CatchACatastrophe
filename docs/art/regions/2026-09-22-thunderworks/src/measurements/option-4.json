@@ -1,0 +1,17 @@
+{
+  "interior_clear_pct": 78.5,
+  "field_rect": [
+    184.0,
+    140.0
+  ],
+  "field_clear_pct": 100.0,
+  "field_intruders": [],
+  "lane_width": 24.0,
+  "lane_blocked_cells": 0,
+  "lane_blockers": [],
+  "solid_objects": 242,
+  "option": "04",
+  "title": "STORMCLIFF DYNAMO",
+  "slug": "stormcliff-dynamo",
+  "build_s": 0.9
+}

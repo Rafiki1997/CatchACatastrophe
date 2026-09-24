@@ -1,0 +1,12 @@
+{
+  "id": "yard_clutter",
+  "title": "Yard Clutter",
+  "blurb": "Drum stack, crates on a pallet, cable spool.",
+  "options": "all",
+  "size_wdh": [
+    8.5,
+    2.9,
+    2.6
+  ],
+  "render_s": 20.2
+}

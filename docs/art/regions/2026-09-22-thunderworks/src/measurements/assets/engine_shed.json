@@ -1,0 +1,12 @@
+{
+  "id": "engine_shed",
+  "title": "Engine Shed",
+  "blurb": "Steel columns under a teal barrel vault with a skylight, masonry back wall.",
+  "options": "05",
+  "size_wdh": [
+    19.6,
+    42.0,
+    15.9
+  ],
+  "render_s": 21.1
+}

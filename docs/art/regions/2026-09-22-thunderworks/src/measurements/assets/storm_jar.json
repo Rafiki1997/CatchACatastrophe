@@ -1,0 +1,12 @@
+{
+  "id": "storm_jar",
+  "title": "Storm Bell Jar",
+  "blurb": "A caught thundercloud under a copper-ribbed glass dome.",
+  "options": "01 03",
+  "size_wdh": [
+    11.2,
+    11.2,
+    15.0
+  ],
+  "render_s": 19.9
+}

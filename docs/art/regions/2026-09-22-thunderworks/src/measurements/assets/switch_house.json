@@ -1,0 +1,12 @@
+{
+  "id": "switch_house",
+  "title": "Switch House",
+  "blurb": "Brick control building, lit windows, teal door, roof plant and radio mast.",
+  "options": "02 03 05",
+  "size_wdh": [
+    24.2,
+    16.5,
+    20.5
+  ],
+  "render_s": 20.9
+}

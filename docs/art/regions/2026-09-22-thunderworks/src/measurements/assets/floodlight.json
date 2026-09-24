@@ -1,0 +1,12 @@
+{
+  "id": "floodlight",
+  "title": "Floodlight Mast",
+  "blurb": "Tapered pole with a five-lamp head.",
+  "options": "all",
+  "size_wdh": [
+    3.6,
+    2.5,
+    16.4
+  ],
+  "render_s": 20.5
+}

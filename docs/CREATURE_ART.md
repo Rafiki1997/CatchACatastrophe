@@ -4,6 +4,9 @@ The user approved the Gusty Gardens style and requested it across the remaining
 20 creatures. The full roster now uses rounded proportions, readable expressions,
 fixed dark pupils and glints, and broad signature features rather than tiny details.
 Slush Sloth retains closed sleepy eyes; the knight retains its visor expression.
+The Cosmic region now uses six concept-first models: four wild creatures and two
+Cosmic Egg showcases. Each keeps a readable silhouette when rendered as a flat
+colour block.
 
 | Region | Creature | Refinement |
 | --- | --- | --- |
@@ -23,28 +26,31 @@ Slush Sloth retains closed sleepy eyes; the knight retains its visor expression.
 | Storm | Zap Raccoon | Fuller head, rounded dark mask and smile |
 | Storm | Thunder Thumper | Fuller head, rounded brow, broad eyes and grin |
 | Storm | Boltjaw Behemoth | Broader head/muzzle, dark nostrils and wider eyes |
-| Cosmic | Orbit Orb | Larger eyes, smile, coherent tilted satellite ring |
-| Cosmic | Comet Cat | Larger head, cream muzzle, wider eyes and smile |
-| Cosmic | Gravity Gobbler | Readable recessed starry mouth, rounded lip, broad eyes |
-| Cosmic | The Big Whoops | Larger eyes, coherent disc, orbiting round caution sign with attached punctuation |
+| Cosmic | Rubble Runt | Asymmetric asteroid cluster, magnetic feet, pebble satellites |
+| Cosmic | Lagrange Loper | Unequal lobes, gravity bridge, stable-point moons |
+| Cosmic | Pulsar Prickle | Flattened pulsar body, polar caps, beam fins |
+| Cosmic | Rochebreaker | Stretched core, tidal fragment stream, warm breakup glow |
+| Cosmic Egg | Nebula Noodle | Curled nebula filament wrapped around a dark void core |
+| Cosmic Egg | Universe Seed | Faceted seed shell, seam, orbital bands, inner star |
 
 `ModelKit` preserves creature-specific effects first. Variant and rarity additions
 use the remaining slots up to two lights and three emitters. Colour treatments
 still apply when no extra effect slot remains. This avoids duplicate decorations
 overpowering silhouettes or exceeding the established rendering budget.
 
+## Cosmic verification
+
+- The four wild Cosmic models are Common, Uncommon, Rare, and Legendary.
+- The Cosmic Egg contains exactly two egg-only tiers: Epic and Mythic.
+- All six concepts have dedicated procedural model builders and collection silhouettes.
+
 ## Verification
 
-- All 96 species/appearance combinations build: Normal, Overcharged, Prismatic,
-  and collection silhouette. 22–43 parts, at most two lights and three emitters.
-- All model tops remain within 20% of configured height; gameplay values unchanged.
-- 342 self-tests and 22 live tests pass. The additional 120 self-test assertions
-  check finished appearance budgets, anchoring/collision, and effect-free silhouettes.
-- Structural and quote checks pass for 79 source files; Rojo build succeeds.
-- Studio screenshots inspected for all five new region lineups. Flat facial
-  meshes and the mammoth's connected tusks were corrected after visual inspection.
-- Twenty animation samples across bunny/knight funnels and cosmic rings/sign
-  confirm stable configured tilt and sign punctuation spacing.
+- Static structure and quote checks pass; the Rojo build succeeds.
+- Studio runtime and art-review validation must be rerun after the updated source
+  is synchronized into the connected place.
+- Animation samples should confirm stable bob, drift, pulse, sway, and hover poses
+  for the replacement Cosmic builders.
 
 ## Review in Studio
 

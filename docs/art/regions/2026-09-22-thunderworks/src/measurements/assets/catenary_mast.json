@@ -1,0 +1,12 @@
+{
+  "id": "catenary_mast",
+  "title": "Catenary Mast",
+  "blurb": "H-column with cantilever, stay and insulators over the track.",
+  "options": "05",
+  "size_wdh": [
+    5.9,
+    1.8,
+    13.0
+  ],
+  "render_s": 20.3
+}

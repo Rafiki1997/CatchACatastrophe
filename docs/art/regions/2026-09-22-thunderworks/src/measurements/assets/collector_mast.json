@@ -1,0 +1,12 @@
+{
+  "id": "collector_mast",
+  "title": "Lightning Collector Mast",
+  "blurb": "Today's collector reworked: lattice mast, copper rings, crown ball.",
+  "options": "01 02 03",
+  "size_wdh": [
+    14.2,
+    14.2,
+    35.6
+  ],
+  "render_s": 19.8
+}

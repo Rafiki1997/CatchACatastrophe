@@ -1,0 +1,12 @@
+{
+  "id": "power_transformer",
+  "title": "Power Transformer",
+  "blurb": "Teal tank, radiator banks, conservator and tall HV bushings on a gravel pit.",
+  "options": "02 03 05",
+  "size_wdh": [
+    13.0,
+    10.0,
+    14.2
+  ],
+  "render_s": 20.4
+}

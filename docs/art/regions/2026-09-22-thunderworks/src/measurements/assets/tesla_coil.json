@@ -1,0 +1,12 @@
+{
+  "id": "tesla_coil",
+  "title": "Giant Tesla Coil",
+  "blurb": "Stepped plinth, copper primary, ceramic column, wound secondary, polished toroid.",
+  "options": "01 03 04",
+  "size_wdh": [
+    16.6,
+    16.6,
+    40.0
+  ],
+  "render_s": 21.7
+}

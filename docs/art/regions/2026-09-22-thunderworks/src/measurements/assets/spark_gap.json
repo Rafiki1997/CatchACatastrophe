@@ -1,0 +1,12 @@
+{
+  "id": "spark_gap",
+  "title": "Spark Gap",
+  "blurb": "Two ceramic columns with copper spheres; an arc jumps the gap.",
+  "options": "01 04",
+  "size_wdh": [
+    13.4,
+    5.8,
+    12.7
+  ],
+  "render_s": 20.4
+}

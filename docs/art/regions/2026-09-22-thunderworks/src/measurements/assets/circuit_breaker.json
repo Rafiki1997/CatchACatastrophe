@@ -1,0 +1,12 @@
+{
+  "id": "circuit_breaker",
+  "title": "Circuit Breaker",
+  "blurb": "Three ceramic poles with copper heads on a steel frame.",
+  "options": "02 03 05",
+  "size_wdh": [
+    7.4,
+    1.9,
+    9.9
+  ],
+  "render_s": 20.2
+}

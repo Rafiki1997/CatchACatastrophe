@@ -1,0 +1,23 @@
+{
+  "interior_clear_pct": 84.8,
+  "field_rect": [
+    184.0,
+    140.0
+  ],
+  "field_clear_pct": 99.9,
+  "lane_width": 24.0,
+  "lane_blocked_cells": 0,
+  "lane_blockers": [],
+  "solid_objects": 284,
+  "option": "04",
+  "title": "CRYSTAL GROTTO",
+  "slug": "crystal-grotto",
+  "build_s": 0.5,
+  "landmarks": [
+    "five crystal spire clusters in indigo slate, rear-left (to ~50 studs)",
+    "ice grotto with a glowing back wall and crystals, rear-right",
+    "ice ridge columns around it",
+    "14 crystal-tipped posts flanking the lane",
+    "crystal outcrops through the bands"
+  ]
+}

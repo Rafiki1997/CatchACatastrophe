@@ -1,0 +1,12 @@
+{
+  "id": "gantry",
+  "title": "Substation Gantry",
+  "blurb": "Lattice portal with box-truss beam, earth-wire peaks and insulator strings.",
+  "options": "02 03 05",
+  "size_wdh": [
+    27.0,
+    3.0,
+    21.6
+  ],
+  "render_s": 20.8
+}

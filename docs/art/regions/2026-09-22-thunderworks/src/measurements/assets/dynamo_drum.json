@@ -1,0 +1,12 @@
+{
+  "id": "dynamo_drum",
+  "title": "Giant Dynamo Drum",
+  "blurb": "Wound copper drum on teal cradles with slotted end plates and ceramic bushings.",
+  "options": "04",
+  "size_wdh": [
+    19.7,
+    24.7,
+    18.9
+  ],
+  "render_s": 19.4
+}

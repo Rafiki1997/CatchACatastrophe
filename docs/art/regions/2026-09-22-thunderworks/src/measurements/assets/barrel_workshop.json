@@ -1,0 +1,12 @@
+{
+  "id": "barrel_workshop",
+  "title": "Barrel-Roof Workshop",
+  "blurb": "Corrugated walls under a teal barrel roof, roller door, lit window.",
+  "options": "01 02 04",
+  "size_wdh": [
+    13.8,
+    17.2,
+    9.5
+  ],
+  "render_s": 21.3
+}
