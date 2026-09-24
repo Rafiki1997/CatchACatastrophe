@@ -1,0 +1,98 @@
+{
+  "version": 1,
+  "units": "1 modeling unit = 1 intended Roblox stud; verify importer scale",
+  "pivot": "ground-center",
+  "blender_up": "+Z",
+  "fbx_up": "+Y",
+  "texture": "palette.png",
+  "assets": [
+    {
+      "name": "TW_Transformer",
+      "file": "TW_Transformer.fbx",
+      "dimensions_studs_xyz": [
+        5.8,
+        6.2,
+        4.6
+      ],
+      "triangles": 1716,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "TW_Ceramic_Insulator",
+      "file": "TW_Ceramic_Insulator.fbx",
+      "dimensions_studs_xyz": [
+        1.8,
+        3.0,
+        1.8
+      ],
+      "triangles": 544,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "TW_Cable_Reel",
+      "file": "TW_Cable_Reel.fbx",
+      "dimensions_studs_xyz": [
+        4.0,
+        4.4,
+        3.0
+      ],
+      "triangles": 4420,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "TW_Capacitor_Bank",
+      "file": "TW_Capacitor_Bank.fbx",
+      "dimensions_studs_xyz": [
+        3.4,
+        4.8,
+        3.4
+      ],
+      "triangles": 2008,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "TW_Switch_Cabinet",
+      "file": "TW_Switch_Cabinet.fbx",
+      "dimensions_studs_xyz": [
+        3.2,
+        4.6,
+        1.8
+      ],
+      "triangles": 688,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "TW_Vent_Housing",
+      "file": "TW_Vent_Housing.fbx",
+      "dimensions_studs_xyz": [
+        4.0,
+        2.4,
+        3.4
+      ],
+      "triangles": 440,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "TW_Conduit_Elbow",
+      "file": "TW_Conduit_Elbow.fbx",
+      "dimensions_studs_xyz": [
+        3.0,
+        2.5,
+        2.2
+      ],
+      "triangles": 448,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "TW_Storm_Bollard",
+      "file": "TW_Storm_Bollard.fbx",
+      "dimensions_studs_xyz": [
+        1.2,
+        3.0,
+        1.2
+      ],
+      "triangles": 284,
+      "nonmanifold_edges": 0
+    }
+  ]
+}

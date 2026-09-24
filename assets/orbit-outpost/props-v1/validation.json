@@ -1,0 +1,179 @@
+{
+  "assets": [
+    {
+      "name": "OO_Gravity_Cradle",
+      "fbx_roundtrip": "pass",
+      "dimensions_studs_xyz": [
+        15.999999046325684,
+        22.0,
+        15.999999046325684
+      ],
+      "triangles": 1468,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "OO_Gravity_Meteor",
+      "fbx_roundtrip": "pass",
+      "dimensions_studs_xyz": [
+        6.000000476837158,
+        11.0,
+        6.0
+      ],
+      "triangles": 36,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "OO_Orbit_Stone",
+      "fbx_roundtrip": "pass",
+      "dimensions_studs_xyz": [
+        2.8000001907348633,
+        2.4000000953674316,
+        2.5999999046325684
+      ],
+      "triangles": 116,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "OO_Lunar_Boulder",
+      "fbx_roundtrip": "pass",
+      "dimensions_studs_xyz": [
+        8.0,
+        4.0,
+        5.999999523162842
+      ],
+      "triangles": 240,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "OO_Crystal_Cluster",
+      "fbx_roundtrip": "pass",
+      "dimensions_studs_xyz": [
+        4.0,
+        5.0,
+        4.0
+      ],
+      "triangles": 188,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "OO_Alien_Mushroom_Tall",
+      "fbx_roundtrip": "pass",
+      "dimensions_studs_xyz": [
+        6.0,
+        7.0,
+        5.0
+      ],
+      "triangles": 1072,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "OO_Alien_Mushroom_Cluster",
+      "fbx_roundtrip": "pass",
+      "dimensions_studs_xyz": [
+        4.0,
+        3.0,
+        2.999999761581421
+      ],
+      "triangles": 1608,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "OO_Alien_Fern",
+      "fbx_roundtrip": "pass",
+      "dimensions_studs_xyz": [
+        4.0,
+        3.0,
+        4.0
+      ],
+      "triangles": 244,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "OO_Star_Bloom_Tuft",
+      "fbx_roundtrip": "pass",
+      "dimensions_studs_xyz": [
+        3.000000238418579,
+        1.2000000476837158,
+        3.0
+      ],
+      "triangles": 684,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "OO_Survey_Drone",
+      "fbx_roundtrip": "pass",
+      "dimensions_studs_xyz": [
+        3.200000286102295,
+        2.8000001907348633,
+        3.1999998092651367
+      ],
+      "triangles": 892,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "OO_Drone_Dock",
+      "fbx_roundtrip": "pass",
+      "dimensions_studs_xyz": [
+        5.0,
+        1.5,
+        5.0
+      ],
+      "triangles": 648,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "OO_Sample_Pod",
+      "fbx_roundtrip": "pass",
+      "dimensions_studs_xyz": [
+        3.0,
+        4.0,
+        3.0
+      ],
+      "triangles": 460,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "OO_Cosmic_Beacon",
+      "fbx_roundtrip": "pass",
+      "dimensions_studs_xyz": [
+        1.2000000476837158,
+        3.0,
+        1.2000000476837158
+      ],
+      "triangles": 168,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "OO_Field_Lab_Base",
+      "fbx_roundtrip": "pass",
+      "dimensions_studs_xyz": [
+        16.0,
+        5.0,
+        16.0
+      ],
+      "triangles": 2240,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "OO_Field_Lab_Dome_Frame",
+      "fbx_roundtrip": "pass",
+      "dimensions_studs_xyz": [
+        16.0,
+        6.5,
+        16.0
+      ],
+      "triangles": 2324,
+      "nonmanifold_edges": 0
+    }
+  ],
+  "bundle_mesh_count": 15,
+  "total_triangles": 12388,
+  "editable_blend": "pass",
+  "preview_in_bundle": false,
+  "studio_import": "Not uploaded or imported. Await Claude layout and Codex staging.",
+  "limitations": [
+    "Disconnected overlapping closed components are intentional decorative art.",
+    "Mesh collision is not authored; use separate Roblox proxies.",
+    "Palette colors do not imply emissive or transparent Roblox materials."
+  ]
+}

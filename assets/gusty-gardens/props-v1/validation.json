@@ -1,0 +1,86 @@
+{
+  "fbx_roundtrip": [
+    {
+      "name": "GG_Moss_Rock_Wide",
+      "roundtrip": "pass",
+      "triangles": 264,
+      "nonmanifold_edges": 0,
+      "texture_size": [
+        512,
+        16
+      ]
+    },
+    {
+      "name": "GG_Moss_Rock_Tall",
+      "roundtrip": "pass",
+      "triangles": 264,
+      "nonmanifold_edges": 0,
+      "texture_size": [
+        512,
+        16
+      ]
+    },
+    {
+      "name": "GG_Daisy_Cluster",
+      "roundtrip": "pass",
+      "triangles": 2028,
+      "nonmanifold_edges": 0,
+      "texture_size": [
+        512,
+        16
+      ]
+    },
+    {
+      "name": "GG_Bluebell_Cluster",
+      "roundtrip": "pass",
+      "triangles": 504,
+      "nonmanifold_edges": 0,
+      "texture_size": [
+        512,
+        16
+      ]
+    },
+    {
+      "name": "GG_Fern",
+      "roundtrip": "pass",
+      "triangles": 672,
+      "nonmanifold_edges": 0,
+      "texture_size": [
+        512,
+        16
+      ]
+    },
+    {
+      "name": "GG_Meadow_Shrub",
+      "roundtrip": "pass",
+      "triangles": 240,
+      "nonmanifold_edges": 0,
+      "texture_size": [
+        512,
+        16
+      ]
+    },
+    {
+      "name": "GG_Windbent_Tree",
+      "roundtrip": "pass",
+      "triangles": 484,
+      "nonmanifold_edges": 0,
+      "texture_size": [
+        512,
+        16
+      ]
+    },
+    {
+      "name": "GG_Flower_Planter",
+      "roundtrip": "pass",
+      "triangles": 2756,
+      "nonmanifold_edges": 0,
+      "texture_size": [
+        512,
+        16
+      ]
+    }
+  ],
+  "bundle_mesh_count": 8,
+  "studio_import": "not yet imported"
+}

@@ -1,0 +1,91 @@
+{
+  "status": "passed",
+  "components": [
+    {
+      "name": "FP_Powder_A_Bark",
+      "triangles": 3360,
+      "dimensions_and_center": "passed",
+      "textures": "passed"
+    },
+    {
+      "name": "FP_Powder_A_Snow",
+      "triangles": 6500,
+      "dimensions_and_center": "passed",
+      "textures": "passed"
+    },
+    {
+      "name": "FP_Powder_A_Needles_1",
+      "triangles": 18100,
+      "dimensions_and_center": "passed",
+      "textures": "passed"
+    },
+    {
+      "name": "FP_Powder_A_Needles_2",
+      "triangles": 17400,
+      "dimensions_and_center": "passed",
+      "textures": "passed"
+    },
+    {
+      "name": "FP_Powder_A_Needles_3",
+      "triangles": 2010,
+      "dimensions_and_center": "passed",
+      "textures": "passed"
+    },
+    {
+      "name": "FP_Powder_B_Bark",
+      "triangles": 3192,
+      "dimensions_and_center": "passed",
+      "textures": "passed"
+    },
+    {
+      "name": "FP_Powder_B_Snow",
+      "triangles": 6498,
+      "dimensions_and_center": "passed",
+      "textures": "passed"
+    },
+    {
+      "name": "FP_Powder_B_Needles_1",
+      "triangles": 18100,
+      "dimensions_and_center": "passed",
+      "textures": "passed"
+    },
+    {
+      "name": "FP_Powder_B_Needles_2",
+      "triangles": 13338,
+      "dimensions_and_center": "passed",
+      "textures": "passed"
+    },
+    {
+      "name": "FP_Powder_C_Bark",
+      "triangles": 3500,
+      "dimensions_and_center": "passed",
+      "textures": "passed"
+    },
+    {
+      "name": "FP_Powder_C_Snow",
+      "triangles": 6496,
+      "dimensions_and_center": "passed",
+      "textures": "passed"
+    },
+    {
+      "name": "FP_Powder_C_Needles_1",
+      "triangles": 18100,
+      "dimensions_and_center": "passed",
+      "textures": "passed"
+    },
+    {
+      "name": "FP_Powder_C_Needles_2",
+      "triangles": 17400,
+      "dimensions_and_center": "passed",
+      "textures": "passed"
+    },
+    {
+      "name": "FP_Powder_C_Needles_3",
+      "triangles": 6726,
+      "dimensions_and_center": "passed",
+      "textures": "passed"
+    }
+  ],
+  "bundle_components": 14,
+  "total_triangles": 140720
+}

@@ -1,0 +1,68 @@
+{
+  "fbx_roundtrip": [
+    {
+      "name": "CC_Basalt_Tall",
+      "roundtrip": "pass",
+      "triangles": 336,
+      "nonmanifold_edges": 0,
+      "texture": "CinderPalette"
+    },
+    {
+      "name": "CC_Basalt_Wide",
+      "roundtrip": "pass",
+      "triangles": 392,
+      "nonmanifold_edges": 0,
+      "texture": "CinderPalette"
+    },
+    {
+      "name": "CC_Basalt_Low",
+      "roundtrip": "pass",
+      "triangles": 224,
+      "nonmanifold_edges": 0,
+      "texture": "CinderPalette"
+    },
+    {
+      "name": "CC_Ember_Tall",
+      "roundtrip": "pass",
+      "triangles": 264,
+      "nonmanifold_edges": 0,
+      "texture": "CinderPalette"
+    },
+    {
+      "name": "CC_Ember_Fan",
+      "roundtrip": "pass",
+      "triangles": 302,
+      "nonmanifold_edges": 0,
+      "texture": "CinderPalette"
+    },
+    {
+      "name": "CC_Ember_Small",
+      "roundtrip": "pass",
+      "triangles": 226,
+      "nonmanifold_edges": 0,
+      "texture": "CinderPalette"
+    },
+    {
+      "name": "CC_Sandstone_Wide",
+      "roundtrip": "pass",
+      "triangles": 280,
+      "nonmanifold_edges": 0,
+      "texture": "CinderPalette"
+    },
+    {
+      "name": "CC_Sandstone_Tall",
+      "roundtrip": "pass",
+      "triangles": 280,
+      "nonmanifold_edges": 0,
+      "texture": "CinderPalette"
+    },
+    {
+      "name": "CC_Sandstone_Rubble",
+      "roundtrip": "pass",
+      "triangles": 560,
+      "nonmanifold_edges": 0,
+      "texture": "CinderPalette"
+    }
+  ],
+  "studio_import": "pending; confirm scale/materials after base map handoff"
+}

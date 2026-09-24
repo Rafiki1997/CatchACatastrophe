@@ -1,0 +1,18 @@
+{
+  "source": "native procedural material/detail textures",
+  "resolution": [
+    512,
+    512
+  ],
+  "ice": {
+    "file": "FP_Alpine_Tex_IceCracks.png",
+    "tileable": true,
+    "alpha": "straight; pale crack/bubble overlay, no ice plane baked"
+  },
+  "tracks": {
+    "file": "FP_Alpine_Decal_Tracks.png",
+    "tileable": false,
+    "alpha": "straight; six alternating boot impressions"
+  },
+  "integration": "Use existing TextureSlot parts. Art only; no floor, friction, collision or hazard-height changes."
+}

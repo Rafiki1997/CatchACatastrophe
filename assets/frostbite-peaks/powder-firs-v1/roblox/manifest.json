@@ -1,0 +1,292 @@
+{
+  "version": 1,
+  "library": "FrostbitePowderTemplates",
+  "bundle": "PowderFirsBundle",
+  "units": "intended studs; inspect import scale",
+  "pivot": "tree bottom-center; native part centres are recorded separately",
+  "textures": {
+    "color": "powder-firs-color.png",
+    "normal": "powder-firs-normal.png",
+    "roughness": "powder-firs-roughness.png"
+  },
+  "variants": [
+    {
+      "id": "A",
+      "label": "Original",
+      "size": [
+        15.128889,
+        25.955271,
+        15.462845
+      ],
+      "trunk_base": [
+        -0.195686,
+        0.0,
+        -0.242966
+      ],
+      "parts": [
+        "FP_Powder_A_Bark",
+        "FP_Powder_A_Snow",
+        "FP_Powder_A_Needles_1",
+        "FP_Powder_A_Needles_2",
+        "FP_Powder_A_Needles_3"
+      ],
+      "needles_preserved": 6135
+    },
+    {
+      "id": "B",
+      "label": "Broad",
+      "size": [
+        17.503094,
+        23.430233,
+        16.49826
+      ],
+      "trunk_base": [
+        0.316051,
+        0.0,
+        0.285086
+      ],
+      "parts": [
+        "FP_Powder_B_Bark",
+        "FP_Powder_B_Snow",
+        "FP_Powder_B_Needles_1",
+        "FP_Powder_B_Needles_2"
+      ],
+      "needles_preserved": 5123
+    },
+    {
+      "id": "C",
+      "label": "Upright",
+      "size": [
+        14.260531,
+        28.230982,
+        14.681002
+      ],
+      "trunk_base": [
+        0.006091,
+        0.0,
+        0.30258
+      ],
+      "parts": [
+        "FP_Powder_C_Bark",
+        "FP_Powder_C_Snow",
+        "FP_Powder_C_Needles_1",
+        "FP_Powder_C_Needles_2",
+        "FP_Powder_C_Needles_3"
+      ],
+      "needles_preserved": 6921
+    }
+  ],
+  "assets": [
+    {
+      "name": "FP_Powder_A_Bark",
+      "file": "FP_Powder_A_Bark.fbx",
+      "dimensions_studs_xyz": [
+        10.073395,
+        25.358082,
+        10.648819
+      ],
+      "center": [
+        -0.152354,
+        12.780048,
+        0.195824
+      ],
+      "triangles": 3360
+    },
+    {
+      "name": "FP_Powder_A_Snow",
+      "file": "FP_Powder_A_Snow.fbx",
+      "dimensions_studs_xyz": [
+        11.329985,
+        25.955271,
+        12.539462
+      ],
+      "center": [
+        -0.097164,
+        12.977635,
+        0.283296
+      ],
+      "triangles": 6500
+    },
+    {
+      "name": "FP_Powder_A_Needles_1",
+      "file": "FP_Powder_A_Needles_1.fbx",
+      "dimensions_studs_xyz": [
+        15.128889,
+        21.667959,
+        15.462845
+      ],
+      "center": [
+        0.0,
+        14.257333,
+        -0.0
+      ],
+      "triangles": 18100
+    },
+    {
+      "name": "FP_Powder_A_Needles_2",
+      "file": "FP_Powder_A_Needles_2.fbx",
+      "dimensions_studs_xyz": [
+        9.574596,
+        10.433203,
+        9.297565
+      ],
+      "center": [
+        -0.08762,
+        19.472198,
+        -0.735655
+      ],
+      "triangles": 17400
+    },
+    {
+      "name": "FP_Powder_A_Needles_3",
+      "file": "FP_Powder_A_Needles_3.fbx",
+      "dimensions_studs_xyz": [
+        2.39064,
+        2.332523,
+        2.13136
+      ],
+      "center": [
+        -0.181463,
+        24.181927,
+        -0.100561
+      ],
+      "triangles": 2010
+    },
+    {
+      "name": "FP_Powder_B_Bark",
+      "file": "FP_Powder_B_Bark.fbx",
+      "dimensions_studs_xyz": [
+        11.939636,
+        22.871019,
+        11.516327
+      ],
+      "center": [
+        -0.062745,
+        11.513875,
+        0.131809
+      ],
+      "triangles": 3192
+    },
+    {
+      "name": "FP_Powder_B_Snow",
+      "file": "FP_Powder_B_Snow.fbx",
+      "dimensions_studs_xyz": [
+        13.53487,
+        23.430233,
+        12.906176
+      ],
+      "center": [
+        -0.077324,
+        11.715117,
+        0.10191
+      ],
+      "triangles": 6498
+    },
+    {
+      "name": "FP_Powder_B_Needles_1",
+      "file": "FP_Powder_B_Needles_1.fbx",
+      "dimensions_studs_xyz": [
+        17.503094,
+        19.444134,
+        16.49826
+      ],
+      "center": [
+        0.0,
+        12.88468,
+        -0.0
+      ],
+      "triangles": 18100
+    },
+    {
+      "name": "FP_Powder_B_Needles_2",
+      "file": "FP_Powder_B_Needles_2.fbx",
+      "dimensions_studs_xyz": [
+        9.444827,
+        8.418634,
+        8.895561
+      ],
+      "center": [
+        0.079415,
+        18.617249,
+        -0.416445
+      ],
+      "triangles": 13338
+    },
+    {
+      "name": "FP_Powder_C_Bark",
+      "file": "FP_Powder_C_Bark.fbx",
+      "dimensions_studs_xyz": [
+        9.85269,
+        27.567518,
+        9.689169
+      ],
+      "center": [
+        -0.024635,
+        13.859981,
+        0.027522
+      ],
+      "triangles": 3500
+    },
+    {
+      "name": "FP_Powder_C_Snow",
+      "file": "FP_Powder_C_Snow.fbx",
+      "dimensions_studs_xyz": [
+        11.477937,
+        28.230982,
+        11.628204
+      ],
+      "center": [
+        -0.084206,
+        14.115491,
+        -0.010805
+      ],
+      "triangles": 6496
+    },
+    {
+      "name": "FP_Powder_C_Needles_1",
+      "file": "FP_Powder_C_Needles_1.fbx",
+      "dimensions_studs_xyz": [
+        14.260531,
+        23.94298,
+        14.681002
+      ],
+      "center": [
+        0.0,
+        15.31249,
+        -0.0
+      ],
+      "triangles": 18100
+    },
+    {
+      "name": "FP_Powder_C_Needles_2",
+      "file": "FP_Powder_C_Needles_2.fbx",
+      "dimensions_studs_xyz": [
+        9.980562,
+        10.321754,
+        9.904355
+      ],
+      "center": [
+        0.375343,
+        19.38677,
+        0.283893
+      ],
+      "triangles": 17400
+    },
+    {
+      "name": "FP_Powder_C_Needles_3",
+      "file": "FP_Powder_C_Needles_3.fbx",
+      "dimensions_studs_xyz": [
+        4.106183,
+        4.772205,
+        4.173558
+      ],
+      "center": [
+        0.042974,
+        25.147636,
+        0.625766
+      ],
+      "triangles": 6726
+    }
+  ],
+  "total_triangles": 140720
+}

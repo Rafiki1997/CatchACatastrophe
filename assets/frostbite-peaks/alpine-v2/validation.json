@@ -1,0 +1,373 @@
+{
+  "status": "passed",
+  "assets": [
+    {
+      "name": "FP_Alpine_Lodge",
+      "fbx_roundtrip": "passed",
+      "dimensions_studs_xyz": [
+        40,
+        30,
+        24
+      ],
+      "triangles": 13880,
+      "closed_geometry": true,
+      "uv_tiles_and_texture": "passed"
+    },
+    {
+      "name": "FP_Alpine_Bridge",
+      "fbx_roundtrip": "passed",
+      "dimensions_studs_xyz": [
+        10,
+        7.5,
+        34
+      ],
+      "triangles": 14024,
+      "closed_geometry": true,
+      "uv_tiles_and_texture": "passed"
+    },
+    {
+      "name": "FP_Alpine_Cliff_Tall",
+      "fbx_roundtrip": "passed",
+      "dimensions_studs_xyz": [
+        25,
+        34,
+        22
+      ],
+      "triangles": 1076,
+      "closed_geometry": true,
+      "uv_tiles_and_texture": "passed"
+    },
+    {
+      "name": "FP_Alpine_Cliff_Wide",
+      "fbx_roundtrip": "passed",
+      "dimensions_studs_xyz": [
+        29,
+        20,
+        21
+      ],
+      "triangles": 824,
+      "closed_geometry": true,
+      "uv_tiles_and_texture": "passed"
+    },
+    {
+      "name": "FP_Alpine_Cliff_Shelf",
+      "fbx_roundtrip": "passed",
+      "dimensions_studs_xyz": [
+        28,
+        11,
+        24
+      ],
+      "triangles": 504,
+      "closed_geometry": true,
+      "uv_tiles_and_texture": "passed"
+    },
+    {
+      "name": "FP_Alpine_Fir_Tall",
+      "fbx_roundtrip": "passed",
+      "dimensions_studs_xyz": [
+        15,
+        26,
+        15
+      ],
+      "triangles": 10132,
+      "closed_geometry": true,
+      "uv_tiles_and_texture": "passed"
+    },
+    {
+      "name": "FP_Alpine_Fir_Medium",
+      "fbx_roundtrip": "passed",
+      "dimensions_studs_xyz": [
+        11,
+        18,
+        11
+      ],
+      "triangles": 8608,
+      "closed_geometry": true,
+      "uv_tiles_and_texture": "passed"
+    },
+    {
+      "name": "FP_Alpine_Fir_Sapling",
+      "fbx_roundtrip": "passed",
+      "dimensions_studs_xyz": [
+        6,
+        10,
+        6
+      ],
+      "triangles": 7084,
+      "closed_geometry": true,
+      "uv_tiles_and_texture": "passed"
+    },
+    {
+      "name": "FP_Alpine_Tent",
+      "fbx_roundtrip": "passed",
+      "dimensions_studs_xyz": [
+        8,
+        6,
+        9
+      ],
+      "triangles": 392,
+      "closed_geometry": true,
+      "uv_tiles_and_texture": "passed"
+    },
+    {
+      "name": "FP_Alpine_Woodpile",
+      "fbx_roundtrip": "passed",
+      "dimensions_studs_xyz": [
+        6,
+        4,
+        6
+      ],
+      "triangles": 4604,
+      "closed_geometry": true,
+      "uv_tiles_and_texture": "passed"
+    },
+    {
+      "name": "FP_Alpine_Frosted_Shrub",
+      "fbx_roundtrip": "passed",
+      "dimensions_studs_xyz": [
+        7,
+        5,
+        7
+      ],
+      "triangles": 1122,
+      "closed_geometry": true,
+      "uv_tiles_and_texture": "passed"
+    },
+    {
+      "name": "FP_Alpine_Grass",
+      "fbx_roundtrip": "passed",
+      "dimensions_studs_xyz": [
+        6,
+        4,
+        6
+      ],
+      "triangles": 716,
+      "closed_geometry": true,
+      "uv_tiles_and_texture": "passed"
+    },
+    {
+      "name": "FP_Alpine_Crate",
+      "fbx_roundtrip": "passed",
+      "dimensions_studs_xyz": [
+        4.5,
+        4.5,
+        4.5
+      ],
+      "triangles": 1236,
+      "closed_geometry": true,
+      "uv_tiles_and_texture": "passed"
+    },
+    {
+      "name": "FP_Alpine_Barrel",
+      "fbx_roundtrip": "passed",
+      "dimensions_studs_xyz": [
+        3.5,
+        4.5,
+        3.5
+      ],
+      "triangles": 1388,
+      "closed_geometry": true,
+      "uv_tiles_and_texture": "passed"
+    },
+    {
+      "name": "FP_Alpine_Railing",
+      "fbx_roundtrip": "passed",
+      "dimensions_studs_xyz": [
+        12,
+        4.5,
+        1.0
+      ],
+      "triangles": 748,
+      "closed_geometry": true,
+      "uv_tiles_and_texture": "passed"
+    },
+    {
+      "name": "FP_Alpine_Lantern_Post",
+      "fbx_roundtrip": "passed",
+      "dimensions_studs_xyz": [
+        2.4,
+        7,
+        3
+      ],
+      "triangles": 820,
+      "closed_geometry": true,
+      "uv_tiles_and_texture": "passed"
+    },
+    {
+      "name": "FP_Alpine_Trail_Post",
+      "fbx_roundtrip": "passed",
+      "dimensions_studs_xyz": [
+        1,
+        3.5,
+        1
+      ],
+      "triangles": 264,
+      "closed_geometry": true,
+      "uv_tiles_and_texture": "passed"
+    },
+    {
+      "name": "FP_Alpine_Signpost",
+      "fbx_roundtrip": "passed",
+      "dimensions_studs_xyz": [
+        6,
+        7,
+        1
+      ],
+      "triangles": 252,
+      "closed_geometry": true,
+      "uv_tiles_and_texture": "passed"
+    },
+    {
+      "name": "FP_Alpine_Pennant",
+      "fbx_roundtrip": "passed",
+      "dimensions_studs_xyz": [
+        5,
+        11,
+        1
+      ],
+      "triangles": 228,
+      "closed_geometry": true,
+      "uv_tiles_and_texture": "passed"
+    },
+    {
+      "name": "FP_Alpine_Snow_Rock",
+      "fbx_roundtrip": "passed",
+      "dimensions_studs_xyz": [
+        11,
+        6,
+        9
+      ],
+      "triangles": 252,
+      "closed_geometry": true,
+      "uv_tiles_and_texture": "passed"
+    },
+    {
+      "name": "FP_Alpine_Snow_Drift",
+      "fbx_roundtrip": "passed",
+      "dimensions_studs_xyz": [
+        13,
+        2.5,
+        8
+      ],
+      "triangles": 176,
+      "closed_geometry": true,
+      "uv_tiles_and_texture": "passed"
+    },
+    {
+      "name": "FP_Alpine_Icicles",
+      "fbx_roundtrip": "passed",
+      "dimensions_studs_xyz": [
+        8,
+        4,
+        1.3
+      ],
+      "triangles": 344,
+      "closed_geometry": true,
+      "uv_tiles_and_texture": "passed"
+    },
+    {
+      "name": "FP_Alpine_Shelf_North",
+      "fbx_roundtrip": "passed",
+      "dimensions_studs_xyz": [
+        42.5,
+        10,
+        23.5
+      ],
+      "triangles": 3444,
+      "closed_geometry": true,
+      "uv_tiles_and_texture": "passed"
+    },
+    {
+      "name": "FP_Alpine_Shelf_South",
+      "fbx_roundtrip": "passed",
+      "dimensions_studs_xyz": [
+        29,
+        10,
+        15
+      ],
+      "triangles": 2012,
+      "closed_geometry": true,
+      "uv_tiles_and_texture": "passed"
+    },
+    {
+      "name": "FP_Alpine_Gorge_Rock",
+      "fbx_roundtrip": "passed",
+      "dimensions_studs_xyz": [
+        12,
+        11,
+        50
+      ],
+      "triangles": 1260,
+      "closed_geometry": true,
+      "uv_tiles_and_texture": "passed"
+    },
+    {
+      "name": "FP_Alpine_Cliff_Block",
+      "fbx_roundtrip": "passed",
+      "dimensions_studs_xyz": [
+        14,
+        12,
+        12
+      ],
+      "triangles": 572,
+      "closed_geometry": true,
+      "uv_tiles_and_texture": "passed"
+    },
+    {
+      "name": "FP_Alpine_Snow_Rock_Small",
+      "fbx_roundtrip": "passed",
+      "dimensions_studs_xyz": [
+        5,
+        3.5,
+        4.5
+      ],
+      "triangles": 252,
+      "closed_geometry": true,
+      "uv_tiles_and_texture": "passed"
+    },
+    {
+      "name": "FP_Alpine_Camp_Sled",
+      "fbx_roundtrip": "passed",
+      "dimensions_studs_xyz": [
+        5,
+        2,
+        3
+      ],
+      "triangles": 484,
+      "closed_geometry": true,
+      "uv_tiles_and_texture": "passed"
+    },
+    {
+      "name": "FP_Alpine_Notice_Board",
+      "fbx_roundtrip": "passed",
+      "dimensions_studs_xyz": [
+        4,
+        5,
+        1
+      ],
+      "triangles": 440,
+      "closed_geometry": true,
+      "uv_tiles_and_texture": "passed"
+    },
+    {
+      "name": "FP_Alpine_Terrace_Post",
+      "fbx_roundtrip": "passed",
+      "dimensions_studs_xyz": [
+        2,
+        7.5,
+        2
+      ],
+      "triangles": 484,
+      "closed_geometry": true,
+      "uv_tiles_and_texture": "passed"
+    }
+  ],
+  "bundle_mesh_count": 30,
+  "required_contract_names": 28,
+  "total_unique_triangles": 77622,
+  "semantic_checks": "lodge porch/step, bridge curve endpoints/midpoint, shelf walking tops/empty gorge, cliff TopMount flat pads",
+  "axis_conversion": "Blender +Y front/+Z up -> Roblox -Z front/+Y up verified",
+  "texture_maps": "2048 color/normal/roughness; material wiring requires Studio verification",
+  "studio_import": "not validated by this script",
+  "dimensions_status": "reconciled with ALPINE-OUTPOST-V2-ASSET-REQUEST.md; see delivery notes for rear-corner shelf snow-cap interpretation"
+}

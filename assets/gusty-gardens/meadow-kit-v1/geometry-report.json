@@ -1,0 +1,377 @@
+{
+  "status": "Hero source art for user review; not optimized, exported, approved or integrated",
+  "unit": "1 Blender unit = 1 intended Roblox stud; Roblox (x,y,z) = Blender (x,z,-y)",
+  "pivot": "Root socket at local zero (trunk base / group centre on the ground)",
+  "assets": [
+    {
+      "code": "PINE",
+      "label": "Meadow Pine",
+      "collection": "GG_MeadowPine_A",
+      "needles": 7089,
+      "boughs": 43,
+      "tiers": 7,
+      "bounds_blender": {
+        "min": [
+          -4.905355930328369,
+          -5.379118919372559,
+          0.0
+        ],
+        "max": [
+          5.599999904632568,
+          5.520389080047607,
+          18.200000762939453
+        ]
+      },
+      "dimensions_roblox_whd": [
+        10.505355834960938,
+        18.200000762939453,
+        10.899507999420166
+      ],
+      "blockout_envelope_whd": [
+        11.2,
+        18.2,
+        11.2
+      ],
+      "triangles": 224166,
+      "components": [
+        {
+          "name": "GG_MeadowPine_A_Bark",
+          "triangles": 2212,
+          "nonmanifold_edges": 0,
+          "degenerate_faces": 0,
+          "size_roblox_whd": [
+            7.317854166030884,
+            17.439537048339844,
+            7.596951246261597
+          ],
+          "center_roblox": [
+            0.11060225963592529,
+            8.719768524169922,
+            -0.051155924797058105
+          ]
+        },
+        {
+          "name": "GG_MeadowPine_A_BarkRidges",
+          "triangles": 884,
+          "nonmanifold_edges": 0,
+          "degenerate_faces": 0,
+          "size_roblox_whd": [
+            1.4647454023361206,
+            8.610886879265308,
+            1.4651029706001282
+          ],
+          "center_roblox": [
+            0.010466575622558594,
+            4.337603893131018,
+            -0.00020512938499450684
+          ]
+        },
+        {
+          "name": "GG_MeadowPine_A_Needles",
+          "triangles": 221070,
+          "nonmanifold_edges": 0,
+          "degenerate_faces": 0,
+          "size_roblox_whd": [
+            10.505355834960938,
+            16.183332920074463,
+            10.899507999420166
+          ],
+          "center_roblox": [
+            0.3473219871520996,
+            10.108334302902222,
+            -0.07063508033752441
+          ]
+        }
+      ]
+    },
+    {
+      "code": "SHRUB",
+      "label": "Meadow Shrub",
+      "collection": "GG_MeadowShrub_A",
+      "leaves": 1946,
+      "bounds_blender": {
+        "min": [
+          -4.5197882652282715,
+          -4.134306907653809,
+          -0.42181771993637085
+        ],
+        "max": [
+          5.403295516967773,
+          3.630312442779541,
+          5.443394184112549
+        ]
+      },
+      "dimensions_roblox_whd": [
+        9.923083782196045,
+        5.86521190404892,
+        7.76461935043335
+      ],
+      "blockout_envelope_whd": [
+        9.38,
+        5.15,
+        6.86
+      ],
+      "triangles": 47868,
+      "components": [
+        {
+          "name": "GG_MeadowShrub_A_Stems",
+          "triangles": 660,
+          "nonmanifold_edges": 0,
+          "degenerate_faces": 0,
+          "size_roblox_whd": [
+            7.353350400924683,
+            3.1351122111082077,
+            4.8114776611328125
+          ],
+          "center_roblox": [
+            0.3498431444168091,
+            1.4627790823578835,
+            0.20811891555786133
+          ]
+        },
+        {
+          "name": "GG_MeadowShrub_A_Core",
+          "triangles": 504,
+          "nonmanifold_edges": 0,
+          "degenerate_faces": 0,
+          "size_roblox_whd": [
+            7.182779788970947,
+            2.663443088531494,
+            4.6747801303863525
+          ],
+          "center_roblox": [
+            0.35607004165649414,
+            2.3816990852355957,
+            0.15806996822357178
+          ]
+        },
+        {
+          "name": "GG_MeadowShrub_A_Leaves",
+          "triangles": 46704,
+          "nonmanifold_edges": 0,
+          "degenerate_faces": 0,
+          "size_roblox_whd": [
+            9.923083782196045,
+            5.86521190404892,
+            7.76461935043335
+          ],
+          "center_roblox": [
+            0.441753625869751,
+            2.510788232088089,
+            0.2519972324371338
+          ]
+        }
+      ]
+    },
+    {
+      "code": "ROCK",
+      "label": "Moss Rock Group",
+      "collection": "GG_MossRock_A",
+      "boulders": 3,
+      "pebbles": 5,
+      "grass_tufts": 5,
+      "bounds_blender": {
+        "min": [
+          -4.060816287994385,
+          -4.1492767333984375,
+          -0.07384335994720459
+        ],
+        "max": [
+          4.313387870788574,
+          3.220540761947632,
+          3.5800700187683105
+        ]
+      },
+      "dimensions_roblox_whd": [
+        8.374204158782959,
+        3.653913378715515,
+        7.369817495346069
+      ],
+      "blockout_envelope_whd": [
+        8.9,
+        4.5,
+        8.2
+      ],
+      "triangles": 63694,
+      "components": [
+        {
+          "name": "GG_MossRock_A_Stone",
+          "triangles": 32456,
+          "nonmanifold_edges": 0,
+          "degenerate_faces": 0,
+          "size_roblox_whd": [
+            6.090217351913452,
+            3.398705840110779,
+            5.35871696472168
+          ],
+          "center_roblox": [
+            0.16395580768585205,
+            1.6255095601081848,
+            -0.05909013748168945
+          ]
+        },
+        {
+          "name": "GG_MossRock_A_Moss",
+          "triangles": 22822,
+          "nonmanifold_edges": 0,
+          "degenerate_faces": 0,
+          "size_roblox_whd": [
+            5.236815452575684,
+            2.6344030499458313,
+            5.238705158233643
+          ],
+          "center_roblox": [
+            -0.12564802169799805,
+            2.262868493795395,
+            -0.15238308906555176
+          ]
+        },
+        {
+          "name": "GG_MossRock_A_Pebbles",
+          "triangles": 7456,
+          "nonmanifold_edges": 0,
+          "degenerate_faces": 0,
+          "size_roblox_whd": [
+            7.597003936767578,
+            0.32416266202926636,
+            5.838374614715576
+          ],
+          "center_roblox": [
+            -0.19956588745117188,
+            0.1371193826198578,
+            -0.10621857643127441
+          ]
+        },
+        {
+          "name": "GG_MossRock_A_Grass",
+          "triangles": 960,
+          "nonmanifold_edges": 0,
+          "degenerate_faces": 0,
+          "size_roblox_whd": [
+            8.374204158782959,
+            1.356371570378542,
+            7.369817495346069
+          ],
+          "center_roblox": [
+            0.12628579139709473,
+            0.6281857844442129,
+            0.46436798572540283
+          ]
+        }
+      ]
+    },
+    {
+      "code": "FLOWER",
+      "label": "Daisy Bed",
+      "collection": "GG_FlowerBed_A",
+      "daisies": 7,
+      "pink": 2,
+      "leaves": 230,
+      "bounds_blender": {
+        "min": [
+          -3.2979319095611572,
+          -2.7215607166290283,
+          -0.23999999463558197
+        ],
+        "max": [
+          3.36147141456604,
+          2.754481315612793,
+          3.10101318359375
+        ]
+      },
+      "dimensions_roblox_whd": [
+        6.659403324127197,
+        3.341013178229332,
+        5.476042032241821
+      ],
+      "blockout_envelope_whd": [
+        6.7,
+        2.75,
+        6.7
+      ],
+      "triangles": 21102,
+      "components": [
+        {
+          "name": "GG_FlowerBed_A_Core",
+          "triangles": 168,
+          "nonmanifold_edges": 0,
+          "degenerate_faces": 0,
+          "size_roblox_whd": [
+            3.700000047683716,
+            1.239999994635582,
+            3.5
+          ],
+          "center_roblox": [
+            0.0,
+            0.380000002682209,
+            -0.0
+          ]
+        },
+        {
+          "name": "GG_FlowerBed_A_Leaves",
+          "triangles": 5520,
+          "nonmanifold_edges": 0,
+          "degenerate_faces": 0,
+          "size_roblox_whd": [
+            5.66870903968811,
+            1.6442536860704422,
+            5.476042032241821
+          ],
+          "center_roblox": [
+            0.015387415885925293,
+            0.6412009224295616,
+            -0.016460299491882324
+          ]
+        },
+        {
+          "name": "GG_FlowerBed_A_Stalks",
+          "triangles": 602,
+          "nonmanifold_edges": 0,
+          "degenerate_faces": 0,
+          "size_roblox_whd": [
+            4.495185136795044,
+            1.9629780948162079,
+            3.0271602869033813
+          ],
+          "center_roblox": [
+            0.060114264488220215,
+            1.4307967573404312,
+            -0.0988892912864685
+          ]
+        },
+        {
+          "name": "GG_FlowerBed_A_Petals",
+          "triangles": 5824,
+          "nonmanifold_edges": 0,
+          "degenerate_faces": 0,
+          "size_roblox_whd": [
+            6.659403324127197,
+            1.6823846101760864,
+            5.084918737411499
+          ],
+          "center_roblox": [
+            0.031769752502441406,
+            2.259820878505707,
+            -0.11918008327484131
+          ]
+        },
+        {
+          "name": "GG_FlowerBed_A_Centres",
+          "triangles": 8988,
+          "nonmanifold_edges": 0,
+          "degenerate_faces": 0,
+          "size_roblox_whd": [
+            5.392043590545654,
+            1.299426555633545,
+            3.869079113006592
+          ],
+          "center_roblox": [
+            0.0666043758392334,
+            2.241466999053955,
+            -0.12714076042175293
+          ]
+        }
+      ]
+    }
+  ]
+}

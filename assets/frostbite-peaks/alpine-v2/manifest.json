@@ -1,0 +1,681 @@
+{
+  "version": 3,
+  "bundle": "AlpineOutpostBundle.fbx",
+  "dimensions_status": "reconciled with ALPINE-OUTPOST-V2-ASSET-REQUEST.md; see delivery notes for rear-corner shelf snow-cap interpretation",
+  "units": "1 modeling unit = intended Roblox stud; inspect imported scale",
+  "blender_front": "+Y",
+  "roblox_front": "-Z",
+  "blender_up": "+Z",
+  "roblox_up": "+Y",
+  "pivot": "bottom-center",
+  "textures": {
+    "color": "alpine-color.png",
+    "normal": "alpine-normal.png",
+    "roughness": "alpine-roughness.png",
+    "resolution": [
+      2048,
+      2048
+    ]
+  },
+  "material_tiles": {
+    "0": [
+      237,
+      244,
+      248
+    ],
+    "1": [
+      147,
+      94,
+      51
+    ],
+    "2": [
+      87,
+      55,
+      34
+    ],
+    "3": [
+      29,
+      102,
+      115
+    ],
+    "4": [
+      92,
+      110,
+      135
+    ],
+    "5": [
+      128,
+      78,
+      34
+    ],
+    "6": [
+      51,
+      62,
+      73
+    ],
+    "7": [
+      169,
+      145,
+      102
+    ],
+    "8": [
+      88,
+      66,
+      44
+    ],
+    "9": [
+      31,
+      78,
+      63
+    ],
+    "10": [
+      232,
+      112,
+      43
+    ],
+    "11": [
+      192,
+      141,
+      57
+    ],
+    "12": [
+      132,
+      147,
+      163
+    ],
+    "13": [
+      150,
+      204,
+      228
+    ],
+    "14": [
+      164,
+      136,
+      84
+    ],
+    "15": [
+      210,
+      225,
+      237
+    ]
+  },
+  "assets": [
+    {
+      "name": "FP_Alpine_Lodge",
+      "file": "FP_Alpine_Lodge.fbx",
+      "dimensions_studs_xyz": [
+        40,
+        30,
+        24
+      ],
+      "sockets_roblox_xyz_from_base": {
+        "DoorBase": [
+          4.0,
+          1.0,
+          -5.5
+        ],
+        "PorchStep": [
+          4.0,
+          0.0,
+          -12.0
+        ],
+        "PorchEntry": [
+          4.0,
+          1.0,
+          -11.0
+        ],
+        "WindowW": [
+          11.5,
+          6.75,
+          -5.45
+        ],
+        "WindowE": [
+          -3.5,
+          6.75,
+          -5.45
+        ],
+        "WindowGable": [
+          4.0,
+          16.5,
+          -5.45
+        ],
+        "AnnexWindow": [
+          -14.75,
+          5.5,
+          -0.45
+        ],
+        "PorchLanternW": [
+          14.0,
+          7.5,
+          -10.7
+        ],
+        "PorchLanternE": [
+          -6.0,
+          7.5,
+          -10.7
+        ],
+        "ChimneyTop": [
+          8.5,
+          30.0,
+          7.5
+        ]
+      },
+      "notes": "Contract revision: asymmetric east annex, porch top1.0, step0.5. Dark recessed panes; runtime warm glazing/lights separate.",
+      "triangles": 13880,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "FP_Alpine_Bridge",
+      "file": "FP_Alpine_Bridge.fbx",
+      "dimensions_studs_xyz": [
+        10,
+        7.5,
+        34
+      ],
+      "sockets_roblox_xyz_from_base": {
+        "NorthDeck": [
+          0.0,
+          1.5,
+          17.0
+        ],
+        "SouthDeck": [
+          0.0,
+          1.5,
+          -17.0
+        ],
+        "DeckMiddle": [
+          0.0,
+          0.3,
+          -0.0
+        ],
+        "LanternNW": [
+          4.6,
+          7.0,
+          16.3
+        ],
+        "LanternSE": [
+          -4.6,
+          7.0,
+          -16.3
+        ]
+      },
+      "notes": "Deck top .3+1.2*(Z/17)^2. Use independently authored segmented walking collider. Posts define bounds.",
+      "triangles": 14024,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "FP_Alpine_Cliff_Tall",
+      "file": "FP_Alpine_Cliff_Tall.fbx",
+      "dimensions_studs_xyz": [
+        25,
+        34,
+        22
+      ],
+      "sockets_roblox_xyz_from_base": {
+        "TopMount": [
+          0,
+          34,
+          0
+        ]
+      },
+      "notes": "Layered solid art. Arrange and rotate in bands; separate functional proxies.",
+      "triangles": 1076,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "FP_Alpine_Cliff_Wide",
+      "file": "FP_Alpine_Cliff_Wide.fbx",
+      "dimensions_studs_xyz": [
+        29,
+        20,
+        21
+      ],
+      "sockets_roblox_xyz_from_base": {
+        "TopMount": [
+          0,
+          20,
+          0
+        ]
+      },
+      "notes": "Layered solid art. Arrange and rotate in bands; separate functional proxies.",
+      "triangles": 824,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "FP_Alpine_Cliff_Shelf",
+      "file": "FP_Alpine_Cliff_Shelf.fbx",
+      "dimensions_studs_xyz": [
+        28,
+        11,
+        24
+      ],
+      "sockets_roblox_xyz_from_base": {},
+      "notes": "Layered solid art. Arrange and rotate in bands; separate functional proxies.",
+      "triangles": 504,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "FP_Alpine_Fir_Tall",
+      "file": "FP_Alpine_Fir_Tall.fbx",
+      "dimensions_studs_xyz": [
+        15,
+        26,
+        15
+      ],
+      "sockets_roblox_xyz_from_base": {
+        "TrunkBase": [
+          -0.10574,
+          0.0,
+          -0.14616
+        ]
+      },
+      "notes": "Tiered branch masses and sculpted snow; no separate needles, no collider on canopy.",
+      "triangles": 10132,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "FP_Alpine_Fir_Medium",
+      "file": "FP_Alpine_Fir_Medium.fbx",
+      "dimensions_studs_xyz": [
+        11,
+        18,
+        11
+      ],
+      "sockets_roblox_xyz_from_base": {
+        "TrunkBase": [
+          -0.16694,
+          0.0,
+          0.36689
+        ]
+      },
+      "notes": "Tiered branch masses and sculpted snow; no separate needles, no collider on canopy.",
+      "triangles": 8608,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "FP_Alpine_Fir_Sapling",
+      "file": "FP_Alpine_Fir_Sapling.fbx",
+      "dimensions_studs_xyz": [
+        6,
+        10,
+        6
+      ],
+      "sockets_roblox_xyz_from_base": {
+        "TrunkBase": [
+          0.21665,
+          0.0,
+          0.02943
+        ]
+      },
+      "notes": "Tiered branch masses and sculpted snow; no separate needles, no collider on canopy.",
+      "triangles": 7084,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "FP_Alpine_Tent",
+      "file": "FP_Alpine_Tent.fbx",
+      "dimensions_studs_xyz": [
+        8,
+        6,
+        9
+      ],
+      "sockets_roblox_xyz_from_base": {
+        "DoorBase": [
+          0,
+          0,
+          -4.5
+        ]
+      },
+      "notes": "Contract size, snow ridge and guy ropes. Static canvas tent.",
+      "triangles": 392,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "FP_Alpine_Woodpile",
+      "file": "FP_Alpine_Woodpile.fbx",
+      "dimensions_studs_xyz": [
+        6,
+        4,
+        6
+      ],
+      "sockets_roblox_xyz_from_base": {},
+      "notes": "",
+      "triangles": 4604,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "FP_Alpine_Frosted_Shrub",
+      "file": "FP_Alpine_Frosted_Shrub.fbx",
+      "dimensions_studs_xyz": [
+        7,
+        5,
+        7
+      ],
+      "sockets_roblox_xyz_from_base": {},
+      "notes": "",
+      "triangles": 1122,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "FP_Alpine_Grass",
+      "file": "FP_Alpine_Grass.fbx",
+      "dimensions_studs_xyz": [
+        6,
+        4,
+        6
+      ],
+      "sockets_roblox_xyz_from_base": {},
+      "notes": "",
+      "triangles": 716,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "FP_Alpine_Crate",
+      "file": "FP_Alpine_Crate.fbx",
+      "dimensions_studs_xyz": [
+        4.5,
+        4.5,
+        4.5
+      ],
+      "sockets_roblox_xyz_from_base": {},
+      "notes": "",
+      "triangles": 1236,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "FP_Alpine_Barrel",
+      "file": "FP_Alpine_Barrel.fbx",
+      "dimensions_studs_xyz": [
+        3.5,
+        4.5,
+        3.5
+      ],
+      "sockets_roblox_xyz_from_base": {},
+      "notes": "",
+      "triangles": 1388,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "FP_Alpine_Railing",
+      "file": "FP_Alpine_Railing.fbx",
+      "dimensions_studs_xyz": [
+        12,
+        4.5,
+        1.0
+      ],
+      "sockets_roblox_xyz_from_base": {
+        "EndLeft": [
+          -5.56154,
+          0.0,
+          0.02462
+        ],
+        "EndRight": [
+          5.52842,
+          0.0,
+          0.02462
+        ]
+      },
+      "notes": "",
+      "triangles": 748,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "FP_Alpine_Lantern_Post",
+      "file": "FP_Alpine_Lantern_Post.fbx",
+      "dimensions_studs_xyz": [
+        2.4,
+        7,
+        3
+      ],
+      "sockets_roblox_xyz_from_base": {
+        "Light": [
+          0.0,
+          4.61934,
+          -0.65223
+        ]
+      },
+      "notes": "",
+      "triangles": 820,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "FP_Alpine_Trail_Post",
+      "file": "FP_Alpine_Trail_Post.fbx",
+      "dimensions_studs_xyz": [
+        1,
+        3.5,
+        1
+      ],
+      "sockets_roblox_xyz_from_base": {},
+      "notes": "",
+      "triangles": 264,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "FP_Alpine_Signpost",
+      "file": "FP_Alpine_Signpost.fbx",
+      "dimensions_studs_xyz": [
+        6,
+        7,
+        1
+      ],
+      "sockets_roblox_xyz_from_base": {
+        "TextUpper": [
+          0.0,
+          5.29244,
+          -0.27554
+        ],
+        "TextLower": [
+          0.0,
+          4.05034,
+          -0.27554
+        ]
+      },
+      "notes": "Blank boards for runtime text; no fabricated lettering.",
+      "triangles": 252,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "FP_Alpine_Pennant",
+      "file": "FP_Alpine_Pennant.fbx",
+      "dimensions_studs_xyz": [
+        5,
+        11,
+        1
+      ],
+      "sockets_roblox_xyz_from_base": {
+        "PoleBase": [
+          -2.3663,
+          0.0,
+          0.05549
+        ]
+      },
+      "notes": "Static banner mesh; no simulated cloth.",
+      "triangles": 228,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "FP_Alpine_Snow_Rock",
+      "file": "FP_Alpine_Snow_Rock.fbx",
+      "dimensions_studs_xyz": [
+        11,
+        6,
+        9
+      ],
+      "sockets_roblox_xyz_from_base": {},
+      "notes": "",
+      "triangles": 252,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "FP_Alpine_Snow_Drift",
+      "file": "FP_Alpine_Snow_Drift.fbx",
+      "dimensions_studs_xyz": [
+        13,
+        2.5,
+        8
+      ],
+      "sockets_roblox_xyz_from_base": {},
+      "notes": "",
+      "triangles": 176,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "FP_Alpine_Icicles",
+      "file": "FP_Alpine_Icicles.fbx",
+      "dimensions_studs_xyz": [
+        8,
+        4,
+        1.3
+      ],
+      "sockets_roblox_xyz_from_base": {},
+      "notes": "",
+      "triangles": 344,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "FP_Alpine_Shelf_North",
+      "file": "FP_Alpine_Shelf_North.fbx",
+      "dimensions_studs_xyz": [
+        42.5,
+        10,
+        23.5
+      ],
+      "sockets_roblox_xyz_from_base": {
+        "BridgeLanding": [
+          -9.25,
+          8.5,
+          3.75
+        ],
+        "Signpost": [
+          16.75,
+          8.5,
+          -10.25
+        ],
+        "RailStart": [
+          7.25,
+          8.5,
+          -11.0
+        ]
+      },
+      "notes": "L-shaped mesh; gorge void is entirely empty. Central walk top8.5; two outer rear corner caps occupy .7x.7 footprints up to10.",
+      "triangles": 3444,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "FP_Alpine_Shelf_South",
+      "file": "FP_Alpine_Shelf_South.fbx",
+      "dimensions_studs_xyz": [
+        29,
+        10,
+        15
+      ],
+      "sockets_roblox_xyz_from_base": {
+        "StairTop": [
+          0.0,
+          8.5,
+          -7.5
+        ],
+        "BridgeLanding": [
+          4.2,
+          8.5,
+          7.5
+        ]
+      },
+      "notes": "Central walk top8.5, clear south stair connection. Rear extreme corners carry .7x.7 snow caps to10.",
+      "triangles": 2012,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "FP_Alpine_Gorge_Rock",
+      "file": "FP_Alpine_Gorge_Rock.fbx",
+      "dimensions_studs_xyz": [
+        12,
+        11,
+        50
+      ],
+      "sockets_roblox_xyz_from_base": {},
+      "notes": "Long wall-side band; +X is visible bridge-facing side. Not walkable.",
+      "triangles": 1260,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "FP_Alpine_Cliff_Block",
+      "file": "FP_Alpine_Cliff_Block.fbx",
+      "dimensions_studs_xyz": [
+        14,
+        12,
+        12
+      ],
+      "sockets_roblox_xyz_from_base": {
+        "TopMount": [
+          0,
+          12,
+          0
+        ]
+      },
+      "notes": "",
+      "triangles": 572,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "FP_Alpine_Snow_Rock_Small",
+      "file": "FP_Alpine_Snow_Rock_Small.fbx",
+      "dimensions_studs_xyz": [
+        5,
+        3.5,
+        4.5
+      ],
+      "sockets_roblox_xyz_from_base": {},
+      "notes": "",
+      "triangles": 252,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "FP_Alpine_Camp_Sled",
+      "file": "FP_Alpine_Camp_Sled.fbx",
+      "dimensions_studs_xyz": [
+        5,
+        2,
+        3
+      ],
+      "sockets_roblox_xyz_from_base": {},
+      "notes": "",
+      "triangles": 484,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "FP_Alpine_Notice_Board",
+      "file": "FP_Alpine_Notice_Board.fbx",
+      "dimensions_studs_xyz": [
+        4,
+        5,
+        1
+      ],
+      "sockets_roblox_xyz_from_base": {
+        "BoardFace": [
+          0.00154,
+          3.17944,
+          -0.14041
+        ]
+      },
+      "notes": "Blank teal face; runtime text is optional.",
+      "triangles": 440,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "FP_Alpine_Terrace_Post",
+      "file": "FP_Alpine_Terrace_Post.fbx",
+      "dimensions_studs_xyz": [
+        2,
+        7.5,
+        2
+      ],
+      "sockets_roblox_xyz_from_base": {},
+      "notes": "",
+      "triangles": 484,
+      "nonmanifold_edges": 0
+    }
+  ],
+  "runtime_effects": "Light, smoke, creek ice/water and ground effects remain separate; use sockets."
+}

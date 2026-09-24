@@ -1,0 +1,174 @@
+{
+  "version": 2,
+  "units": "1 unit = 1 intended Roblox stud; confirm importer scale",
+  "blender_front": "+Y",
+  "blender_up": "+Z",
+  "roblox_front": "-Z",
+  "roblox_up": "+Y",
+  "pivot": "base-center",
+  "texture": "palette.png",
+  "bundle": "TropicalTidepoolsBundle.fbx",
+  "assets": [
+    {
+      "name": "SB_Tidepool_Grotto",
+      "file": "SB_Tidepool_Grotto.fbx",
+      "dimensions_studs_xyz": [
+        65,
+        27,
+        53
+      ],
+      "sockets_roblox_xyz_from_base": {
+        "GrottoFallLip": [
+          5.183,
+          9.8539,
+          -4.0568
+        ],
+        "GrottoFallFoot": [
+          5.183,
+          0.4807,
+          -8.2053
+        ],
+        "MouthCenter": [
+          0.1996,
+          6.7295,
+          -17.5395
+        ]
+      },
+      "triangles": 2120,
+      "nonmanifold_edges": 0,
+      "collision_file": "collision/COL_SB_Tidepool_Grotto.fbx"
+    },
+    {
+      "name": "SB_Cascade_Rocks",
+      "file": "SB_Cascade_Rocks.fbx",
+      "dimensions_studs_xyz": [
+        60,
+        42,
+        50
+      ],
+      "sockets_roblox_xyz_from_base": {
+        "UpperLip": [
+          -0.0372,
+          31.6859,
+          -3.0141
+        ],
+        "MidPool": [
+          -0.0372,
+          16.8331,
+          -9.4601
+        ],
+        "LowerLip": [
+          -0.0372,
+          16.8331,
+          -16.8977
+        ],
+        "LowerFoot": [
+          -0.0372,
+          0.5941,
+          -19.3769
+        ]
+      },
+      "triangles": 1180,
+      "nonmanifold_edges": 0,
+      "collision_file": "collision/COL_SB_Cascade_Rocks.fbx"
+    },
+    {
+      "name": "SB_Palm_Tall",
+      "file": "SB_Palm_Tall.fbx",
+      "dimensions_studs_xyz": [
+        26,
+        33,
+        26
+      ],
+      "sockets_roblox_xyz_from_base": {
+        "CrownPivot": [
+          -0.3411,
+          29.0855,
+          0.3178
+        ]
+      },
+      "triangles": 1400,
+      "nonmanifold_edges": 0,
+      "collision_file": "collision/COL_SB_Palm_Tall.fbx"
+    },
+    {
+      "name": "SB_Palm_Bent",
+      "file": "SB_Palm_Bent.fbx",
+      "dimensions_studs_xyz": [
+        26,
+        30,
+        26
+      ],
+      "sockets_roblox_xyz_from_base": {
+        "CrownPivot": [
+          0.4237,
+          26.447,
+          0.5324
+        ]
+      },
+      "triangles": 1400,
+      "nonmanifold_edges": 0,
+      "collision_file": "collision/COL_SB_Palm_Bent.fbx"
+    },
+    {
+      "name": "SB_Palm_Small",
+      "file": "SB_Palm_Small.fbx",
+      "dimensions_studs_xyz": [
+        19,
+        22,
+        19
+      ],
+      "sockets_roblox_xyz_from_base": {
+        "CrownPivot": [
+          0.1673,
+          19.3898,
+          0.3836
+        ]
+      },
+      "triangles": 1400,
+      "nonmanifold_edges": 0,
+      "collision_file": "collision/COL_SB_Palm_Small.fbx"
+    },
+    {
+      "name": "SB_Tropical_Leaf_Broad",
+      "file": "SB_Tropical_Leaf_Broad.fbx",
+      "dimensions_studs_xyz": [
+        15,
+        7,
+        15
+      ],
+      "sockets_roblox_xyz_from_base": {},
+      "triangles": 1008,
+      "nonmanifold_edges": 0,
+      "collision_file": "collision/COL_SB_Tropical_Leaf_Broad.fbx"
+    },
+    {
+      "name": "SB_Tropical_Leaf_Low",
+      "file": "SB_Tropical_Leaf_Low.fbx",
+      "dimensions_studs_xyz": [
+        11,
+        5,
+        11
+      ],
+      "sockets_roblox_xyz_from_base": {},
+      "triangles": 1008,
+      "nonmanifold_edges": 0,
+      "collision_file": "collision/COL_SB_Tropical_Leaf_Low.fbx"
+    },
+    {
+      "name": "SB_Hibiscus_Clump",
+      "file": "SB_Hibiscus_Clump.fbx",
+      "dimensions_studs_xyz": [
+        6,
+        3,
+        6
+      ],
+      "sockets_roblox_xyz_from_base": {},
+      "triangles": 4140,
+      "nonmanifold_edges": 0,
+      "collision_file": "collision/COL_SB_Hibiscus_Clump.fbx"
+    }
+  ],
+  "split_palms": "Optional trunk/crown FBXs retain the same base origin as their combined asset.",
+  "collision_warning": "Hull blocks grotto entrance. Keep cave decorative or use existing segmented proxies for an enterable cave."
+}

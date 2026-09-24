@@ -1,0 +1,178 @@
+{
+  "version": 1,
+  "region": "orbit_outpost",
+  "approved_concept": "V7 Gravity Garden",
+  "units": "1 modeling unit = 1 intended Roblox stud; normalize import to these bounds",
+  "pivot": "bottom-center",
+  "blender_up": "+Z",
+  "fbx_up": "+Y",
+  "roblox_front": "+Z",
+  "texture": "palette.png",
+  "assets": [
+    {
+      "name": "OO_Gravity_Cradle",
+      "file": "OO_Gravity_Cradle.fbx",
+      "dimensions_studs_xyz": [
+        16.0,
+        22.0,
+        16.0
+      ],
+      "triangles": 1468,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "OO_Gravity_Meteor",
+      "file": "OO_Gravity_Meteor.fbx",
+      "dimensions_studs_xyz": [
+        6.0,
+        11.0,
+        6.0
+      ],
+      "triangles": 36,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "OO_Orbit_Stone",
+      "file": "OO_Orbit_Stone.fbx",
+      "dimensions_studs_xyz": [
+        2.8,
+        2.4,
+        2.6
+      ],
+      "triangles": 116,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "OO_Lunar_Boulder",
+      "file": "OO_Lunar_Boulder.fbx",
+      "dimensions_studs_xyz": [
+        8.0,
+        4.0,
+        6.0
+      ],
+      "triangles": 240,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "OO_Crystal_Cluster",
+      "file": "OO_Crystal_Cluster.fbx",
+      "dimensions_studs_xyz": [
+        4.0,
+        5.0,
+        4.0
+      ],
+      "triangles": 188,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "OO_Alien_Mushroom_Tall",
+      "file": "OO_Alien_Mushroom_Tall.fbx",
+      "dimensions_studs_xyz": [
+        6.0,
+        7.0,
+        5.0
+      ],
+      "triangles": 1072,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "OO_Alien_Mushroom_Cluster",
+      "file": "OO_Alien_Mushroom_Cluster.fbx",
+      "dimensions_studs_xyz": [
+        4.0,
+        3.0,
+        3.0
+      ],
+      "triangles": 1608,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "OO_Alien_Fern",
+      "file": "OO_Alien_Fern.fbx",
+      "dimensions_studs_xyz": [
+        4.0,
+        3.0,
+        4.0
+      ],
+      "triangles": 244,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "OO_Star_Bloom_Tuft",
+      "file": "OO_Star_Bloom_Tuft.fbx",
+      "dimensions_studs_xyz": [
+        3.0,
+        1.2,
+        3.0
+      ],
+      "triangles": 684,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "OO_Survey_Drone",
+      "file": "OO_Survey_Drone.fbx",
+      "dimensions_studs_xyz": [
+        3.2,
+        2.8,
+        3.2
+      ],
+      "triangles": 892,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "OO_Drone_Dock",
+      "file": "OO_Drone_Dock.fbx",
+      "dimensions_studs_xyz": [
+        5.0,
+        1.5,
+        5.0
+      ],
+      "triangles": 648,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "OO_Sample_Pod",
+      "file": "OO_Sample_Pod.fbx",
+      "dimensions_studs_xyz": [
+        3.0,
+        4.0,
+        3.0
+      ],
+      "triangles": 460,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "OO_Cosmic_Beacon",
+      "file": "OO_Cosmic_Beacon.fbx",
+      "dimensions_studs_xyz": [
+        1.2,
+        3.0,
+        1.2
+      ],
+      "triangles": 168,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "OO_Field_Lab_Base",
+      "file": "OO_Field_Lab_Base.fbx",
+      "dimensions_studs_xyz": [
+        16.0,
+        5.0,
+        16.0
+      ],
+      "triangles": 2240,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "OO_Field_Lab_Dome_Frame",
+      "file": "OO_Field_Lab_Dome_Frame.fbx",
+      "dimensions_studs_xyz": [
+        16.0,
+        6.5,
+        16.0
+      ],
+      "triangles": 2324,
+      "nonmanifold_edges": 0
+    }
+  ]
+}

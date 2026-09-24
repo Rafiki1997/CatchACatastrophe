@@ -1,0 +1,89 @@
+C:\Users\rahul\orca\Catch-a-Catastrophe\tools\blender\create_tidepools_props.py:35: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  MAT=bpy.data.materials.new('Tidepools_Palette'); MAT.use_nodes=True
+C:\Users\rahul\orca\Catch-a-Catastrophe\tools\blender\create_tidepools_props.py:317: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m=bpy.data.materials.new(name);m.diffuse_color=(*rgb,1);m.use_nodes=True
+C:\Users\rahul\orca\Catch-a-Catastrophe\tools\blender\create_tidepools_props.py:331: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0
+  SC.world=bpy.data.worlds.new('Soft_Daylight');SC.world.use_nodes=True
+00:47.906  render           | Saved: 'C:\Users\rahul\orca\Catch-a-Catastrophe\assets\splashwater-bay\tidepools-v2\preview-all-assets.png'
+01:04.187  render           | Saved: 'C:\Users\rahul\orca\Catch-a-Catastrophe\assets\splashwater-bay\tidepools-v2\SB_Tidepool_Grotto-preview.png'
+01:20.672  render           | Saved: 'C:\Users\rahul\orca\Catch-a-Catastrophe\assets\splashwater-bay\tidepools-v2\SB_Cascade_Rocks-preview.png'
+01:35.703  render           | Saved: 'C:\Users\rahul\orca\Catch-a-Catastrophe\assets\splashwater-bay\tidepools-v2\SB_Palm_Tall-preview.png'
+01:50.781  render           | Saved: 'C:\Users\rahul\orca\Catch-a-Catastrophe\assets\splashwater-bay\tidepools-v2\SB_Palm_Bent-preview.png'
+02:06.297  render           | Saved: 'C:\Users\rahul\orca\Catch-a-Catastrophe\assets\splashwater-bay\tidepools-v2\SB_Palm_Small-preview.png'
+02:22.218  render           | Saved: 'C:\Users\rahul\orca\Catch-a-Catastrophe\assets\splashwater-bay\tidepools-v2\SB_Tropical_Leaf_Broad-preview.png'
+02:38.547  render           | Saved: 'C:\Users\rahul\orca\Catch-a-Catastrophe\assets\splashwater-bay\tidepools-v2\SB_Tropical_Leaf_Low-preview.png'
+02:55.531  render           | Saved: 'C:\Users\rahul\orca\Catch-a-Catastrophe\assets\splashwater-bay\tidepools-v2\SB_Hibiscus_Clump-preview.png'
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\splashwater-bay\\tidepools-v2\\SB_Tidepool_Grotto.fbx'
+export finished in 0.0058 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\splashwater-bay\\tidepools-v2\\collision\\COL_SB_Tidepool_Grotto.fbx'
+export finished in 0.0020 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\splashwater-bay\\tidepools-v2\\SB_Cascade_Rocks.fbx'
+export finished in 0.0044 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\splashwater-bay\\tidepools-v2\\collision\\COL_SB_Cascade_Rocks.fbx'
+export finished in 0.0025 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\splashwater-bay\\tidepools-v2\\SB_Palm_Tall.fbx'
+export finished in 0.0072 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\splashwater-bay\\tidepools-v2\\collision\\COL_SB_Palm_Tall.fbx'
+export finished in 0.0019 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\splashwater-bay\\tidepools-v2\\SB_Palm_Bent.fbx'
+export finished in 0.0049 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\splashwater-bay\\tidepools-v2\\collision\\COL_SB_Palm_Bent.fbx'
+export finished in 0.0023 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\splashwater-bay\\tidepools-v2\\SB_Palm_Small.fbx'
+export finished in 0.0049 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\splashwater-bay\\tidepools-v2\\collision\\COL_SB_Palm_Small.fbx'
+export finished in 0.0022 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\splashwater-bay\\tidepools-v2\\SB_Tropical_Leaf_Broad.fbx'
+export finished in 0.0042 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\splashwater-bay\\tidepools-v2\\collision\\COL_SB_Tropical_Leaf_Broad.fbx'
+export finished in 0.0020 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\splashwater-bay\\tidepools-v2\\SB_Tropical_Leaf_Low.fbx'
+export finished in 0.0039 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\splashwater-bay\\tidepools-v2\\collision\\COL_SB_Tropical_Leaf_Low.fbx'
+export finished in 0.0021 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\splashwater-bay\\tidepools-v2\\SB_Hibiscus_Clump.fbx'
+export finished in 0.0103 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\splashwater-bay\\tidepools-v2\\collision\\COL_SB_Hibiscus_Clump.fbx'
+export finished in 0.0023 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\splashwater-bay\\tidepools-v2\\split-palms\\SB_Palm_Tall__Trunk.fbx'
+export finished in 0.0033 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\splashwater-bay\\tidepools-v2\\split-palms\\SB_Palm_Tall__Crown.fbx'
+export finished in 0.0038 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\splashwater-bay\\tidepools-v2\\split-palms\\SB_Palm_Bent__Trunk.fbx'
+export finished in 0.0037 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\splashwater-bay\\tidepools-v2\\split-palms\\SB_Palm_Bent__Crown.fbx'
+export finished in 0.0044 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\splashwater-bay\\tidepools-v2\\split-palms\\SB_Palm_Small__Trunk.fbx'
+export finished in 0.0038 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\splashwater-bay\\tidepools-v2\\split-palms\\SB_Palm_Small__Crown.fbx'
+export finished in 0.0040 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\splashwater-bay\\tidepools-v2\\TropicalTidepoolsBundle.fbx'
+export finished in 0.0237 sec.
+Info: Saved as "TropicalTidepools.blend"
+TIDEPOOLS_COMPLETE C:\Users\rahul\orca\Catch-a-Catastrophe\assets\splashwater-bay\tidepools-v2 13656 triangles
+Blender 5.1.2 (hash ec6e62d40fa9 built 2026-05-19 01:37:34)
+
+Blender quit

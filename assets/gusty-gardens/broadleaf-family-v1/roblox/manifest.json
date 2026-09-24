@@ -1,0 +1,258 @@
+{
+  "version": 1,
+  "library": "GustyBroadleafTemplates",
+  "bundle": "GustyBroadleafBundle",
+  "units": "1 Blender unit = 1 intended Roblox stud; measure importer scale",
+  "pivot": "root socket at local zero; use component bounds centers, not gallery offsets",
+  "textures": {
+    "color": "gusty-broadleaf-color.png",
+    "normal": "gusty-broadleaf-normal.png",
+    "roughness": "gusty-broadleaf-roughness.png"
+  },
+  "variants": [
+    {
+      "id": "A",
+      "label": "Meadow",
+      "size": [
+        19.991819,
+        17.950495,
+        18.872385
+      ],
+      "trunk_base": [
+        0,
+        0,
+        0
+      ],
+      "bounds_min": [
+        -9.79182,
+        0.0,
+        -9.4
+      ],
+      "bounds_max": [
+        10.2,
+        17.950495,
+        9.472385
+      ],
+      "gallery_offset": [
+        -23,
+        0,
+        0
+      ],
+      "parts": [
+        "GG_Broadleaf_A_Wood",
+        "GG_Broadleaf_A_Leaves_1",
+        "GG_Broadleaf_A_Leaves_2"
+      ],
+      "leaves_preserved": 3480
+    },
+    {
+      "id": "B",
+      "label": "Spreading",
+      "size": [
+        19.740219,
+        16.799999,
+        18.751896
+      ],
+      "trunk_base": [
+        0,
+        0,
+        0
+      ],
+      "bounds_min": [
+        -9.540219,
+        0.0,
+        -9.4
+      ],
+      "bounds_max": [
+        10.2,
+        16.799999,
+        9.351897
+      ],
+      "gallery_offset": [
+        0,
+        0,
+        0
+      ],
+      "parts": [
+        "GG_Broadleaf_B_Wood",
+        "GG_Broadleaf_B_Leaves_1",
+        "GG_Broadleaf_B_Leaves_2"
+      ],
+      "leaves_preserved": 3480
+    },
+    {
+      "id": "C",
+      "label": "Upright",
+      "size": [
+        15.676058,
+        17.98,
+        14.641136
+      ],
+      "trunk_base": [
+        0,
+        0,
+        0
+      ],
+      "bounds_min": [
+        -7.7,
+        0.0,
+        -7.241136
+      ],
+      "bounds_max": [
+        7.976058,
+        17.98,
+        7.4
+      ],
+      "gallery_offset": [
+        23,
+        0,
+        0
+      ],
+      "parts": [
+        "GG_Broadleaf_C_Wood",
+        "GG_Broadleaf_C_Leaves_1",
+        "GG_Broadleaf_C_Leaves_2"
+      ],
+      "leaves_preserved": 2610
+    }
+  ],
+  "assets": [
+    {
+      "name": "GG_Broadleaf_A_Wood",
+      "file": "GG_Broadleaf_A_Wood.fbx",
+      "dimensions_studs_xyz": [
+        15.877699,
+        15.93448,
+        15.136047
+      ],
+      "center": [
+        0.212164,
+        7.96724,
+        0.062233
+      ],
+      "triangles": 10462
+    },
+    {
+      "name": "GG_Broadleaf_A_Leaves_1",
+      "file": "GG_Broadleaf_A_Leaves_1.fbx",
+      "dimensions_studs_xyz": [
+        19.991819,
+        6.623815,
+        18.872385
+      ],
+      "center": [
+        0.20409,
+        10.018696,
+        0.036193
+      ],
+      "triangles": 16000
+    },
+    {
+      "name": "GG_Broadleaf_A_Leaves_2",
+      "file": "GG_Broadleaf_A_Leaves_2.fbx",
+      "dimensions_studs_xyz": [
+        16.544992,
+        10.470484,
+        15.198644
+      ],
+      "center": [
+        -0.060361,
+        12.715253,
+        -0.109675
+      ],
+      "triangles": 11840
+    },
+    {
+      "name": "GG_Broadleaf_B_Wood",
+      "file": "GG_Broadleaf_B_Wood.fbx",
+      "dimensions_studs_xyz": [
+        16.420412,
+        15.028555,
+        14.914268
+      ],
+      "center": [
+        0.236334,
+        7.514277,
+        -0.052256
+      ],
+      "triangles": 10462
+    },
+    {
+      "name": "GG_Broadleaf_B_Leaves_1",
+      "file": "GG_Broadleaf_B_Leaves_1.fbx",
+      "dimensions_studs_xyz": [
+        19.740219,
+        6.060147,
+        18.751896
+      ],
+      "center": [
+        0.32989,
+        9.363775,
+        -0.024051
+      ],
+      "triangles": 16000
+    },
+    {
+      "name": "GG_Broadleaf_B_Leaves_2",
+      "file": "GG_Broadleaf_B_Leaves_2.fbx",
+      "dimensions_studs_xyz": [
+        15.536159,
+        9.954379,
+        14.419518
+      ],
+      "center": [
+        -0.313754,
+        11.822809,
+        -0.673041
+      ],
+      "triangles": 11840
+    },
+    {
+      "name": "GG_Broadleaf_C_Wood",
+      "file": "GG_Broadleaf_C_Wood.fbx",
+      "dimensions_studs_xyz": [
+        12.132854,
+        16.258924,
+        11.189352
+      ],
+      "center": [
+        0.214867,
+        8.129462,
+        0.124707
+      ],
+      "triangles": 8686
+    },
+    {
+      "name": "GG_Broadleaf_C_Leaves_1",
+      "file": "GG_Broadleaf_C_Leaves_1.fbx",
+      "dimensions_studs_xyz": [
+        15.676058,
+        9.698709,
+        14.641136
+      ],
+      "center": [
+        0.138029,
+        10.593061,
+        0.079432
+      ],
+      "triangles": 16000
+    },
+    {
+      "name": "GG_Broadleaf_C_Leaves_2",
+      "file": "GG_Broadleaf_C_Leaves_2.fbx",
+      "dimensions_studs_xyz": [
+        10.087275,
+        7.685385,
+        9.61239
+      ],
+      "center": [
+        1.119197,
+        14.137307,
+        -0.46887
+      ],
+      "triangles": 4880
+    }
+  ],
+  "source_triangles": 259290,
+  "total_triangles": 106170
+}

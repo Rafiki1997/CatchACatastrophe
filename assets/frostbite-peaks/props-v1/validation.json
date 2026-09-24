@@ -1,0 +1,86 @@
+{
+  "fbx_roundtrip": [
+    {
+      "name": "FP_Snow_Rock_Wide",
+      "roundtrip": "pass",
+      "triangles": 560,
+      "nonmanifold_edges": 0,
+      "texture_size": [
+        512,
+        16
+      ]
+    },
+    {
+      "name": "FP_Snow_Rock_Tall",
+      "roundtrip": "pass",
+      "triangles": 560,
+      "nonmanifold_edges": 0,
+      "texture_size": [
+        512,
+        16
+      ]
+    },
+    {
+      "name": "FP_Snow_Fir_Tree",
+      "roundtrip": "pass",
+      "triangles": 440,
+      "nonmanifold_edges": 0,
+      "texture_size": [
+        512,
+        16
+      ]
+    },
+    {
+      "name": "FP_Snow_Fir_Sapling",
+      "roundtrip": "pass",
+      "triangles": 440,
+      "nonmanifold_edges": 0,
+      "texture_size": [
+        512,
+        16
+      ]
+    },
+    {
+      "name": "FP_Snow_Drift",
+      "roundtrip": "pass",
+      "triangles": 160,
+      "nonmanifold_edges": 0,
+      "texture_size": [
+        512,
+        16
+      ]
+    },
+    {
+      "name": "FP_Icicle_Cluster",
+      "roundtrip": "pass",
+      "triangles": 252,
+      "nonmanifold_edges": 0,
+      "texture_size": [
+        512,
+        16
+      ]
+    },
+    {
+      "name": "FP_Supply_Crate",
+      "roundtrip": "pass",
+      "triangles": 356,
+      "nonmanifold_edges": 0,
+      "texture_size": [
+        512,
+        16
+      ]
+    },
+    {
+      "name": "FP_Rope_Coil",
+      "roundtrip": "pass",
+      "triangles": 1948,
+      "nonmanifold_edges": 0,
+      "texture_size": [
+        512,
+        16
+      ]
+    }
+  ],
+  "bundle_mesh_count": 8,
+  "studio_import": "not imported; awaits Claude layout and import-staging registration"
+}

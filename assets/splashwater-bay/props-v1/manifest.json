@@ -1,0 +1,98 @@
+{
+  "version": 1,
+  "units": "1 modeling unit = 1 intended Roblox stud; verify importer scale",
+  "pivot": "ground-center",
+  "blender_up": "+Z",
+  "fbx_up": "+Y",
+  "texture": "palette.png",
+  "assets": [
+    {
+      "name": "SB_Coastal_Rock_Wide",
+      "file": "SB_Coastal_Rock_Wide.fbx",
+      "dimensions_studs_xyz": [
+        4.2784,
+        1.964,
+        2.643
+      ],
+      "triangles": 160,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "SB_Coastal_Rock_Tall",
+      "file": "SB_Coastal_Rock_Tall.fbx",
+      "dimensions_studs_xyz": [
+        3.3706,
+        3.6388,
+        2.7163
+      ],
+      "triangles": 160,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "SB_Driftwood",
+      "file": "SB_Driftwood.fbx",
+      "dimensions_studs_xyz": [
+        4.5915,
+        1.6308,
+        1.7515
+      ],
+      "triangles": 104,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "SB_Shell_Cluster",
+      "file": "SB_Shell_Cluster.fbx",
+      "dimensions_studs_xyz": [
+        3.1282,
+        0.4593,
+        1.2156
+      ],
+      "triangles": 536,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "SB_Starfish",
+      "file": "SB_Starfish.fbx",
+      "dimensions_studs_xyz": [
+        2.4727,
+        0.3,
+        2.3517
+      ],
+      "triangles": 1220,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "SB_Rope_Bollard",
+      "file": "SB_Rope_Bollard.fbx",
+      "dimensions_studs_xyz": [
+        1.35,
+        2.87,
+        1.35
+      ],
+      "triangles": 976,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "SB_Harbor_Barrel",
+      "file": "SB_Harbor_Barrel.fbx",
+      "dimensions_studs_xyz": [
+        2.04,
+        2.55,
+        1.9402
+      ],
+      "triangles": 204,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "SB_Marker_Buoy",
+      "file": "SB_Marker_Buoy.fbx",
+      "dimensions_studs_xyz": [
+        2.1,
+        3.08,
+        1.9972
+      ],
+      "triangles": 436,
+      "nonmanifold_edges": 0
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "status": "passed",
+  "scope": "independent saved Blender source readback; not an FBX or runtime test",
+  "meshes": 3,
+  "triangles": 93982,
+  "reference_height": 26,
+  "bounds": {
+    "min": [
+      -9.79181957244873,
+      -9.47238540649414,
+      0.0
+    ],
+    "max": [
+      10.199999809265137,
+      9.399999618530273,
+      17.979999542236328
+    ]
+  }
+}

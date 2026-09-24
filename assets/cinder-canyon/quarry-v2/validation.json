@@ -1,0 +1,154 @@
+{
+  "status": "passed",
+  "assets": [
+    {
+      "name": "CC_Quarry_Mine",
+      "roundtrip": "pass",
+      "triangles": 3572,
+      "dimensions_studs_xyz": [
+        64,
+        42,
+        48
+      ],
+      "closed_geometry": true,
+      "palette_and_texture": "pass"
+    },
+    {
+      "name": "CC_Quarry_Terrace",
+      "roundtrip": "pass",
+      "triangles": 1876,
+      "dimensions_studs_xyz": [
+        72,
+        36,
+        56
+      ],
+      "closed_geometry": true,
+      "palette_and_texture": "pass"
+    },
+    {
+      "name": "CC_Quarry_Hoist",
+      "roundtrip": "pass",
+      "triangles": 2404,
+      "dimensions_studs_xyz": [
+        20,
+        22,
+        16
+      ],
+      "closed_geometry": true,
+      "palette_and_texture": "pass"
+    },
+    {
+      "name": "CC_Quarry_Cart",
+      "roundtrip": "pass",
+      "triangles": 996,
+      "dimensions_studs_xyz": [
+        11,
+        8,
+        14
+      ],
+      "closed_geometry": true,
+      "palette_and_texture": "pass"
+    },
+    {
+      "name": "CC_Quarry_Rail",
+      "roundtrip": "pass",
+      "triangles": 792,
+      "dimensions_studs_xyz": [
+        12,
+        1,
+        26
+      ],
+      "closed_geometry": true,
+      "palette_and_texture": "pass"
+    },
+    {
+      "name": "CC_Quarry_Mesa_Large",
+      "roundtrip": "pass",
+      "triangles": 592,
+      "dimensions_studs_xyz": [
+        27,
+        22,
+        21
+      ],
+      "closed_geometry": true,
+      "palette_and_texture": "pass"
+    },
+    {
+      "name": "CC_Quarry_Mesa_Low",
+      "roundtrip": "pass",
+      "triangles": 444,
+      "dimensions_studs_xyz": [
+        22,
+        11,
+        17
+      ],
+      "closed_geometry": true,
+      "palette_and_texture": "pass"
+    },
+    {
+      "name": "CC_Quarry_Cactus_Tall",
+      "roundtrip": "pass",
+      "triangles": 1180,
+      "dimensions_studs_xyz": [
+        9,
+        17,
+        7
+      ],
+      "closed_geometry": true,
+      "palette_and_texture": "pass"
+    },
+    {
+      "name": "CC_Quarry_Cactus_Round",
+      "roundtrip": "pass",
+      "triangles": 948,
+      "dimensions_studs_xyz": [
+        7,
+        6,
+        7
+      ],
+      "closed_geometry": true,
+      "palette_and_texture": "pass"
+    },
+    {
+      "name": "CC_Quarry_Agave",
+      "roundtrip": "pass",
+      "triangles": 960,
+      "dimensions_studs_xyz": [
+        11,
+        7,
+        11
+      ],
+      "closed_geometry": true,
+      "palette_and_texture": "pass"
+    },
+    {
+      "name": "CC_Quarry_Flowers",
+      "roundtrip": "pass",
+      "triangles": 1240,
+      "dimensions_studs_xyz": [
+        6,
+        4,
+        6
+      ],
+      "closed_geometry": true,
+      "palette_and_texture": "pass"
+    },
+    {
+      "name": "CC_Quarry_Crate",
+      "roundtrip": "pass",
+      "triangles": 1364,
+      "dimensions_studs_xyz": [
+        6,
+        6,
+        6
+      ],
+      "closed_geometry": true,
+      "palette_and_texture": "pass"
+    }
+  ],
+  "bundle_mesh_count": 12,
+  "total_unique_triangles": 16368,
+  "forward_axis": "verified -Z Roblox",
+  "studio_import": "pending; no uploaded IDs",
+  "visual_review": "agent inspection of actual Blender renders"
+}

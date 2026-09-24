@@ -1,0 +1,127 @@
+{
+  "version": 1,
+  "units": "1 mesh unit = 1 intended Roblox stud; confirm import scale",
+  "pivot": "ground-center",
+  "blender_up": "+Z",
+  "fbx_up": "+Y",
+  "texture": "cinder-palette.png",
+  "assets": [
+    {
+      "name": "CC_Basalt_Tall",
+      "file": "CC_Basalt_Tall.fbx",
+      "dimensions_studs_xyz": [
+        4.312,
+        5.8,
+        3.136
+      ],
+      "triangles": 336,
+      "nonmanifold_edges": 0,
+      "collision": "decorative; disable collision, use layout collision underneath",
+      "glow": null
+    },
+    {
+      "name": "CC_Basalt_Wide",
+      "file": "CC_Basalt_Wide.fbx",
+      "dimensions_studs_xyz": [
+        5.682,
+        4.0,
+        3.186
+      ],
+      "triangles": 392,
+      "nonmanifold_edges": 0,
+      "collision": "decorative; disable collision, use layout collision underneath",
+      "glow": null
+    },
+    {
+      "name": "CC_Basalt_Low",
+      "file": "CC_Basalt_Low.fbx",
+      "dimensions_studs_xyz": [
+        3.816,
+        2.2,
+        2.866
+      ],
+      "triangles": 224,
+      "nonmanifold_edges": 0,
+      "collision": "decorative; disable collision, use layout collision underneath",
+      "glow": null
+    },
+    {
+      "name": "CC_Ember_Tall",
+      "file": "CC_Ember_Tall.fbx",
+      "dimensions_studs_xyz": [
+        2.65,
+        4.38,
+        1.805
+      ],
+      "triangles": 264,
+      "nonmanifold_edges": 0,
+      "collision": "decorative; disable collision, use layout collision underneath",
+      "glow": "optional Roblox light/effect at placement"
+    },
+    {
+      "name": "CC_Ember_Fan",
+      "file": "CC_Ember_Fan.fbx",
+      "dimensions_studs_xyz": [
+        2.802,
+        3.38,
+        1.671
+      ],
+      "triangles": 302,
+      "nonmanifold_edges": 0,
+      "collision": "decorative; disable collision, use layout collision underneath",
+      "glow": "optional Roblox light/effect at placement"
+    },
+    {
+      "name": "CC_Ember_Small",
+      "file": "CC_Ember_Small.fbx",
+      "dimensions_studs_xyz": [
+        2.23,
+        1.88,
+        1.195
+      ],
+      "triangles": 226,
+      "nonmanifold_edges": 0,
+      "collision": "decorative; disable collision, use layout collision underneath",
+      "glow": "optional Roblox light/effect at placement"
+    },
+    {
+      "name": "CC_Sandstone_Wide",
+      "file": "CC_Sandstone_Wide.fbx",
+      "dimensions_studs_xyz": [
+        5.179,
+        2.1,
+        3.434
+      ],
+      "triangles": 280,
+      "nonmanifold_edges": 0,
+      "collision": "decorative; disable collision, use layout collision underneath",
+      "glow": null
+    },
+    {
+      "name": "CC_Sandstone_Tall",
+      "file": "CC_Sandstone_Tall.fbx",
+      "dimensions_studs_xyz": [
+        3.006,
+        3.5,
+        2.529
+      ],
+      "triangles": 280,
+      "nonmanifold_edges": 0,
+      "collision": "decorative; disable collision, use layout collision underneath",
+      "glow": null
+    },
+    {
+      "name": "CC_Sandstone_Rubble",
+      "file": "CC_Sandstone_Rubble.fbx",
+      "dimensions_studs_xyz": [
+        4.344,
+        1.25,
+        2.83
+      ],
+      "triangles": 560,
+      "nonmanifold_edges": 0,
+      "collision": "decorative; disable collision, use layout collision underneath",
+      "glow": null
+    }
+  ]
+}

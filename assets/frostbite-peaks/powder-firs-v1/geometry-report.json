@@ -1,0 +1,105 @@
+{
+  "status": "Native Blender art-review meshes, not approved or integrated",
+  "materials": "Procedural Blender materials. Texture baking and game optimization pending visual approval.",
+  "variants": [
+    {
+      "variant": "A",
+      "name": "Original",
+      "height": 26.0,
+      "dimensions_roblox_whd": [
+        15.128889305282797,
+        26.0,
+        15.462845407223616
+      ],
+      "branches": 42,
+      "modeled_needles": 6135,
+      "components": [
+        {
+          "component": "PowderFir_A_Original_Bark",
+          "triangles": 3360,
+          "nonmanifold_edges": 0,
+          "degenerate_faces": 0
+        },
+        {
+          "component": "PowderFir_A_Original_NeedleSprays",
+          "triangles": 192450,
+          "nonmanifold_edges": 0,
+          "degenerate_faces": 0
+        },
+        {
+          "component": "PowderFir_A_Original_Snow",
+          "triangles": 131422,
+          "nonmanifold_edges": 0,
+          "degenerate_faces": 0
+        }
+      ],
+      "triangles": 327232
+    },
+    {
+      "variant": "B",
+      "name": "Broad",
+      "height": 23.5,
+      "dimensions_roblox_whd": [
+        17.50309313942779,
+        23.5,
+        16.498259642221214
+      ],
+      "branches": 36,
+      "modeled_needles": 5123,
+      "components": [
+        {
+          "component": "PowderFir_B_Broad_Bark",
+          "triangles": 3192,
+          "nonmanifold_edges": 0,
+          "degenerate_faces": 0
+        },
+        {
+          "component": "PowderFir_B_Broad_NeedleSprays",
+          "triangles": 160914,
+          "nonmanifold_edges": 0,
+          "degenerate_faces": 0
+        },
+        {
+          "component": "PowderFir_B_Broad_Snow",
+          "triangles": 138350,
+          "nonmanifold_edges": 0,
+          "degenerate_faces": 0
+        }
+      ],
+      "triangles": 302456
+    },
+    {
+      "variant": "C",
+      "name": "Upright",
+      "height": 28.3,
+      "dimensions_roblox_whd": [
+        14.260531904772858,
+        28.3,
+        14.681001396796884
+      ],
+      "branches": 47,
+      "modeled_needles": 6921,
+      "components": [
+        {
+          "component": "PowderFir_C_Upright_Bark",
+          "triangles": 3500,
+          "nonmanifold_edges": 0,
+          "degenerate_faces": 0
+        },
+        {
+          "component": "PowderFir_C_Upright_NeedleSprays",
+          "triangles": 217038,
+          "nonmanifold_edges": 0,
+          "degenerate_faces": 0
+        },
+        {
+          "component": "PowderFir_C_Upright_Snow",
+          "triangles": 128624,
+          "nonmanifold_edges": 0,
+          "degenerate_faces": 0
+        }
+      ],
+      "triangles": 349162
+    }
+  ]
+}

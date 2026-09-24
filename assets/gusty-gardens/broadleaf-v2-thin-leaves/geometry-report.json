@@ -1,0 +1,10 @@
+{
+  "status": "Unapproved narrower-leaf source review; not exported or integrated",
+  "derived_from": "assets\\gusty-gardens\\broadleaf-v2\\GustyBroadleaf.blend",
+  "leaf_cross_section_factor": 0.75,
+  "leaf_count": 3480,
+  "leaf_triangles": 83520,
+  "unchanged": "Trunk, bark, branches, leaf centerlines, lengths, positions, colors, count and scene scale",
+  "nonmanifold_edges": 0,
+  "degenerate_faces": 0
+}

@@ -1,0 +1,181 @@
+{
+  "meshes": [
+    {
+      "colorMap": "rbxassetid://126139702563607",
+      "normalMap": "rbxassetid://122058189102791",
+      "roughnessMap": "rbxassetid://126512658140271",
+      "meshId": "rbxassetid://106741650019424",
+      "textureId": "",
+      "name": "GG_Broadleaf_A_Wood",
+      "renderFidelity": "Automatic",
+      "nativeMeshSize": [
+        1587.769775390625,
+        1593.447998046875,
+        1513.604736328125
+      ],
+      "size": [
+        15.87769889831543,
+        15.934479713439941,
+        15.13604736328125
+      ]
+    },
+    {
+      "colorMap": "rbxassetid://126139702563607",
+      "normalMap": "rbxassetid://122058189102791",
+      "roughnessMap": "rbxassetid://126512658140271",
+      "meshId": "rbxassetid://105745773372283",
+      "textureId": "",
+      "name": "GG_Broadleaf_A_Leaves_1",
+      "renderFidelity": "Automatic",
+      "nativeMeshSize": [
+        1999.181884765625,
+        662.3814086914062,
+        1887.238525390625
+      ],
+      "size": [
+        19.991819381713867,
+        6.623815059661865,
+        18.872385025024414
+      ]
+    },
+    {
+      "colorMap": "rbxassetid://126139702563607",
+      "normalMap": "rbxassetid://122058189102791",
+      "roughnessMap": "rbxassetid://126512658140271",
+      "meshId": "rbxassetid://116989344826250",
+      "textureId": "",
+      "name": "GG_Broadleaf_A_Leaves_2",
+      "renderFidelity": "Automatic",
+      "nativeMeshSize": [
+        1654.4991455078125,
+        1047.0484619140625,
+        1519.8642578125
+      ],
+      "size": [
+        16.544992446899414,
+        10.470483779907227,
+        15.198643684387207
+      ]
+    },
+    {
+      "colorMap": "rbxassetid://126139702563607",
+      "normalMap": "rbxassetid://122058189102791",
+      "roughnessMap": "rbxassetid://126512658140271",
+      "meshId": "rbxassetid://129347930882086",
+      "textureId": "",
+      "name": "GG_Broadleaf_B_Wood",
+      "renderFidelity": "Automatic",
+      "nativeMeshSize": [
+        1642.041259765625,
+        1502.85546875,
+        1491.4268798828125
+      ],
+      "size": [
+        16.420412063598633,
+        15.028554916381836,
+        14.914267539978027
+      ]
+    },
+    {
+      "colorMap": "rbxassetid://126139702563607",
+      "normalMap": "rbxassetid://122058189102791",
+      "roughnessMap": "rbxassetid://126512658140271",
+      "meshId": "rbxassetid://105965396784781",
+      "textureId": "",
+      "name": "GG_Broadleaf_B_Leaves_1",
+      "renderFidelity": "Automatic",
+      "nativeMeshSize": [
+        1974.02197265625,
+        606.0145874023438,
+        1875.189697265625
+      ],
+      "size": [
+        19.740219116210938,
+        6.060146808624268,
+        18.751895904541016
+      ]
+    },
+    {
+      "colorMap": "rbxassetid://126139702563607",
+      "normalMap": "rbxassetid://122058189102791",
+      "roughnessMap": "rbxassetid://126512658140271",
+      "meshId": "rbxassetid://78377088889737",
+      "textureId": "",
+      "name": "GG_Broadleaf_B_Leaves_2",
+      "renderFidelity": "Automatic",
+      "nativeMeshSize": [
+        1553.6158447265625,
+        995.43798828125,
+        1441.95166015625
+      ],
+      "size": [
+        15.536158561706543,
+        9.954379081726074,
+        14.41951847076416
+      ]
+    },
+    {
+      "colorMap": "rbxassetid://126139702563607",
+      "normalMap": "rbxassetid://122058189102791",
+      "roughnessMap": "rbxassetid://126512658140271",
+      "meshId": "rbxassetid://99673193980606",
+      "textureId": "",
+      "name": "GG_Broadleaf_C_Wood",
+      "renderFidelity": "Automatic",
+      "nativeMeshSize": [
+        1213.285400390625,
+        1625.8924560546875,
+        1118.935302734375
+      ],
+      "size": [
+        12.132854461669922,
+        16.25892448425293,
+        11.189352035522461
+      ]
+    },
+    {
+      "colorMap": "rbxassetid://126139702563607",
+      "normalMap": "rbxassetid://122058189102791",
+      "roughnessMap": "rbxassetid://126512658140271",
+      "meshId": "rbxassetid://121682971497336",
+      "textureId": "",
+      "name": "GG_Broadleaf_C_Leaves_1",
+      "renderFidelity": "Automatic",
+      "nativeMeshSize": [
+        1567.605712890625,
+        969.8709716796875,
+        1464.113525390625
+      ],
+      "size": [
+        15.676057815551758,
+        9.698708534240723,
+        14.641136169433594
+      ]
+    },
+    {
+      "colorMap": "rbxassetid://126139702563607",
+      "normalMap": "rbxassetid://122058189102791",
+      "roughnessMap": "rbxassetid://126512658140271",
+      "meshId": "rbxassetid://123946606335324",
+      "textureId": "",
+      "name": "GG_Broadleaf_C_Leaves_2",
+      "renderFidelity": "Automatic",
+      "nativeMeshSize": [
+        1008.7275390625,
+        768.53857421875,
+        961.2388916015625
+      ],
+      "size": [
+        10.087274551391602,
+        7.685385227203369,
+        9.61238956451416
+      ]
+    }
+  ],
+  "library": "GustyBroadleafTemplates",
+  "nativeMeshYawDegrees": 180,
+  "date": "2026-09-23",
+  "importScale": 100,
+  "orientationEvidence": "native-orientation-validation.json: 180+ actual native vertex samples per component",
+  "bundle": "GustyBroadleafBundle"
+}

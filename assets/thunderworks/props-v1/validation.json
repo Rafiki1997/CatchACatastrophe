@@ -1,0 +1,95 @@
+{
+  "fbx_roundtrip": [
+    {
+      "name": "TW_Transformer",
+      "roundtrip": "pass",
+      "dimensions_studs_xyz": [
+        5.800000190734863,
+        6.199999809265137,
+        4.599999904632568
+      ],
+      "triangles": 1716,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "TW_Ceramic_Insulator",
+      "roundtrip": "pass",
+      "dimensions_studs_xyz": [
+        1.7999999523162842,
+        3.0,
+        1.7999999523162842
+      ],
+      "triangles": 544,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "TW_Cable_Reel",
+      "roundtrip": "pass",
+      "dimensions_studs_xyz": [
+        4.0,
+        4.400000095367432,
+        3.0
+      ],
+      "triangles": 4420,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "TW_Capacitor_Bank",
+      "roundtrip": "pass",
+      "dimensions_studs_xyz": [
+        3.4000000953674316,
+        4.800000190734863,
+        3.4000000953674316
+      ],
+      "triangles": 2008,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "TW_Switch_Cabinet",
+      "roundtrip": "pass",
+      "dimensions_studs_xyz": [
+        3.200000047683716,
+        4.599999904632568,
+        1.7999999523162842
+      ],
+      "triangles": 688,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "TW_Vent_Housing",
+      "roundtrip": "pass",
+      "dimensions_studs_xyz": [
+        4.0,
+        2.4000000953674316,
+        3.4000000953674316
+      ],
+      "triangles": 440,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "TW_Conduit_Elbow",
+      "roundtrip": "pass",
+      "dimensions_studs_xyz": [
+        3.0,
+        2.5,
+        2.200000047683716
+      ],
+      "triangles": 448,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "TW_Storm_Bollard",
+      "roundtrip": "pass",
+      "dimensions_studs_xyz": [
+        1.2000000476837158,
+        3.0,
+        1.2000000476837158
+      ],
+      "triangles": 284,
+      "nonmanifold_edges": 0
+    }
+  ],
+  "bundle_mesh_count": 8,
+  "total_triangles": 10548,
+  "studio_import": "Not imported; awaits Claude base layout and native-template integration."
+}

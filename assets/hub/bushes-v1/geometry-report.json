@@ -1,0 +1,154 @@
+{
+  "status": "Mockup source for user review; not approved, optimized, exported or integrated",
+  "unit": "1 Blender unit = 1 intended Roblox stud; Roblox (x,y,z) = Blender (x,z,-y)",
+  "pivot": "Root socket at local zero, on the ground at the group centre",
+  "assets": [
+    {
+      "code": "HB_GardenBush",
+      "label": "Garden Bush",
+      "leaves": 1356,
+      "sites": "hub garden quadrant, 7",
+      "bounds_blender": {
+        "min": [
+          -3.623734474182129,
+          -3.240936279296875,
+          -0.4673153758049011
+        ],
+        "max": [
+          4.213959693908691,
+          2.8817436695098877,
+          4.233349800109863
+        ]
+      },
+      "dimensions_roblox_whd": [
+        7.83769416809082,
+        4.700665175914764,
+        6.122679948806763
+      ],
+      "site_envelope_whd": [
+        8.0,
+        4.4,
+        5.6
+      ],
+      "triangles": 33708,
+      "components": [
+        {
+          "name": "HB_GardenBush_Stems",
+          "triangles": 660,
+          "nonmanifold_edges": 0,
+          "degenerate_faces": 0
+        },
+        {
+          "name": "HB_GardenBush_Core",
+          "triangles": 504,
+          "nonmanifold_edges": 0,
+          "degenerate_faces": 0
+        },
+        {
+          "name": "HB_GardenBush_Leaves",
+          "triangles": 32544,
+          "nonmanifold_edges": 0,
+          "degenerate_faces": 0
+        }
+      ]
+    },
+    {
+      "code": "HB_PlanterShrub",
+      "label": "Planter Shrub",
+      "leaves": 828,
+      "sites": "Atlas pavilion planters, 2",
+      "bounds_blender": {
+        "min": [
+          -1.957444429397583,
+          -1.8891417980194092,
+          -0.2163478136062622
+        ],
+        "max": [
+          1.7189310789108276,
+          1.812321424484253,
+          3.0103230476379395
+        ]
+      },
+      "dimensions_roblox_whd": [
+        3.6763755083084106,
+        3.2266708612442017,
+        3.701463222503662
+      ],
+      "site_envelope_whd": [
+        3.6,
+        2.7,
+        3.6
+      ],
+      "triangles": 20904,
+      "components": [
+        {
+          "name": "HB_PlanterShrub_Stems",
+          "triangles": 528,
+          "nonmanifold_edges": 0,
+          "degenerate_faces": 0
+        },
+        {
+          "name": "HB_PlanterShrub_Core",
+          "triangles": 504,
+          "nonmanifold_edges": 0,
+          "degenerate_faces": 0
+        },
+        {
+          "name": "HB_PlanterShrub_Leaves",
+          "triangles": 19872,
+          "nonmanifold_edges": 0,
+          "degenerate_faces": 0
+        }
+      ]
+    },
+    {
+      "code": "HB_BorderBush",
+      "label": "Border Bush",
+      "leaves": 470,
+      "sites": "plot fence lines, 66",
+      "bounds_blender": {
+        "min": [
+          -1.4501909017562866,
+          -1.0451395511627197,
+          -0.2098967581987381
+        ],
+        "max": [
+          1.496762752532959,
+          1.018202543258667,
+          1.4055609703063965
+        ]
+      },
+      "dimensions_roblox_whd": [
+        2.9469536542892456,
+        1.6154577285051346,
+        2.0633420944213867
+      ],
+      "site_envelope_whd": [
+        2.6,
+        1.3,
+        2.0
+      ],
+      "triangles": 12180,
+      "components": [
+        {
+          "name": "HB_BorderBush_Stems",
+          "triangles": 396,
+          "nonmanifold_edges": 0,
+          "degenerate_faces": 0
+        },
+        {
+          "name": "HB_BorderBush_Core",
+          "triangles": 504,
+          "nonmanifold_edges": 0,
+          "degenerate_faces": 0
+        },
+        {
+          "name": "HB_BorderBush_Leaves",
+          "triangles": 11280,
+          "nonmanifold_edges": 0,
+          "degenerate_faces": 0
+        }
+      ]
+    }
+  ]
+}

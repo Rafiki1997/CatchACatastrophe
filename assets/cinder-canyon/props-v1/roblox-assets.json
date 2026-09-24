@@ -1,0 +1,15 @@
+{
+  "creatorUserId": 1445842194,
+  "textureId": "139328779215640",
+  "meshes": {
+    "CC_Basalt_Tall": "79364139730307",
+    "CC_Basalt_Wide": "138590890405443",
+    "CC_Basalt_Low": "107121865805102",
+    "CC_Ember_Tall": "109460841884391",
+    "CC_Ember_Fan": "118105941704834",
+    "CC_Ember_Small": "140493751648928",
+    "CC_Sandstone_Wide": "105993545233737",
+    "CC_Sandstone_Tall": "83539777629182",
+    "CC_Sandstone_Rubble": "75166876079178"
+  }
+}

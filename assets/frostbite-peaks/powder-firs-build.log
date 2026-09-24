@@ -1,0 +1,23 @@
+C:\Users\rahul\orca\Catch-a-Catastrophe\tools\blender\create_powder_firs.py:20: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m=bpy.data.materials.new(name);m.use_nodes=True;nt=m.node_tree
+BUILD_COMPONENTS A buried needles removed 378
+SNOW_WELDED A 172938
+TREE_BUILT A 327232
+BUILD_COMPONENTS B buried needles removed 466
+SNOW_WELDED B 182050
+TREE_BUILT B 302456
+BUILD_COMPONENTS C buried needles removed 362
+SNOW_WELDED C 169262
+TREE_BUILT C 349162
+C:\Users\rahul\orca\Catch-a-Catastrophe\tools\blender\create_powder_firs.py:248: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0
+  SC.world=bpy.data.worlds.new('Winter daylight');SC.world.use_nodes=True
+01:26.891  render           | Saved: 'C:\Users\rahul\orca\Catch-a-Catastrophe\assets\frostbite-peaks\powder-firs-v1\powder-firs-lineup.png'
+02:07.750  render           | Saved: 'C:\Users\rahul\orca\Catch-a-Catastrophe\assets\frostbite-peaks\powder-firs-v1\powder-fir-a-original.png'
+02:49.828  render           | Saved: 'C:\Users\rahul\orca\Catch-a-Catastrophe\assets\frostbite-peaks\powder-firs-v1\powder-fir-branch-detail.png'
+03:30.672  render           | Saved: 'C:\Users\rahul\orca\Catch-a-Catastrophe\assets\frostbite-peaks\powder-firs-v1\powder-fir-b-broad.png'
+04:08.438  render           | Saved: 'C:\Users\rahul\orca\Catch-a-Catastrophe\assets\frostbite-peaks\powder-firs-v1\powder-fir-c-upright.png'
+Info: Saved as "PowderFirs.blend"
+POWDER_FIRS_COMPLETE 978850
+Blender 5.1.2 (hash ec6e62d40fa9 built 2026-05-19 01:37:34)
+
+Blender quit

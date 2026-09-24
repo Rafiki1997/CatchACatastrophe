@@ -1,0 +1,130 @@
+{
+  "captured": "2026-09-22",
+  "template": "src/server/Map/SplashwaterTidepoolTemplates.rbxm",
+  "bytes": 98286,
+  "meshes": [
+    {
+      "name": "SB_Tidepool_Grotto",
+      "nativeMeshSize": [
+        2048,
+        850.707763671875,
+        1669.90771484375
+      ],
+      "meshId": "rbxassetid://134347667000738",
+      "size": [
+        65,
+        27,
+        53
+      ],
+      "textureId": "rbxassetid://137226743858382"
+    },
+    {
+      "name": "SB_Cascade_Rocks",
+      "nativeMeshSize": [
+        1890.46142578125,
+        1323.3231201171875,
+        1575.384521484375
+      ],
+      "meshId": "rbxassetid://86912777913352",
+      "size": [
+        60,
+        42,
+        50
+      ],
+      "textureId": "rbxassetid://137226743858382"
+    },
+    {
+      "name": "SB_Palm_Tall",
+      "nativeMeshSize": [
+        819.2000122070312,
+        1039.7537841796875,
+        819.2000122070312
+      ],
+      "meshId": "rbxassetid://131128963214447",
+      "size": [
+        26,
+        33,
+        26
+      ],
+      "textureId": "rbxassetid://137226743858382"
+    },
+    {
+      "name": "SB_Palm_Bent",
+      "nativeMeshSize": [
+        819.2000122070312,
+        945.2307739257812,
+        819.1998901367188
+      ],
+      "meshId": "rbxassetid://103093613046801",
+      "size": [
+        26,
+        30,
+        26
+      ],
+      "textureId": "rbxassetid://137226743858382"
+    },
+    {
+      "name": "SB_Palm_Small",
+      "nativeMeshSize": [
+        598.6461181640625,
+        693.169189453125,
+        598.6461181640625
+      ],
+      "meshId": "rbxassetid://94276945788769",
+      "size": [
+        19,
+        22,
+        19
+      ],
+      "textureId": "rbxassetid://137226743858382"
+    },
+    {
+      "name": "SB_Tropical_Leaf_Broad",
+      "nativeMeshSize": [
+        472.6153869628906,
+        220.55386352539062,
+        472.6153869628906
+      ],
+      "meshId": "rbxassetid://98559447716049",
+      "size": [
+        15,
+        7,
+        15
+      ],
+      "textureId": "rbxassetid://137226743858382"
+    },
+    {
+      "name": "SB_Tropical_Leaf_Low",
+      "nativeMeshSize": [
+        346.5845947265625,
+        157.53846740722656,
+        346.5845947265625
+      ],
+      "meshId": "rbxassetid://100416901583662",
+      "size": [
+        11,
+        5,
+        11
+      ],
+      "textureId": "rbxassetid://137226743858382"
+    },
+    {
+      "name": "SB_Hibiscus_Clump",
+      "nativeMeshSize": [
+        189.04615783691406,
+        94.52308654785156,
+        189.04615783691406
+      ],
+      "meshId": "rbxassetid://140126205440949",
+      "size": [
+        6,
+        3,
+        6
+      ],
+      "textureId": "rbxassetid://137226743858382"
+    }
+  ],
+  "length": 131048,
+  "placeId": 88888194204730,
+  "importScale": 31.5076904296875
+}

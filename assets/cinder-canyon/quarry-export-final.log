@@ -1,0 +1,50 @@
+C:\Users\rahul\orca\Catch-a-Catastrophe\tools\blender\create_quarry_props.py:26: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  MAT=bpy.data.materials.new('Quarry_Palette');MAT.use_nodes=True
+C:\Users\rahul\orca\Catch-a-Catastrophe\tools\blender\create_quarry_props.py:328: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m=bpy.data.materials.new(name);m.use_nodes=True;m.node_tree.nodes['Principled BSDF'].inputs['Base Color'].default_value=(*c,1)
+C:\Users\rahul\orca\Catch-a-Catastrophe\tools\blender\create_quarry_props.py:343: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0
+  SC.world=bpy.data.worlds.new('Soft_daylight');SC.world.use_nodes=True
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\cinder-canyon\\quarry-v2\\CC_Quarry_Mine.fbx'
+export finished in 0.0087 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\cinder-canyon\\quarry-v2\\CC_Quarry_Terrace.fbx'
+export finished in 0.0060 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\cinder-canyon\\quarry-v2\\CC_Quarry_Hoist.fbx'
+export finished in 0.0062 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\cinder-canyon\\quarry-v2\\CC_Quarry_Cart.fbx'
+export finished in 0.0047 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\cinder-canyon\\quarry-v2\\CC_Quarry_Rail.fbx'
+export finished in 0.0056 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\cinder-canyon\\quarry-v2\\CC_Quarry_Mesa_Large.fbx'
+export finished in 0.0042 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\cinder-canyon\\quarry-v2\\CC_Quarry_Mesa_Low.fbx'
+export finished in 0.0038 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\cinder-canyon\\quarry-v2\\CC_Quarry_Cactus_Tall.fbx'
+export finished in 0.0060 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\cinder-canyon\\quarry-v2\\CC_Quarry_Cactus_Round.fbx'
+export finished in 0.0048 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\cinder-canyon\\quarry-v2\\CC_Quarry_Agave.fbx'
+export finished in 0.0044 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\cinder-canyon\\quarry-v2\\CC_Quarry_Flowers.fbx'
+export finished in 0.0048 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\cinder-canyon\\quarry-v2\\CC_Quarry_Crate.fbx'
+export finished in 0.0050 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\cinder-canyon\\quarry-v2\\CinderQuarryBundle.fbx'
+export finished in 0.0386 sec.
+Info: Saved as "CinderQuarry.blend"
+QUARRY_COMPLETE C:\Users\rahul\orca\Catch-a-Catastrophe\assets\cinder-canyon\quarry-v2 16368 triangles
+Blender 5.1.2 (hash ec6e62d40fa9 built 2026-05-19 01:37:34)
+
+Blender quit

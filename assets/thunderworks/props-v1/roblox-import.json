@@ -1,0 +1,130 @@
+{
+  "captured": "2026-09-21",
+  "placeId": 88888194204730,
+  "template": "src/server/Map/ThunderPropTemplates.rbxm",
+  "placements": 33,
+  "bytes": 53202,
+  "length": 70936,
+  "meshes": [
+    {
+      "name": "TW_Switch_Cabinet",
+      "nativeMeshSize": [
+        320,
+        460,
+        180
+      ],
+      "meshId": "rbxassetid://92184967459081",
+      "size": [
+        3.200000047683716,
+        4.599999904632568,
+        1.7999999523162842
+      ],
+      "textureId": "rbxassetid://119095382742673"
+    },
+    {
+      "name": "TW_Cable_Reel",
+      "nativeMeshSize": [
+        400,
+        440.0000305175781,
+        300.0000305175781
+      ],
+      "meshId": "rbxassetid://139452410726555",
+      "size": [
+        4,
+        4.400000095367432,
+        3
+      ],
+      "textureId": "rbxassetid://119095382742673"
+    },
+    {
+      "name": "TW_Ceramic_Insulator",
+      "nativeMeshSize": [
+        180,
+        300,
+        180.00006103515625
+      ],
+      "meshId": "rbxassetid://112318533825155",
+      "size": [
+        1.7999999523162842,
+        3,
+        1.7999999523162842
+      ],
+      "textureId": "rbxassetid://119095382742673"
+    },
+    {
+      "name": "TW_Conduit_Elbow",
+      "nativeMeshSize": [
+        300,
+        250.00001525878906,
+        220
+      ],
+      "meshId": "rbxassetid://102712454981903",
+      "size": [
+        3,
+        2.5,
+        2.200000047683716
+      ],
+      "textureId": "rbxassetid://119095382742673"
+    },
+    {
+      "name": "TW_Transformer",
+      "nativeMeshSize": [
+        580,
+        620,
+        460
+      ],
+      "meshId": "rbxassetid://137594135429414",
+      "size": [
+        5.800000190734863,
+        6.199999809265137,
+        4.599999904632568
+      ],
+      "textureId": "rbxassetid://119095382742673"
+    },
+    {
+      "name": "TW_Storm_Bollard",
+      "nativeMeshSize": [
+        120,
+        300,
+        120
+      ],
+      "meshId": "rbxassetid://97964269817962",
+      "size": [
+        1.2000000476837158,
+        3,
+        1.2000000476837158
+      ],
+      "textureId": "rbxassetid://119095382742673"
+    },
+    {
+      "name": "TW_Capacitor_Bank",
+      "nativeMeshSize": [
+        340,
+        480.00006103515625,
+        340
+      ],
+      "meshId": "rbxassetid://110960839066793",
+      "size": [
+        3.4000000953674316,
+        4.800000190734863,
+        3.4000000953674316
+      ],
+      "textureId": "rbxassetid://119095382742673"
+    },
+    {
+      "name": "TW_Vent_Housing",
+      "nativeMeshSize": [
+        400,
+        240.00006103515625,
+        340
+      ],
+      "meshId": "rbxassetid://92500389270678",
+      "size": [
+        4,
+        2.4000000953674316,
+        3.4000000953674316
+      ],
+      "textureId": "rbxassetid://119095382742673"
+    }
+  ]
+}

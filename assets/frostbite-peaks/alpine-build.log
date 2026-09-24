@@ -1,0 +1,104 @@
+C:\Users\rahul\orca\Catch-a-Catastrophe\tools\blender\create_alpine_props.py:72: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  MAT=bpy.data.materials.new('Alpine_Textured');MAT.use_nodes=True
+Warning: No mesh data to join
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\frostbite-peaks\\alpine-v2\\FP_Alpine_Lodge.fbx'
+export finished in 0.0554 sec.
+EXPORTED FP_Alpine_Lodge 21860
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\frostbite-peaks\\alpine-v2\\FP_Alpine_Bridge.fbx'
+export finished in 0.0466 sec.
+EXPORTED FP_Alpine_Bridge 19948
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\frostbite-peaks\\alpine-v2\\FP_Alpine_Cliff_Tall.fbx'
+export finished in 0.0176 sec.
+EXPORTED FP_Alpine_Cliff_Tall 1008
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\frostbite-peaks\\alpine-v2\\FP_Alpine_Cliff_Wide.fbx'
+export finished in 0.0144 sec.
+EXPORTED FP_Alpine_Cliff_Wide 756
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\frostbite-peaks\\alpine-v2\\FP_Alpine_Cliff_Shelf.fbx'
+export finished in 0.0137 sec.
+EXPORTED FP_Alpine_Cliff_Shelf 504
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\frostbite-peaks\\alpine-v2\\FP_Alpine_Fir_Tall.fbx'
+export finished in 0.0286 sec.
+EXPORTED FP_Alpine_Fir_Tall 8668
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\frostbite-peaks\\alpine-v2\\FP_Alpine_Fir_Medium.fbx'
+export finished in 0.0260 sec.
+EXPORTED FP_Alpine_Fir_Medium 7372
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\frostbite-peaks\\alpine-v2\\FP_Alpine_Fir_Sapling.fbx'
+export finished in 0.0244 sec.
+EXPORTED FP_Alpine_Fir_Sapling 6076
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\frostbite-peaks\\alpine-v2\\FP_Alpine_Tent.fbx'
+export finished in 0.0119 sec.
+EXPORTED FP_Alpine_Tent 324
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\frostbite-peaks\\alpine-v2\\FP_Alpine_Woodpile.fbx'
+export finished in 0.0210 sec.
+EXPORTED FP_Alpine_Woodpile 4604
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\frostbite-peaks\\alpine-v2\\FP_Alpine_Frosted_Shrub.fbx'
+export finished in 0.0159 sec.
+EXPORTED FP_Alpine_Frosted_Shrub 1122
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\frostbite-peaks\\alpine-v2\\FP_Alpine_Grass.fbx'
+export finished in 0.0131 sec.
+EXPORTED FP_Alpine_Grass 716
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\frostbite-peaks\\alpine-v2\\FP_Alpine_Crate.fbx'
+export finished in 0.0179 sec.
+EXPORTED FP_Alpine_Crate 2452
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\frostbite-peaks\\alpine-v2\\FP_Alpine_Barrel.fbx'
+export finished in 0.0147 sec.
+EXPORTED FP_Alpine_Barrel 1388
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\frostbite-peaks\\alpine-v2\\FP_Alpine_Railing.fbx'
+export finished in 0.0146 sec.
+EXPORTED FP_Alpine_Railing 1068
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\frostbite-peaks\\alpine-v2\\FP_Alpine_Lantern_Post.fbx'
+export finished in 0.0127 sec.
+EXPORTED FP_Alpine_Lantern_Post 1460
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\frostbite-peaks\\alpine-v2\\FP_Alpine_Trail_Post.fbx'
+export finished in 0.0124 sec.
+EXPORTED FP_Alpine_Trail_Post 392
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\frostbite-peaks\\alpine-v2\\FP_Alpine_Signpost.fbx'
+export finished in 0.0114 sec.
+EXPORTED FP_Alpine_Signpost 316
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\frostbite-peaks\\alpine-v2\\FP_Alpine_Pennant.fbx'
+export finished in 0.0132 sec.
+EXPORTED FP_Alpine_Pennant 228
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\frostbite-peaks\\alpine-v2\\FP_Alpine_Snow_Rock.fbx'
+export finished in 0.0127 sec.
+EXPORTED FP_Alpine_Snow_Rock 252
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\frostbite-peaks\\alpine-v2\\FP_Alpine_Snow_Drift.fbx'
+export finished in 0.0118 sec.
+EXPORTED FP_Alpine_Snow_Drift 176
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\frostbite-peaks\\alpine-v2\\FP_Alpine_Icicles.fbx'
+export finished in 0.0127 sec.
+EXPORTED FP_Alpine_Icicles 344
+C:\Users\rahul\orca\Catch-a-Catastrophe\tools\blender\create_alpine_props.py:513: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m=bpy.data.materials.new(name);m.use_nodes=True;m.node_tree.nodes['Principled BSDF'].inputs['Base Color'].default_value=(*c,1)
+C:\Users\rahul\orca\Catch-a-Catastrophe\tools\blender\create_alpine_props.py:527: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0
+  SC.world=bpy.data.worlds.new('Alpine_Daylight');SC.world.use_nodes=True
+01:14.890  render           | Saved: 'C:\Users\rahul\orca\Catch-a-Catastrophe\assets\frostbite-peaks\alpine-v2\preview-all-assets.png'
+01:38.390  render           | Saved: 'C:\Users\rahul\orca\Catch-a-Catastrophe\assets\frostbite-peaks\alpine-v2\FP_Alpine_Lodge-preview.png'
+01:56.421  render           | Saved: 'C:\Users\rahul\orca\Catch-a-Catastrophe\assets\frostbite-peaks\alpine-v2\FP_Alpine_Bridge-preview.png'
+02:16.000  render           | Saved: 'C:\Users\rahul\orca\Catch-a-Catastrophe\assets\frostbite-peaks\alpine-v2\FP_Alpine_Cliff_Tall-preview.png'
+02:34.421  render           | Saved: 'C:\Users\rahul\orca\Catch-a-Catastrophe\assets\frostbite-peaks\alpine-v2\FP_Alpine_Cliff_Wide-preview.png'
+02:52.062  render           | Saved: 'C:\Users\rahul\orca\Catch-a-Catastrophe\assets\frostbite-peaks\alpine-v2\FP_Alpine_Cliff_Shelf-preview.png'
+03:09.593  render           | Saved: 'C:\Users\rahul\orca\Catch-a-Catastrophe\assets\frostbite-peaks\alpine-v2\FP_Alpine_Fir_Tall-preview.png'
+03:27.109  render           | Saved: 'C:\Users\rahul\orca\Catch-a-Catastrophe\assets\frostbite-peaks\alpine-v2\FP_Alpine_Fir_Medium-preview.png'
+03:44.468  render           | Saved: 'C:\Users\rahul\orca\Catch-a-Catastrophe\assets\frostbite-peaks\alpine-v2\FP_Alpine_Fir_Sapling-preview.png'

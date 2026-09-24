@@ -1,0 +1,155 @@
+{
+  "status": "passed",
+  "individual_assets": [
+    {
+      "name": "SB_Tidepool_Grotto",
+      "fbx_roundtrip": "pass",
+      "dimensions_studs_xyz": [
+        65,
+        27,
+        53
+      ],
+      "triangles": 2120,
+      "nonmanifold_edges": 0,
+      "palette_uv": "pass",
+      "embedded_texture": "pass"
+    },
+    {
+      "name": "SB_Cascade_Rocks",
+      "fbx_roundtrip": "pass",
+      "dimensions_studs_xyz": [
+        60,
+        42,
+        50
+      ],
+      "triangles": 1180,
+      "nonmanifold_edges": 0,
+      "palette_uv": "pass",
+      "embedded_texture": "pass"
+    },
+    {
+      "name": "SB_Palm_Tall",
+      "fbx_roundtrip": "pass",
+      "dimensions_studs_xyz": [
+        26,
+        33,
+        26
+      ],
+      "triangles": 1400,
+      "nonmanifold_edges": 0,
+      "palette_uv": "pass",
+      "embedded_texture": "pass"
+    },
+    {
+      "name": "SB_Palm_Bent",
+      "fbx_roundtrip": "pass",
+      "dimensions_studs_xyz": [
+        26,
+        30,
+        26
+      ],
+      "triangles": 1400,
+      "nonmanifold_edges": 0,
+      "palette_uv": "pass",
+      "embedded_texture": "pass"
+    },
+    {
+      "name": "SB_Palm_Small",
+      "fbx_roundtrip": "pass",
+      "dimensions_studs_xyz": [
+        19,
+        22,
+        19
+      ],
+      "triangles": 1400,
+      "nonmanifold_edges": 0,
+      "palette_uv": "pass",
+      "embedded_texture": "pass"
+    },
+    {
+      "name": "SB_Tropical_Leaf_Broad",
+      "fbx_roundtrip": "pass",
+      "dimensions_studs_xyz": [
+        15,
+        7,
+        15
+      ],
+      "triangles": 1008,
+      "nonmanifold_edges": 0,
+      "palette_uv": "pass",
+      "embedded_texture": "pass"
+    },
+    {
+      "name": "SB_Tropical_Leaf_Low",
+      "fbx_roundtrip": "pass",
+      "dimensions_studs_xyz": [
+        11,
+        5,
+        11
+      ],
+      "triangles": 1008,
+      "nonmanifold_edges": 0,
+      "palette_uv": "pass",
+      "embedded_texture": "pass"
+    },
+    {
+      "name": "SB_Hibiscus_Clump",
+      "fbx_roundtrip": "pass",
+      "dimensions_studs_xyz": [
+        6,
+        3,
+        6
+      ],
+      "triangles": 4140,
+      "nonmanifold_edges": 0,
+      "palette_uv": "pass",
+      "embedded_texture": "pass"
+    }
+  ],
+  "bundle_mesh_count": 8,
+  "collision_hulls": [
+    {
+      "name": "COL_SB_Tidepool_Grotto",
+      "triangles": 12,
+      "convex": "pass"
+    },
+    {
+      "name": "COL_SB_Cascade_Rocks",
+      "triangles": 12,
+      "convex": "pass"
+    },
+    {
+      "name": "COL_SB_Palm_Tall",
+      "triangles": 12,
+      "convex": "pass"
+    },
+    {
+      "name": "COL_SB_Palm_Bent",
+      "triangles": 12,
+      "convex": "pass"
+    },
+    {
+      "name": "COL_SB_Palm_Small",
+      "triangles": 12,
+      "convex": "pass"
+    },
+    {
+      "name": "COL_SB_Tropical_Leaf_Broad",
+      "triangles": 12,
+      "convex": "pass"
+    },
+    {
+      "name": "COL_SB_Tropical_Leaf_Low",
+      "triangles": 12,
+      "convex": "pass"
+    },
+    {
+      "name": "COL_SB_Hibiscus_Clump",
+      "triangles": 12,
+      "convex": "pass"
+    }
+  ],
+  "split_palms": "all three reconstruct combined dimensions",
+  "studio_import": "pending; no Roblox IDs generated",
+  "render_review": "separate human/agent visual inspection"
+}

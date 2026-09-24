@@ -1,0 +1,141 @@
+{
+  "status": "passed",
+  "method": "Nearest exported vertex for 180+ actual uploaded-mesh vertex samples per component, at the measured native import scale",
+  "components": [
+    {
+      "name": "GG_Broadleaf_A_Wood",
+      "correction_yaw_degrees": 180,
+      "errors_studs": {
+        "0": {
+          "max": 1.5729469060897827,
+          "mean": 0.6618834707721327
+        },
+        "180": {
+          "max": 2.793163048409042e-06,
+          "mean": 1.4363137824492198e-06
+        }
+      },
+      "samples": 181
+    },
+    {
+      "name": "GG_Broadleaf_A_Leaves_1",
+      "correction_yaw_degrees": 180,
+      "errors_studs": {
+        "0": {
+          "max": 1.7691783905029297,
+          "mean": 0.42931324609900046
+        },
+        "180": {
+          "max": 3.339988097650348e-06,
+          "mean": 1.9972933242716154e-06
+        }
+      },
+      "samples": 181
+    },
+    {
+      "name": "GG_Broadleaf_A_Leaves_2",
+      "correction_yaw_degrees": 180,
+      "errors_studs": {
+        "0": {
+          "max": 3.012195587158203,
+          "mean": 0.4073992947641328
+        },
+        "180": {
+          "max": 3.303691983091994e-06,
+          "mean": 1.5671131338801503e-06
+        }
+      },
+      "samples": 181
+    },
+    {
+      "name": "GG_Broadleaf_B_Wood",
+      "correction_yaw_degrees": 180,
+      "errors_studs": {
+        "0": {
+          "max": 1.6110244989395142,
+          "mean": 0.5589127681501533
+        },
+        "180": {
+          "max": 1.922192041092785e-06,
+          "mean": 9.838099957108952e-07
+        }
+      },
+      "samples": 184
+    },
+    {
+      "name": "GG_Broadleaf_B_Leaves_1",
+      "correction_yaw_degrees": 180,
+      "errors_studs": {
+        "0": {
+          "max": 1.5369311571121216,
+          "mean": 0.38760023405621064
+        },
+        "180": {
+          "max": 2.5191336590069113e-06,
+          "mean": 1.2141573092047924e-06
+        }
+      },
+      "samples": 181
+    },
+    {
+      "name": "GG_Broadleaf_B_Leaves_2",
+      "correction_yaw_degrees": 180,
+      "errors_studs": {
+        "0": {
+          "max": 2.71109938621521,
+          "mean": 0.3706894872075581
+        },
+        "180": {
+          "max": 2.081900674966164e-06,
+          "mean": 7.838385614717142e-07
+        }
+      },
+      "samples": 182
+    },
+    {
+      "name": "GG_Broadleaf_C_Wood",
+      "correction_yaw_degrees": 180,
+      "errors_studs": {
+        "0": {
+          "max": 2.1414942741394043,
+          "mean": 0.7954768767211955
+        },
+        "180": {
+          "max": 3.0181381589500234e-06,
+          "mean": 1.531945454320731e-06
+        }
+      },
+      "samples": 182
+    },
+    {
+      "name": "GG_Broadleaf_C_Leaves_1",
+      "correction_yaw_degrees": 180,
+      "errors_studs": {
+        "0": {
+          "max": 1.1636862754821777,
+          "mean": 0.37255135672527123
+        },
+        "180": {
+          "max": 3.1977488106349483e-06,
+          "mean": 1.969977273355005e-06
+        }
+      },
+      "samples": 181
+    },
+    {
+      "name": "GG_Broadleaf_C_Leaves_2",
+      "correction_yaw_degrees": 180,
+      "errors_studs": {
+        "0": {
+          "max": 2.7467234134674072,
+          "mean": 0.43444640663169
+        },
+        "180": {
+          "max": 1.6900834225452854e-06,
+          "mean": 8.664205237321114e-07
+        }
+      },
+      "samples": 184
+    }
+  ]
+}

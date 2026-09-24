@@ -1,0 +1,12 @@
+C:\Users\rahul\orca\Catch-a-Catastrophe\tools\blender\create_fir_refinement.py:25: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m = bpy.data.materials.new(name); m.use_nodes = True
+C:\Users\rahul\orca\Catch-a-Catastrophe\tools\blender\create_fir_refinement.py:165: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0
+  SC.world=bpy.data.worlds.new('Cool alpine fill');SC.world.use_nodes=True
+00:33.359  render           | Saved: 'C:\Users\rahul\orca\Catch-a-Catastrophe\assets\frostbite-peaks\fir-refinement\v1\fir-v1-hero.png'
+01:03.875  render           | Saved: 'C:\Users\rahul\orca\Catch-a-Catastrophe\assets\frostbite-peaks\fir-refinement\v1\fir-v1-alternate.png'
+01:32.109  render           | Saved: 'C:\Users\rahul\orca\Catch-a-Catastrophe\assets\frostbite-peaks\fir-refinement\v1\fir-v1-branches.png'
+Info: Saved as "FrostbiteFir-v1.blend"
+FIR_STUDY_COMPLETE 13908
+Blender 5.1.2 (hash ec6e62d40fa9 built 2026-05-19 01:37:34)
+
+Blender quit

@@ -1,0 +1,60 @@
+{
+  "date": "2026-09-23",
+  "status": "Native library captured and replacements verified in Studio",
+  "native_library": "src/server/Map/GustyBroadleafTemplates.rbxm",
+  "native_library_bytes": 235263,
+  "import_scale": 100,
+  "native_yaw_degrees": 180,
+  "orientation_evidence": "native-orientation-validation.json",
+  "source_sync": "GustyBroadleafProps read back from Studio: 6514 bytes, djb2 hash2848341664; all9 native templates/maps/sizes verified after Rojo sync",
+  "fixture_checks": 4141,
+  "fbx_components_passed": 9,
+  "runtime": {
+    "trees": 35,
+    "mesh_parts": 105,
+    "variants": {
+      "A": 12,
+      "B": 12,
+      "C": 11
+    },
+    "original_crowns": 0,
+    "hidden_solid_nonqueryable_trunk_proxies": 35,
+    "centers_scale_orientation_flags": "all passed",
+    "meshpart_preload_success": 105,
+    "meshpart_preload_failure": 0
+  },
+  "content_probe_limitation": "Preloading twelve raw URI strings first returned Failure for all; preloading the actual105 MeshPart instances returned105 Success, and native meshes/materials were visible in both reviewed screenshots. SurfaceAppearance-only preload returned no callbacks. No mesh/map load errors appeared in Studio log; do not describe the raw-URI probe as passed.",
+  "self_test": {
+    "passed": 1005,
+    "failed": 16,
+    "failure_state": "Same recorded existing failures"
+  },
+  "live_test": {
+    "passed": 63,
+    "failed": 2
+  },
+  "screenshots": [
+    "studio-broadleaf-close.jpg",
+    "studio-broadleaf-overview.jpg"
+  ],
+  "desktop_frame_sample": {
+    "frames": 180,
+    "median_ms": 16.6299,
+    "p95_ms": 17.5009,
+    "max_ms": 18.335,
+    "camera_drift_studs": 0,
+    "viewport": [
+      1623,
+      967
+    ],
+    "saved_quality": "Automatic",
+    "gpu": "NVIDIA GeForce RTX3080Ti",
+    "cpu": "Intel Core i7-13700K",
+    "limitation": "Short local Studio sample; no before/after benchmark or mobile/device performance acceptance"
+  },
+  "studio_final": "Edit",
+  "raw_gallery": "ServerStorage.RegionImportStaging.GustyBroadleafBundle; nine anchored parts",
+  "http_enabled_restored": false,
+  "committed": false,
+  "published": false
+}

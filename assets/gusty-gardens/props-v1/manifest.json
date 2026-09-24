@@ -1,0 +1,98 @@
+{
+  "version": 1,
+  "units": "1 modeling unit = 1 intended Roblox stud; verify importer scale",
+  "pivot": "ground-center",
+  "blender_up": "+Z",
+  "fbx_up": "+Y",
+  "texture": "palette.png",
+  "assets": [
+    {
+      "name": "GG_Moss_Rock_Wide",
+      "file": "GG_Moss_Rock_Wide.fbx",
+      "dimensions_studs_xyz": [
+        4.2784,
+        2.5028,
+        2.643
+      ],
+      "triangles": 264,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "GG_Moss_Rock_Tall",
+      "file": "GG_Moss_Rock_Tall.fbx",
+      "dimensions_studs_xyz": [
+        3.3887,
+        4.3654,
+        2.7163
+      ],
+      "triangles": 264,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "GG_Daisy_Cluster",
+      "file": "GG_Daisy_Cluster.fbx",
+      "dimensions_studs_xyz": [
+        3.2098,
+        2.8775,
+        2.222
+      ],
+      "triangles": 2028,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "GG_Bluebell_Cluster",
+      "file": "GG_Bluebell_Cluster.fbx",
+      "dimensions_studs_xyz": [
+        2.6,
+        3.105,
+        1.14
+      ],
+      "triangles": 504,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "GG_Fern",
+      "file": "GG_Fern.fbx",
+      "dimensions_studs_xyz": [
+        3.7429,
+        1.3623,
+        3.6489
+      ],
+      "triangles": 672,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "GG_Meadow_Shrub",
+      "file": "GG_Meadow_Shrub.fbx",
+      "dimensions_studs_xyz": [
+        3.7716,
+        2.6246,
+        2.4957
+      ],
+      "triangles": 240,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "GG_Windbent_Tree",
+      "file": "GG_Windbent_Tree.fbx",
+      "dimensions_studs_xyz": [
+        8.1796,
+        10.0756,
+        4.78
+      ],
+      "triangles": 484,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "GG_Flower_Planter",
+      "file": "GG_Flower_Planter.fbx",
+      "dimensions_studs_xyz": [
+        2.4855,
+        3.3763,
+        2.47
+      ],
+      "triangles": 2756,
+      "nonmanifold_edges": 0
+    }
+  ]
+}

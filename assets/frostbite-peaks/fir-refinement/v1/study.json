@@ -1,0 +1,17 @@
+{
+  "status": "Art review only; not approved or integrated",
+  "dimensions_blender_xyz": [
+    9.15837287902832,
+    9.350008964538574,
+    26.134918212890625
+  ],
+  "dimensions_roblox_whd": [
+    9.15837287902832,
+    26.134918808937073,
+    9.350008964538574
+  ],
+  "triangles": 13908,
+  "editable_meshes": 88,
+  "materials": "Native Blender procedural materials; bake and Roblox export after visual approval",
+  "notes": "Slender tiered fir. Existing Alpine assets and game source are unchanged."
+}

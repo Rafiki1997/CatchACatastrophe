@@ -1,0 +1,57 @@
+C:\Users\rahul\orca\Catch-a-Catastrophe\tools\blender\create_orbit_props.py:342: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0
+  scene.world.use_nodes=True
+00:35.406  render           | Saved: 'C:\Users\rahul\orca\Catch-a-Catastrophe\assets\orbit-outpost\props-v1\preview.png'
+Warning: No mesh data to join
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\orbit-outpost\\props-v1\\OO_Gravity_Cradle.fbx'
+export finished in 0.0056 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\orbit-outpost\\props-v1\\OO_Gravity_Meteor.fbx'
+export finished in 0.0033 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\orbit-outpost\\props-v1\\OO_Orbit_Stone.fbx'
+export finished in 0.0040 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\orbit-outpost\\props-v1\\OO_Lunar_Boulder.fbx'
+export finished in 0.0036 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\orbit-outpost\\props-v1\\OO_Crystal_Cluster.fbx'
+export finished in 0.0030 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\orbit-outpost\\props-v1\\OO_Alien_Mushroom_Tall.fbx'
+export finished in 0.0042 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\orbit-outpost\\props-v1\\OO_Alien_Mushroom_Cluster.fbx'
+export finished in 0.0046 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\orbit-outpost\\props-v1\\OO_Alien_Fern.fbx'
+export finished in 0.0029 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\orbit-outpost\\props-v1\\OO_Star_Bloom_Tuft.fbx'
+export finished in 0.0032 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\orbit-outpost\\props-v1\\OO_Survey_Drone.fbx'
+export finished in 0.0035 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\orbit-outpost\\props-v1\\OO_Drone_Dock.fbx'
+export finished in 0.0034 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\orbit-outpost\\props-v1\\OO_Sample_Pod.fbx'
+export finished in 0.0029 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\orbit-outpost\\props-v1\\OO_Cosmic_Beacon.fbx'
+export finished in 0.0026 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\orbit-outpost\\props-v1\\OO_Field_Lab_Base.fbx'
+export finished in 0.0052 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\orbit-outpost\\props-v1\\OO_Field_Lab_Dome_Frame.fbx'
+export finished in 0.0052 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\orbit-outpost\\props-v1\\OrbitPropsBundle.fbx'
+export finished in 0.0253 sec.
+Info: Saved as "props.blend"
+ORBIT_KIT_COMPLETE C:\Users\rahul\orca\Catch-a-Catastrophe\assets\orbit-outpost\props-v1 12388 triangles
+Blender 5.1.2 (hash ec6e62d40fa9 built 2026-05-19 01:37:34)
+
+Blender quit

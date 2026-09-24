@@ -1,0 +1,259 @@
+{
+  "placeId": 88888194204730,
+  "importScale": 72.54442596435547,
+  "capturedAt": "2026-09-22",
+  "meshes": [
+    {
+      "colorMap": "rbxassetid://91982160391666",
+      "normalMap": "rbxassetid://121184349344838",
+      "name": "FP_Powder_A_Bark",
+      "roughnessMap": "rbxassetid://75997892527751",
+      "nativeMeshSize": [
+        730.7686157226562,
+        1839.587158203125,
+        772.5122680664062
+      ],
+      "meshId": "rbxassetid://71585876096707",
+      "size": [
+        10.073394775390625,
+        25.358081817626953,
+        10.648818969726562
+      ],
+      "textureId": ""
+    },
+    {
+      "colorMap": "rbxassetid://91982160391666",
+      "normalMap": "rbxassetid://121184349344838",
+      "name": "FP_Powder_A_Snow",
+      "roughnessMap": "rbxassetid://75997892527751",
+      "nativeMeshSize": [
+        821.927001953125,
+        1882.909912109375,
+        909.66796875
+      ],
+      "meshId": "rbxassetid://134591066933370",
+      "size": [
+        11.329984664916992,
+        25.955270767211914,
+        12.539462089538574
+      ],
+      "textureId": ""
+    },
+    {
+      "colorMap": "rbxassetid://91982160391666",
+      "normalMap": "rbxassetid://121184349344838",
+      "name": "FP_Powder_A_Needles_1",
+      "roughnessMap": "rbxassetid://75997892527751",
+      "nativeMeshSize": [
+        1097.516357421875,
+        1571.889404296875,
+        1121.742919921875
+      ],
+      "meshId": "rbxassetid://130696080981635",
+      "size": [
+        15.128889083862305,
+        21.667959213256836,
+        15.462844848632812
+      ],
+      "textureId": ""
+    },
+    {
+      "colorMap": "rbxassetid://91982160391666",
+      "normalMap": "rbxassetid://121184349344838",
+      "name": "FP_Powder_A_Needles_2",
+      "roughnessMap": "rbxassetid://75997892527751",
+      "nativeMeshSize": [
+        694.5836181640625,
+        756.8704833984375,
+        674.4864501953125
+      ],
+      "meshId": "rbxassetid://88488846604626",
+      "size": [
+        9.574596405029297,
+        10.433202743530273,
+        9.297565460205078
+      ],
+      "textureId": ""
+    },
+    {
+      "colorMap": "rbxassetid://91982160391666",
+      "normalMap": "rbxassetid://121184349344838",
+      "name": "FP_Powder_A_Needles_3",
+      "roughnessMap": "rbxassetid://75997892527751",
+      "nativeMeshSize": [
+        173.42764282226562,
+        169.21160888671875,
+        154.61825561523438
+      ],
+      "meshId": "rbxassetid://82408415791017",
+      "size": [
+        2.3906400203704834,
+        2.3325231075286865,
+        2.1313600540161133
+      ],
+      "textureId": ""
+    },
+    {
+      "colorMap": "rbxassetid://91982160391666",
+      "normalMap": "rbxassetid://121184349344838",
+      "name": "FP_Powder_B_Bark",
+      "roughnessMap": "rbxassetid://75997892527751",
+      "nativeMeshSize": [
+        866.1539306640625,
+        1659.1646728515625,
+        835.445068359375
+      ],
+      "meshId": "rbxassetid://137296240490975",
+      "size": [
+        11.93963623046875,
+        22.87101936340332,
+        11.516326904296875
+      ],
+      "textureId": ""
+    },
+    {
+      "colorMap": "rbxassetid://91982160391666",
+      "normalMap": "rbxassetid://121184349344838",
+      "name": "FP_Powder_B_Snow",
+      "roughnessMap": "rbxassetid://75997892527751",
+      "nativeMeshSize": [
+        981.8792724609375,
+        1699.732421875,
+        936.2709350585938
+      ],
+      "meshId": "rbxassetid://75421153970778",
+      "size": [
+        13.534870147705078,
+        23.430233001708984,
+        12.90617561340332
+      ],
+      "textureId": ""
+    },
+    {
+      "colorMap": "rbxassetid://91982160391666",
+      "normalMap": "rbxassetid://121184349344838",
+      "name": "FP_Powder_B_Needles_1",
+      "roughnessMap": "rbxassetid://75997892527751",
+      "nativeMeshSize": [
+        1269.7515869140625,
+        1410.563232421875,
+        1196.856689453125
+      ],
+      "meshId": "rbxassetid://112272203575677",
+      "size": [
+        17.503093719482422,
+        19.444133758544922,
+        16.498260498046875
+      ],
+      "textureId": ""
+    },
+    {
+      "colorMap": "rbxassetid://91982160391666",
+      "normalMap": "rbxassetid://121184349344838",
+      "name": "FP_Powder_B_Needles_2",
+      "roughnessMap": "rbxassetid://75997892527751",
+      "nativeMeshSize": [
+        685.16943359375,
+        610.7249755859375,
+        645.3231811523438
+      ],
+      "meshId": "rbxassetid://108467052659878",
+      "size": [
+        9.44482707977295,
+        8.418634414672852,
+        8.895561218261719
+      ],
+      "textureId": ""
+    },
+    {
+      "colorMap": "rbxassetid://91982160391666",
+      "normalMap": "rbxassetid://121184349344838",
+      "name": "FP_Powder_C_Bark",
+      "roughnessMap": "rbxassetid://75997892527751",
+      "nativeMeshSize": [
+        714.757568359375,
+        1999.8695068359375,
+        702.8950805664062
+      ],
+      "meshId": "rbxassetid://119355963747104",
+      "size": [
+        9.852689743041992,
+        27.56751823425293,
+        9.689168930053711
+      ],
+      "textureId": ""
+    },
+    {
+      "colorMap": "rbxassetid://91982160391666",
+      "normalMap": "rbxassetid://121184349344838",
+      "name": "FP_Powder_C_Snow",
+      "roughnessMap": "rbxassetid://75997892527751",
+      "nativeMeshSize": [
+        832.6602172851562,
+        2048,
+        843.561279296875
+      ],
+      "meshId": "rbxassetid://128093422615497",
+      "size": [
+        11.477936744689941,
+        28.230981826782227,
+        11.628204345703125
+      ],
+      "textureId": ""
+    },
+    {
+      "colorMap": "rbxassetid://91982160391666",
+      "normalMap": "rbxassetid://121184349344838",
+      "name": "FP_Powder_C_Needles_1",
+      "roughnessMap": "rbxassetid://75997892527751",
+      "nativeMeshSize": [
+        1034.52197265625,
+        1736.9295654296875,
+        1065.024658203125
+      ],
+      "meshId": "rbxassetid://71157667628076",
+      "size": [
+        14.260531425476074,
+        23.94297981262207,
+        14.681001663208008
+      ],
+      "textureId": ""
+    },
+    {
+      "colorMap": "rbxassetid://91982160391666",
+      "normalMap": "rbxassetid://121184349344838",
+      "name": "FP_Powder_C_Needles_2",
+      "roughnessMap": "rbxassetid://75997892527751",
+      "nativeMeshSize": [
+        724.0341796875,
+        748.7855224609375,
+        718.505615234375
+      ],
+      "meshId": "rbxassetid://112781708647501",
+      "size": [
+        9.980562210083008,
+        10.321754455566406,
+        9.9043550491333
+      ],
+      "textureId": ""
+    },
+    {
+      "colorMap": "rbxassetid://91982160391666",
+      "normalMap": "rbxassetid://121184349344838",
+      "name": "FP_Powder_C_Needles_3",
+      "roughnessMap": "rbxassetid://75997892527751",
+      "nativeMeshSize": [
+        297.88055419921875,
+        346.19696044921875,
+        302.7684020996094
+      ],
+      "meshId": "rbxassetid://130941645929269",
+      "size": [
+        4.106183052062988,
+        4.772204875946045,
+        4.173558235168457
+      ],
+      "textureId": ""
+    }
+  ]
+}

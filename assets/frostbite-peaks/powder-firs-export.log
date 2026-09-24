@@ -1,0 +1,56 @@
+00:01.203  blend            | Read blend: "C:\Users\rahul\orca\Catch-a-Catastrophe\assets\frostbite-peaks\powder-firs-v1\PowderFirs.blend"
+C:\Users\rahul\orca\Catch-a-Catastrophe\tools\blender\export_powder_firs.py:36: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  mat=bpy.data.materials.new('PowderFirs_Portable');mat.use_nodes=True
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\frostbite-peaks\\powder-firs-v1\\roblox\\FP_Powder_A_Bark.fbx'
+export finished in 0.0159 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\frostbite-peaks\\powder-firs-v1\\roblox\\FP_Powder_A_Snow.fbx'
+export finished in 0.0191 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\frostbite-peaks\\powder-firs-v1\\roblox\\FP_Powder_A_Needles_1.fbx'
+export finished in 0.0295 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\frostbite-peaks\\powder-firs-v1\\roblox\\FP_Powder_A_Needles_2.fbx'
+export finished in 0.0274 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\frostbite-peaks\\powder-firs-v1\\roblox\\FP_Powder_A_Needles_3.fbx'
+export finished in 0.0122 sec.
+POWDER_EXPORT A 6135 47370
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\frostbite-peaks\\powder-firs-v1\\roblox\\FP_Powder_B_Bark.fbx'
+export finished in 0.0140 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\frostbite-peaks\\powder-firs-v1\\roblox\\FP_Powder_B_Snow.fbx'
+export finished in 0.0199 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\frostbite-peaks\\powder-firs-v1\\roblox\\FP_Powder_B_Needles_1.fbx'
+export finished in 0.0284 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\frostbite-peaks\\powder-firs-v1\\roblox\\FP_Powder_B_Needles_2.fbx'
+export finished in 0.0236 sec.
+POWDER_EXPORT B 5123 41128
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\frostbite-peaks\\powder-firs-v1\\roblox\\FP_Powder_C_Bark.fbx'
+export finished in 0.0145 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\frostbite-peaks\\powder-firs-v1\\roblox\\FP_Powder_C_Snow.fbx'
+export finished in 0.0188 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\frostbite-peaks\\powder-firs-v1\\roblox\\FP_Powder_C_Needles_1.fbx'
+export finished in 0.0283 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\frostbite-peaks\\powder-firs-v1\\roblox\\FP_Powder_C_Needles_2.fbx'
+export finished in 0.0277 sec.
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\frostbite-peaks\\powder-firs-v1\\roblox\\FP_Powder_C_Needles_3.fbx'
+export finished in 0.0177 sec.
+POWDER_EXPORT C 6921 52222
+
+FBX export starting... 'C:\\Users\\rahul\\orca\\Catch-a-Catastrophe\\assets\\frostbite-peaks\\powder-firs-v1\\roblox\\PowderFirsBundle.fbx'
+export finished in 0.1143 sec.
+Info: Saved as "PowderFirsRoblox.blend"
+POWDER_EXPORT_COMPLETE 14 140720
+Blender 5.1.2 (hash ec6e62d40fa9 built 2026-05-19 01:37:34)
+
+Blender quit

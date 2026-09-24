@@ -1,0 +1,86 @@
+{
+  "fbx_roundtrip": [
+    {
+      "name": "SB_Coastal_Rock_Wide",
+      "roundtrip": "pass",
+      "triangles": 160,
+      "nonmanifold_edges": 0,
+      "texture_size": [
+        512,
+        16
+      ]
+    },
+    {
+      "name": "SB_Coastal_Rock_Tall",
+      "roundtrip": "pass",
+      "triangles": 160,
+      "nonmanifold_edges": 0,
+      "texture_size": [
+        512,
+        16
+      ]
+    },
+    {
+      "name": "SB_Driftwood",
+      "roundtrip": "pass",
+      "triangles": 104,
+      "nonmanifold_edges": 0,
+      "texture_size": [
+        512,
+        16
+      ]
+    },
+    {
+      "name": "SB_Shell_Cluster",
+      "roundtrip": "pass",
+      "triangles": 536,
+      "nonmanifold_edges": 0,
+      "texture_size": [
+        512,
+        16
+      ]
+    },
+    {
+      "name": "SB_Starfish",
+      "roundtrip": "pass",
+      "triangles": 1220,
+      "nonmanifold_edges": 0,
+      "texture_size": [
+        512,
+        16
+      ]
+    },
+    {
+      "name": "SB_Rope_Bollard",
+      "roundtrip": "pass",
+      "triangles": 976,
+      "nonmanifold_edges": 0,
+      "texture_size": [
+        512,
+        16
+      ]
+    },
+    {
+      "name": "SB_Harbor_Barrel",
+      "roundtrip": "pass",
+      "triangles": 204,
+      "nonmanifold_edges": 0,
+      "texture_size": [
+        512,
+        16
+      ]
+    },
+    {
+      "name": "SB_Marker_Buoy",
+      "roundtrip": "pass",
+      "triangles": 436,
+      "nonmanifold_edges": 0,
+      "texture_size": [
+        512,
+        16
+      ]
+    }
+  ],
+  "bundle_mesh_count": 8,
+  "studio_import": "not yet imported"
+}

@@ -1,0 +1,98 @@
+{
+  "version": 1,
+  "units": "1 modeling unit = 1 intended Roblox stud; verify importer scale",
+  "pivot": "ground-center",
+  "blender_up": "+Z",
+  "fbx_up": "+Y",
+  "texture": "palette.png",
+  "assets": [
+    {
+      "name": "FP_Snow_Rock_Wide",
+      "file": "FP_Snow_Rock_Wide.fbx",
+      "dimensions_studs_xyz": [
+        4.6076,
+        2.6258,
+        3.3431
+      ],
+      "triangles": 560,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "FP_Snow_Rock_Tall",
+      "file": "FP_Snow_Rock_Tall.fbx",
+      "dimensions_studs_xyz": [
+        3.551,
+        3.6008,
+        2.716
+      ],
+      "triangles": 560,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "FP_Snow_Fir_Tree",
+      "file": "FP_Snow_Fir_Tree.fbx",
+      "dimensions_studs_xyz": [
+        4.895,
+        9.2653,
+        5.1138
+      ],
+      "triangles": 440,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "FP_Snow_Fir_Sapling",
+      "file": "FP_Snow_Fir_Sapling.fbx",
+      "dimensions_studs_xyz": [
+        2.8391,
+        5.0657,
+        2.966
+      ],
+      "triangles": 440,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "FP_Snow_Drift",
+      "file": "FP_Snow_Drift.fbx",
+      "dimensions_studs_xyz": [
+        4.8851,
+        1.314,
+        2.7908
+      ],
+      "triangles": 160,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "FP_Icicle_Cluster",
+      "file": "FP_Icicle_Cluster.fbx",
+      "dimensions_studs_xyz": [
+        3.2,
+        2.23,
+        0.4711
+      ],
+      "triangles": 252,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "FP_Supply_Crate",
+      "file": "FP_Supply_Crate.fbx",
+      "dimensions_studs_xyz": [
+        2.6886,
+        2.4087,
+        2.65
+      ],
+      "triangles": 356,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "FP_Rope_Coil",
+      "file": "FP_Rope_Coil.fbx",
+      "dimensions_studs_xyz": [
+        2.5762,
+        0.2319,
+        2.1408
+      ],
+      "triangles": 1948,
+      "nonmanifold_edges": 0
+    }
+  ]
+}

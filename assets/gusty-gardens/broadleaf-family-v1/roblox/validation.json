@@ -1,0 +1,103 @@
+{
+  "status": "passed",
+  "components": [
+    {
+      "name": "GG_Broadleaf_A_Wood",
+      "triangles": 10462,
+      "bounds_centers_geometry_uv_normals": "passed",
+      "imported_maps": [
+        "gusty-broadleaf-color",
+        "gusty-broadleaf-normal",
+        "gusty-broadleaf-roughness"
+      ]
+    },
+    {
+      "name": "GG_Broadleaf_A_Leaves_1",
+      "triangles": 16000,
+      "bounds_centers_geometry_uv_normals": "passed",
+      "imported_maps": [
+        "gusty-broadleaf-color",
+        "gusty-broadleaf-normal",
+        "gusty-broadleaf-roughness"
+      ]
+    },
+    {
+      "name": "GG_Broadleaf_A_Leaves_2",
+      "triangles": 11840,
+      "bounds_centers_geometry_uv_normals": "passed",
+      "imported_maps": [
+        "gusty-broadleaf-color",
+        "gusty-broadleaf-normal",
+        "gusty-broadleaf-roughness"
+      ]
+    },
+    {
+      "name": "GG_Broadleaf_B_Wood",
+      "triangles": 10462,
+      "bounds_centers_geometry_uv_normals": "passed",
+      "imported_maps": [
+        "gusty-broadleaf-color",
+        "gusty-broadleaf-normal",
+        "gusty-broadleaf-roughness"
+      ]
+    },
+    {
+      "name": "GG_Broadleaf_B_Leaves_1",
+      "triangles": 16000,
+      "bounds_centers_geometry_uv_normals": "passed",
+      "imported_maps": [
+        "gusty-broadleaf-color",
+        "gusty-broadleaf-normal",
+        "gusty-broadleaf-roughness"
+      ]
+    },
+    {
+      "name": "GG_Broadleaf_B_Leaves_2",
+      "triangles": 11840,
+      "bounds_centers_geometry_uv_normals": "passed",
+      "imported_maps": [
+        "gusty-broadleaf-color",
+        "gusty-broadleaf-normal",
+        "gusty-broadleaf-roughness"
+      ]
+    },
+    {
+      "name": "GG_Broadleaf_C_Wood",
+      "triangles": 8686,
+      "bounds_centers_geometry_uv_normals": "passed",
+      "imported_maps": [
+        "gusty-broadleaf-color",
+        "gusty-broadleaf-normal",
+        "gusty-broadleaf-roughness"
+      ]
+    },
+    {
+      "name": "GG_Broadleaf_C_Leaves_1",
+      "triangles": 16000,
+      "bounds_centers_geometry_uv_normals": "passed",
+      "imported_maps": [
+        "gusty-broadleaf-color",
+        "gusty-broadleaf-normal",
+        "gusty-broadleaf-roughness"
+      ]
+    },
+    {
+      "name": "GG_Broadleaf_C_Leaves_2",
+      "triangles": 4880,
+      "bounds_centers_geometry_uv_normals": "passed",
+      "imported_maps": [
+        "gusty-broadleaf-color",
+        "gusty-broadleaf-normal",
+        "gusty-broadleaf-roughness"
+      ]
+    }
+  ],
+  "bundle_components": 9,
+  "bundle_bounds_centers": "passed",
+  "external_maps": [
+    "gusty-broadleaf-color.png",
+    "gusty-broadleaf-normal.png",
+    "gusty-broadleaf-roughness.png"
+  ],
+  "total_triangles": 106170
+}

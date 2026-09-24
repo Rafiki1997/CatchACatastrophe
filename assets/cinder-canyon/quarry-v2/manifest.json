@@ -1,0 +1,229 @@
+{
+  "version": 2,
+  "bundle": "CinderQuarryBundle.fbx",
+  "texture": "quarry-palette.png",
+  "units": "one modeling unit = one intended Roblox stud; verify import scale",
+  "blender_front": "+Y",
+  "roblox_front": "-Z",
+  "blender_up": "+Z",
+  "roblox_up": "+Y",
+  "pivot": "base-center",
+  "assets": [
+    {
+      "name": "CC_Quarry_Mine",
+      "file": "CC_Quarry_Mine.fbx",
+      "dimensions_studs_xyz": [
+        64,
+        42,
+        48
+      ],
+      "sockets_roblox_xyz_from_base": {
+        "Lantern": [
+          -17.6773,
+          16.8,
+          -20.5134
+        ],
+        "DoorBase": [
+          -0.2121,
+          0.0,
+          -19.5395
+        ],
+        "DoorHeader": [
+          -0.2121,
+          21.0,
+          -19.5395
+        ]
+      },
+      "triangles": 3572,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "CC_Quarry_Terrace",
+      "file": "CC_Quarry_Terrace.fbx",
+      "dimensions_studs_xyz": [
+        72,
+        36,
+        56
+      ],
+      "sockets_roblox_xyz_from_base": {
+        "HoistBase": [
+          3.9204,
+          36.0,
+          9.501
+        ],
+        "LavaUpperLip": [
+          -24.0018,
+          20.0,
+          -10.4575
+        ],
+        "LavaLowerLip": [
+          -24.0018,
+          10.0,
+          -18.8611
+        ],
+        "LavaFoot": [
+          -24.0018,
+          0.5,
+          -26.2142
+        ],
+        "Crystal01": [
+          -14.0296,
+          19.0,
+          -12.5584
+        ],
+        "Crystal02": [
+          10.9009,
+          13.0,
+          -20.962
+        ]
+      },
+      "triangles": 1876,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "CC_Quarry_Hoist",
+      "file": "CC_Quarry_Hoist.fbx",
+      "dimensions_studs_xyz": [
+        20,
+        22,
+        16
+      ],
+      "sockets_roblox_xyz_from_base": {
+        "Pulley": [
+          0.0,
+          19.4057,
+          -2.4
+        ],
+        "LoadCenter": [
+          0.0,
+          6.7453,
+          -2.4
+        ]
+      },
+      "triangles": 2404,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "CC_Quarry_Cart",
+      "file": "CC_Quarry_Cart.fbx",
+      "dimensions_studs_xyz": [
+        11,
+        8,
+        14
+      ],
+      "sockets_roblox_xyz_from_base": {
+        "OreGlow": [
+          0.0,
+          6.6581,
+          -0.0
+        ]
+      },
+      "triangles": 996,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "CC_Quarry_Rail",
+      "file": "CC_Quarry_Rail.fbx",
+      "dimensions_studs_xyz": [
+        12,
+        1,
+        26
+      ],
+      "sockets_roblox_xyz_from_base": {
+        "TrackCenter": [
+          0.0,
+          0.8571,
+          -0.0
+        ]
+      },
+      "triangles": 792,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "CC_Quarry_Mesa_Large",
+      "file": "CC_Quarry_Mesa_Large.fbx",
+      "dimensions_studs_xyz": [
+        27,
+        22,
+        21
+      ],
+      "sockets_roblox_xyz_from_base": {},
+      "triangles": 592,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "CC_Quarry_Mesa_Low",
+      "file": "CC_Quarry_Mesa_Low.fbx",
+      "dimensions_studs_xyz": [
+        22,
+        11,
+        17
+      ],
+      "sockets_roblox_xyz_from_base": {},
+      "triangles": 444,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "CC_Quarry_Cactus_Tall",
+      "file": "CC_Quarry_Cactus_Tall.fbx",
+      "dimensions_studs_xyz": [
+        9,
+        17,
+        7
+      ],
+      "sockets_roblox_xyz_from_base": {},
+      "triangles": 1180,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "CC_Quarry_Cactus_Round",
+      "file": "CC_Quarry_Cactus_Round.fbx",
+      "dimensions_studs_xyz": [
+        7,
+        6,
+        7
+      ],
+      "sockets_roblox_xyz_from_base": {},
+      "triangles": 948,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "CC_Quarry_Agave",
+      "file": "CC_Quarry_Agave.fbx",
+      "dimensions_studs_xyz": [
+        11,
+        7,
+        11
+      ],
+      "sockets_roblox_xyz_from_base": {},
+      "triangles": 960,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "CC_Quarry_Flowers",
+      "file": "CC_Quarry_Flowers.fbx",
+      "dimensions_studs_xyz": [
+        6,
+        4,
+        6
+      ],
+      "sockets_roblox_xyz_from_base": {},
+      "triangles": 1240,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "CC_Quarry_Crate",
+      "file": "CC_Quarry_Crate.fbx",
+      "dimensions_studs_xyz": [
+        6,
+        6,
+        6
+      ],
+      "sockets_roblox_xyz_from_base": {},
+      "triangles": 1364,
+      "nonmanifold_edges": 0
+    }
+  ],
+  "collision": "decorative meshes; use explicit layout collision proxies; no physics/interaction changes",
+  "glow": "colors only; Claude supplies lava, lantern lights and optional ore glow separately"
+}

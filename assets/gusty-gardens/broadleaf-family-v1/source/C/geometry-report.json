@@ -1,0 +1,83 @@
+{
+  "status": "Source art for user review; not optimized, exported, approved, or integrated",
+  "seed": 92526,
+  "variant": "C",
+  "unit": "1 Blender unit = 1 intended Roblox stud",
+  "modeled_leaves": 2610,
+  "source_target": "GustyGardens.bigTree perimeter sites, not legacy GG_Windbent_Tree placements",
+  "sockets_roblox": {
+    "TrunkBase": [
+      0,
+      0,
+      0
+    ]
+  },
+  "components": [
+    {
+      "name": "GG_Broadleaf_A_Bark",
+      "triangles": 6856,
+      "nonmanifold_edges": 0,
+      "degenerate_faces": 0,
+      "size_roblox_whd": [
+        12.132853984832764,
+        16.25892448425293,
+        11.18935251235962
+      ],
+      "center_roblox": [
+        0.21486735343933105,
+        8.129462242126465,
+        0.12470698356628418
+      ]
+    },
+    {
+      "name": "GG_Broadleaf_A_BarkRidges",
+      "triangles": 1830,
+      "nonmanifold_edges": 0,
+      "degenerate_faces": 0,
+      "size_roblox_whd": [
+        2.999048948287964,
+        11.340197950601578,
+        2.749458074569702
+      ],
+      "center_roblox": [
+        0.2272806167602539,
+        5.846530243754387,
+        -0.0007383823394775391
+      ]
+    },
+    {
+      "name": "GG_Broadleaf_A_Leaves",
+      "triangles": 62640,
+      "nonmanifold_edges": 0,
+      "degenerate_faces": 0,
+      "size_roblox_whd": [
+        15.676057815551758,
+        12.236293315887451,
+        14.641135692596436
+      ],
+      "center_roblox": [
+        0.1380290985107422,
+        11.861852884292603,
+        0.07943224906921387
+      ]
+    }
+  ],
+  "triangles": 71326,
+  "bounds_blender": {
+    "min": [
+      -7.699999809265137,
+      -7.400000095367432,
+      0.0
+    ],
+    "max": [
+      7.976058006286621,
+      7.241135597229004,
+      17.979999542236328
+    ]
+  },
+  "dimensions_roblox_whd": [
+    15.676057815551758,
+    17.979999542236328,
+    14.641135692596436
+  ]
+}

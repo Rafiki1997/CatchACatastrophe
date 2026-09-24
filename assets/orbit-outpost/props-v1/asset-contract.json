@@ -1,0 +1,140 @@
+{
+  "version": 1,
+  "assets": [
+    {
+      "name": "OO_Gravity_Cradle",
+      "dimensions_studs_xyz": [
+        16,
+        22,
+        16
+      ],
+      "role": "Three-pronged gravity machine, static structural art"
+    },
+    {
+      "name": "OO_Gravity_Meteor",
+      "dimensions_studs_xyz": [
+        6,
+        11,
+        6
+      ],
+      "role": "Faceted floating amethyst; bottom origin even while suspended"
+    },
+    {
+      "name": "OO_Orbit_Stone",
+      "dimensions_studs_xyz": [
+        2.8,
+        2.4,
+        2.6
+      ],
+      "role": "Small suspended moon rock; separate mesh for later motion"
+    },
+    {
+      "name": "OO_Lunar_Boulder",
+      "dimensions_studs_xyz": [
+        8,
+        4,
+        6
+      ],
+      "role": "Peripheral low lunar rock group"
+    },
+    {
+      "name": "OO_Crystal_Cluster",
+      "dimensions_studs_xyz": [
+        4,
+        5,
+        4
+      ],
+      "role": "Amethyst sprouts on a rocky base"
+    },
+    {
+      "name": "OO_Alien_Mushroom_Tall",
+      "dimensions_studs_xyz": [
+        6,
+        7,
+        5
+      ],
+      "role": "Large layered purple mushroom"
+    },
+    {
+      "name": "OO_Alien_Mushroom_Cluster",
+      "dimensions_studs_xyz": [
+        4,
+        3,
+        3
+      ],
+      "role": "Small companion mushroom cluster"
+    },
+    {
+      "name": "OO_Alien_Fern",
+      "dimensions_studs_xyz": [
+        4,
+        3,
+        4
+      ],
+      "role": "Purple faceted broad-leaf plant"
+    },
+    {
+      "name": "OO_Star_Bloom_Tuft",
+      "dimensions_studs_xyz": [
+        3,
+        1.2,
+        3
+      ],
+      "role": "Small cyan flower/groundcover cluster"
+    },
+    {
+      "name": "OO_Survey_Drone",
+      "dimensions_studs_xyz": [
+        3.2,
+        2.8,
+        3.2
+      ],
+      "role": "Round ivory survey drone with cyan lens"
+    },
+    {
+      "name": "OO_Drone_Dock",
+      "dimensions_studs_xyz": [
+        5,
+        1.5,
+        5
+      ],
+      "role": "Ground-supported survey drone pad"
+    },
+    {
+      "name": "OO_Sample_Pod",
+      "dimensions_studs_xyz": [
+        3,
+        4,
+        3
+      ],
+      "role": "Closed research specimen container"
+    },
+    {
+      "name": "OO_Cosmic_Beacon",
+      "dimensions_studs_xyz": [
+        1.2,
+        3,
+        1.2
+      ],
+      "role": "Small static pathway light housing"
+    },
+    {
+      "name": "OO_Field_Lab_Base",
+      "dimensions_studs_xyz": [
+        16,
+        5,
+        16
+      ],
+      "role": "Closed ivory laboratory facade with warm window inserts"
+    },
+    {
+      "name": "OO_Field_Lab_Dome_Frame",
+      "dimensions_studs_xyz": [
+        16,
+        6.5,
+        16
+      ],
+      "role": "Open dome ribs; transparent infill belongs to Claude's blockout"
+    }
+  ]
+}

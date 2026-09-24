@@ -1,0 +1,233 @@
+{
+  "captured": "2026-09-21",
+  "placeId": 88888194204730,
+  "template": "src/server/Map/OrbitPropTemplates.rbxm",
+  "placements": 51,
+  "meshes": [
+    {
+      "name": "OO_Alien_Fern",
+      "nativeMeshSize": [
+        372.3636474609375,
+        279.2727355957031,
+        372.3636474609375
+      ],
+      "meshId": "rbxassetid://100710595335701",
+      "size": [
+        4,
+        3,
+        4
+      ],
+      "textureId": "rbxassetid://130269394998125"
+    },
+    {
+      "name": "OO_Alien_Mushroom_Tall",
+      "nativeMeshSize": [
+        558.5454711914062,
+        651.6363525390625,
+        465.4545593261719
+      ],
+      "meshId": "rbxassetid://76674806986787",
+      "size": [
+        6,
+        7,
+        5
+      ],
+      "textureId": "rbxassetid://130269394998125"
+    },
+    {
+      "name": "OO_Cosmic_Beacon",
+      "nativeMeshSize": [
+        111.70909118652344,
+        279.27276611328125,
+        111.70909118652344
+      ],
+      "meshId": "rbxassetid://111636034941338",
+      "size": [
+        1.2000000476837158,
+        3,
+        1.2000000476837158
+      ],
+      "textureId": "rbxassetid://130269394998125"
+    },
+    {
+      "name": "OO_Lunar_Boulder",
+      "nativeMeshSize": [
+        744.727294921875,
+        372.3636474609375,
+        558.5454711914062
+      ],
+      "meshId": "rbxassetid://79554106312667",
+      "size": [
+        8,
+        4,
+        6
+      ],
+      "textureId": "rbxassetid://130269394998125"
+    },
+    {
+      "name": "OO_Gravity_Meteor",
+      "nativeMeshSize": [
+        558.5454711914062,
+        1024,
+        558.5454711914062
+      ],
+      "meshId": "rbxassetid://134953213864693",
+      "size": [
+        6,
+        11,
+        6
+      ],
+      "textureId": "rbxassetid://130269394998125"
+    },
+    {
+      "name": "OO_Crystal_Cluster",
+      "nativeMeshSize": [
+        372.3636474609375,
+        465.4545593261719,
+        372.3636474609375
+      ],
+      "meshId": "rbxassetid://101753925764841",
+      "size": [
+        4,
+        5,
+        4
+      ],
+      "textureId": "rbxassetid://130269394998125"
+    },
+    {
+      "name": "OO_Field_Lab_Base",
+      "nativeMeshSize": [
+        1489.45458984375,
+        465.45477294921875,
+        1489.45458984375
+      ],
+      "meshId": "rbxassetid://91688786961399",
+      "size": [
+        16,
+        5,
+        16
+      ],
+      "textureId": "rbxassetid://130269394998125"
+    },
+    {
+      "name": "OO_Star_Bloom_Tuft",
+      "nativeMeshSize": [
+        279.2727355957031,
+        111.70913696289062,
+        279.2727355957031
+      ],
+      "meshId": "rbxassetid://77465707876800",
+      "size": [
+        3,
+        1.2000000476837158,
+        3
+      ],
+      "textureId": "rbxassetid://130269394998125"
+    },
+    {
+      "name": "OO_Field_Lab_Dome_Frame",
+      "nativeMeshSize": [
+        1489.45458984375,
+        605.0910034179688,
+        1489.45458984375
+      ],
+      "meshId": "rbxassetid://107026019271974",
+      "size": [
+        16,
+        6.5,
+        16
+      ],
+      "textureId": "rbxassetid://130269394998125"
+    },
+    {
+      "name": "OO_Gravity_Cradle",
+      "nativeMeshSize": [
+        1489.4544677734375,
+        2048,
+        1489.4544677734375
+      ],
+      "meshId": "rbxassetid://119300492112132",
+      "size": [
+        16,
+        22,
+        16
+      ],
+      "textureId": "rbxassetid://130269394998125"
+    },
+    {
+      "name": "OO_Sample_Pod",
+      "nativeMeshSize": [
+        279.2727355957031,
+        372.3636474609375,
+        279.2727355957031
+      ],
+      "meshId": "rbxassetid://80861736542886",
+      "size": [
+        3,
+        4,
+        3
+      ],
+      "textureId": "rbxassetid://130269394998125"
+    },
+    {
+      "name": "OO_Drone_Dock",
+      "nativeMeshSize": [
+        465.4545593261719,
+        139.6364288330078,
+        465.4545593261719
+      ],
+      "meshId": "rbxassetid://76688300460179",
+      "size": [
+        5,
+        1.5,
+        5
+      ],
+      "textureId": "rbxassetid://130269394998125"
+    },
+    {
+      "name": "OO_Survey_Drone",
+      "nativeMeshSize": [
+        297.8908996582031,
+        260.6545715332031,
+        297.8908996582031
+      ],
+      "meshId": "rbxassetid://79896866411102",
+      "size": [
+        3.200000047683716,
+        2.799999952316284,
+        3.200000047683716
+      ],
+      "textureId": "rbxassetid://130269394998125"
+    },
+    {
+      "name": "OO_Alien_Mushroom_Cluster",
+      "nativeMeshSize": [
+        372.3636474609375,
+        279.272705078125,
+        279.2727355957031
+      ],
+      "meshId": "rbxassetid://123052047635836",
+      "size": [
+        4,
+        3,
+        3
+      ],
+      "textureId": "rbxassetid://130269394998125"
+    },
+    {
+      "name": "OO_Orbit_Stone",
+      "nativeMeshSize": [
+        260.654541015625,
+        223.41819763183594,
+        242.03636169433594
+      ],
+      "meshId": "rbxassetid://71402932828133",
+      "size": [
+        2.799999952316284,
+        2.4000000953674316,
+        2.5999999046325684
+      ],
+      "textureId": "rbxassetid://130269394998125"
+    }
+  ]
+}

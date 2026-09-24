@@ -1,0 +1,62 @@
+{
+  "status": "A thinner-leaf treatment approved 2026-09-23; B/C derived structural variants",
+  "variants": [
+    {
+      "id": "A",
+      "label": "Meadow",
+      "collection": "GG_Broadleaf_A_Meadow",
+      "gallery_x": -23,
+      "bounds_blender": {
+        "min": [
+          -9.79181957244873,
+          -9.47238540649414,
+          0.0
+        ],
+        "max": [
+          10.199999809265137,
+          9.399999618530273,
+          17.95049476623535
+        ]
+      },
+      "source_triangles": 93982
+    },
+    {
+      "id": "B",
+      "label": "Spreading",
+      "collection": "GG_Broadleaf_B_Spreading",
+      "gallery_x": 0,
+      "bounds_blender": {
+        "min": [
+          -9.575593948364258,
+          -9.351897239685059,
+          0.0
+        ],
+        "max": [
+          10.199999809265137,
+          9.399999618530273,
+          16.799999237060547
+        ]
+      },
+      "source_triangles": 93982
+    },
+    {
+      "id": "C",
+      "label": "Upright",
+      "collection": "GG_Broadleaf_C_Upright",
+      "gallery_x": 23,
+      "bounds_blender": {
+        "min": [
+          -7.699999809265137,
+          -7.400000095367432,
+          0.0
+        ],
+        "max": [
+          7.976058006286621,
+          7.241135597229004,
+          17.979999542236328
+        ]
+      },
+      "source_triangles": 71326
+    }
+  ]
+}

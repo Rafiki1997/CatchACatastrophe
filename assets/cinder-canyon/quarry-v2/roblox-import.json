@@ -1,0 +1,190 @@
+{
+  "captured": "2026-09-22",
+  "template": "src/server/Map/CinderQuarryTemplates.rbxm",
+  "bytes": 105291,
+  "meshes": [
+    {
+      "name": "CC_Quarry_Mine",
+      "nativeMeshSize": [
+        1820.4444580078125,
+        1194.6669921875,
+        1365.3333740234375
+      ],
+      "meshId": "rbxassetid://86863314152937",
+      "size": [
+        64,
+        42,
+        48
+      ],
+      "textureId": "rbxassetid://77487601183591"
+    },
+    {
+      "name": "CC_Quarry_Terrace",
+      "nativeMeshSize": [
+        2048,
+        1024.000244140625,
+        1592.888916015625
+      ],
+      "meshId": "rbxassetid://99752876908811",
+      "size": [
+        72,
+        36,
+        56
+      ],
+      "textureId": "rbxassetid://77487601183591"
+    },
+    {
+      "name": "CC_Quarry_Hoist",
+      "nativeMeshSize": [
+        568.888916015625,
+        625.77783203125,
+        455.1111145019531
+      ],
+      "meshId": "rbxassetid://133484191887938",
+      "size": [
+        20,
+        22,
+        16
+      ],
+      "textureId": "rbxassetid://77487601183591"
+    },
+    {
+      "name": "CC_Quarry_Cart",
+      "nativeMeshSize": [
+        312.8888854980469,
+        227.55555725097656,
+        398.22222900390625
+      ],
+      "meshId": "rbxassetid://77997493036599",
+      "size": [
+        11,
+        8,
+        14
+      ],
+      "textureId": "rbxassetid://77487601183591"
+    },
+    {
+      "name": "CC_Quarry_Rail",
+      "nativeMeshSize": [
+        341.3333435058594,
+        28.444561004638672,
+        739.5556030273438
+      ],
+      "meshId": "rbxassetid://112384105608902",
+      "size": [
+        12,
+        1,
+        26
+      ],
+      "textureId": "rbxassetid://77487601183591"
+    },
+    {
+      "name": "CC_Quarry_Mesa_Large",
+      "nativeMeshSize": [
+        768,
+        625.77783203125,
+        597.333251953125
+      ],
+      "meshId": "rbxassetid://124056516310583",
+      "size": [
+        27,
+        22,
+        21
+      ],
+      "textureId": "rbxassetid://77487601183591"
+    },
+    {
+      "name": "CC_Quarry_Mesa_Low",
+      "nativeMeshSize": [
+        625.7777709960938,
+        312.88897705078125,
+        483.5555725097656
+      ],
+      "meshId": "rbxassetid://70487040296698",
+      "size": [
+        22,
+        11,
+        17
+      ],
+      "textureId": "rbxassetid://77487601183591"
+    },
+    {
+      "name": "CC_Quarry_Cactus_Tall",
+      "nativeMeshSize": [
+        256,
+        483.55560302734375,
+        199.1111297607422
+      ],
+      "meshId": "rbxassetid://120422201403139",
+      "size": [
+        9,
+        17,
+        7
+      ],
+      "textureId": "rbxassetid://77487601183591"
+    },
+    {
+      "name": "CC_Quarry_Cactus_Round",
+      "nativeMeshSize": [
+        199.11111450195312,
+        170.6666717529297,
+        199.11111450195312
+      ],
+      "meshId": "rbxassetid://87464044334769",
+      "size": [
+        7,
+        6,
+        7
+      ],
+      "textureId": "rbxassetid://77487601183591"
+    },
+    {
+      "name": "CC_Quarry_Agave",
+      "nativeMeshSize": [
+        312.8888854980469,
+        199.11111450195312,
+        312.8888854980469
+      ],
+      "meshId": "rbxassetid://77687978975820",
+      "size": [
+        11,
+        7,
+        11
+      ],
+      "textureId": "rbxassetid://77487601183591"
+    },
+    {
+      "name": "CC_Quarry_Flowers",
+      "nativeMeshSize": [
+        170.6666717529297,
+        113.77778625488281,
+        170.6666717529297
+      ],
+      "meshId": "rbxassetid://126960284041308",
+      "size": [
+        6,
+        4,
+        6
+      ],
+      "textureId": "rbxassetid://77487601183591"
+    },
+    {
+      "name": "CC_Quarry_Crate",
+      "nativeMeshSize": [
+        170.6666717529297,
+        170.6667022705078,
+        170.6666717529297
+      ],
+      "meshId": "rbxassetid://125741472666716",
+      "size": [
+        6,
+        6,
+        6
+      ],
+      "textureId": "rbxassetid://77487601183591"
+    }
+  ],
+  "length": 140388,
+  "placeId": 88888194204730,
+  "importScale": 28.44444465637207
+}
